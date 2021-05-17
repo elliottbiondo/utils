@@ -147,10 +147,10 @@ void create_isotropic(const char*        hepmc3_output,
 
 //---------------------------------------------------------------------------//
 /*!
- * Produce HepMC3 input files for the Celeritas' Demo apps.
+ * Produce HepMC3 input files for Celeritas demo-loop app.
  *
  * Possible HepMC3 files:
- * - Simple isotropic source.
+ * - Spherical isotropic photon source with fixed energy.
  * - Photons from original Pythia8 CMS HEPEVT files.
  */
 int main(int argc, char* argv[])
@@ -178,12 +178,13 @@ int main(int argc, char* argv[])
 
     else
     {
+        // Print help message
         std::cout << "Usage:" << std::endl;
         std::cout << argv[0]
                   << " [isotropic_out.hepmc3] [num_events] "
                      "[num_particles_per_event] [particle_energy_MeV]"
                   << std::endl;
-        std::cout << argv[0] << " pythia_hepevt.data pythia_out.hepmc3"
+        std::cout << argv[0] << " [pythia_hepevt.data] [pythia_out.hepmc3]"
                   << std::endl;
 
         return EXIT_FAILURE;
