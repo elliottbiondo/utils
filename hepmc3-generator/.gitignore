@@ -1,0 +1,10 @@
+*~
+*.swp
+*.cache
+*.pyc
+*.hepmc3
+*.root
+.DS_Store
+.vscode
+compile_commands.json
+/[bB]*
