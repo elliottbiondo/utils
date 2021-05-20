@@ -6,6 +6,7 @@
 //! \file vgapp.cc
 //---------------------------------------------------------------------------//
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <fstream>
 #include <string>
@@ -33,7 +34,7 @@ using VolumeMap = std::map<unsigned int, Volume>;
 
 //---------------------------------------------------------------------------//
 /*!
- * Define operator << to print a full table with the GeoTestMap data.
+ * Define operator << to print a full table with the VolumeMap data.
  */
 std::ostream& operator<<(std::ostream& os, const vgapp::VolumeMap& map)
 {
@@ -67,7 +68,7 @@ std::ostream& operator<<(std::ostream& os, const vgapp::VolumeMap& map)
     os << " | ";
     os << std::endl;
 
-    // Table contents
+    // Table content
     for (const auto key : map)
     {
         os << "| " << std::left << std::setw(width_ids) << key.first << " | "

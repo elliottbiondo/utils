@@ -129,7 +129,7 @@ std::ostream& operator<<(std::ostream& os, const GeometryStore::GeoTestMap& map)
     os << " | ";
     os << std::endl;
 
-    // Table contents
+    // Table content
     for (const auto key : map)
     {
         os << "| " << std::left << std::setw(width_ids) << key.first << " | "
