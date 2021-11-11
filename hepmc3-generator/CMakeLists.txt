@@ -16,20 +16,15 @@ find_package(HepMC3 REQUIRED)
 #----------------------------------------------------------------------------#
 # Add executable
 #----------------------------------------------------------------------------#
-add_executable(hepmc3-gen-app hepmc3-gen.cc
+add_executable(hepmc3-gen hepmc3-gen.cc
   src/Hepevt.hh  
 )
 
-target_include_directories(hepmc3-gen-app PRIVATE
+target_include_directories(hepmc3-gen PRIVATE
   ${PROJECT_SOURCE_DIR}/src
   ${HEPMC3_INCLUDE_DIR}
 )
 
-target_link_libraries(hepmc3-gen-app PRIVATE
+target_link_libraries(hepmc3-gen PRIVATE
   ${HEPMC3_LIB}
 )
-
-#----------------------------------------------------------------------------#
-# Install the executable in the current directory
-#----------------------------------------------------------------------------#
-install(TARGETS hepmc3-gen-app DESTINATION .)

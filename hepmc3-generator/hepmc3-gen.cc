@@ -18,6 +18,7 @@
 
 #include "src/Hepevt.hh"
 
+using std::abs;
 using std::cos;
 using std::pow;
 using std::sin;
@@ -30,9 +31,8 @@ using std::sqrt;
 void from_pythia(const char* pythia_input, const char* hepmc3_output)
 {
     // Load pythia_input and create HepMC3 writer
-    std::ifstream                        pythia_file(pythia_input);
-    std::shared_ptr<HepMC3::WriterAscii> hepmc3_writer
-        = std::make_shared<HepMC3::WriterAscii>(hepmc3_output);
+    std::ifstream pythia_file(pythia_input);
+    auto hepmc3_writer = std::make_shared<HepMC3::WriterAscii>(hepmc3_output);
 
     std::string  line;
     unsigned int event_number = 0;
@@ -102,10 +102,10 @@ void from_pythia(const char* pythia_input, const char* hepmc3_output)
 void create_isotropic(const char*        hepmc3_output,
                       const unsigned int num_events,
                       const unsigned int num_part_per_event,
+                      const int          pdg_id,
                       const double       particle_energy)
 {
-    std::shared_ptr<HepMC3::WriterAscii> hepmc3_writer
-        = std::make_shared<HepMC3::WriterAscii>(hepmc3_output);
+    auto hepmc3_writer = std::make_shared<HepMC3::WriterAscii>(hepmc3_output);
 
     static constexpr double                pi = 3.141592653589793238;
     std::mt19937                           generator(12345);
@@ -127,14 +127,26 @@ void create_isotropic(const char*        hepmc3_output,
             random_dir[2]      = cos(phi);
 
             HepMC3::GenParticleData gen_particle_data;
-            gen_particle_data.status      = 1;  // Must be tracked
-            gen_particle_data.pid         = 22; // Photon
-            gen_particle_data.is_mass_set = true;
-            gen_particle_data.mass        = 0;
+            gen_particle_data.status      = 1; // Must be tracked
+            gen_particle_data.pid         = pdg_id;
             gen_particle_data.momentum    = {particle_energy * random_dir[0],
                                           particle_energy * random_dir[1],
                                           particle_energy * random_dir[2],
                                           particle_energy};
+            gen_particle_data.is_mass_set = true;
+
+            switch (pdg_id)
+            {
+                case -11:
+                    gen_particle_data.mass = 0.5109989461; //!< [MeV]
+                    break;
+                case 11:
+                    gen_particle_data.mass = 0.5109989461; //!< [MeV]
+                    break;
+                case 22:
+                    gen_particle_data.mass = 0;
+                    break;
+            }
 
             gen_event.add_particle(
                 std::make_shared<HepMC3::GenParticle>(gen_particle_data));
@@ -150,8 +162,15 @@ void create_isotropic(const char*        hepmc3_output,
  * Produce HepMC3 input files for Celeritas demo-loop app.
  *
  * Possible HepMC3 files:
- * - Spherical isotropic photon source with fixed energy.
+ * - Spherically isotropic source with fixed energy.
  * - Photons from original Pythia8 CMS HEPEVT files.
+ *
+ * Usages:
+ * $ ./hepmc3-gen [isotropic.hepmc3] [num_events] [num_part_per_evt] [pdg_id]
+ * [MeV_energy]
+ * ./hepmc3-gen [cms_pythia_hepevt.data] [cms_pythia.hepmc3]
+ *
+ * Currently available PDGs are -11 (e+), 11 (e-), and 22 (gamma).
  */
 int main(int argc, char* argv[])
 {
@@ -164,16 +183,26 @@ int main(int argc, char* argv[])
         from_pythia(pythia_input_file, hepmc3_output_file);
     }
 
-    else if (argc == 5)
+    else if (argc == 6)
     {
         // Create isotropic distribution
         const char*        hepmc3_output_file = argv[1];
         const unsigned int num_events         = std::stoul(argv[2]);
         const unsigned int num_part_per_event = std::stoul(argv[3]);
-        const double       energy             = std::stod(argv[4]);
+        const int          pdg                = std::stoi(argv[4]);
+        const double       energy             = std::stod(argv[5]);
+
+        if (pdg != 22 && abs(pdg) != 11)
+        {
+            std::cout << "Currently available PDGs are -11 (e+), 11 (e-), and "
+                         "22 (gamma)"
+                      << std::endl;
+
+            return EXIT_FAILURE;
+        }
 
         create_isotropic(
-            hepmc3_output_file, num_events, num_part_per_event, energy);
+            hepmc3_output_file, num_events, num_part_per_event, pdg, energy);
     }
 
     else
@@ -182,9 +211,12 @@ int main(int argc, char* argv[])
         std::cout << "Usage:" << std::endl;
         std::cout << argv[0]
                   << " [isotropic_out.hepmc3] [num_events] "
-                     "[num_particles_per_event] [particle_energy_MeV]"
+                     "[num_particles_per_event] [pdg_id] [particle_energy_MeV]"
                   << std::endl;
         std::cout << argv[0] << " [pythia_hepevt.data] [pythia_out.hepmc3]"
+                  << std::endl;
+        std::cout << "Currently available PDGs are -11 (e+), 11 (e-), and "
+                     "22 (gamma)"
                   << std::endl;
 
         return EXIT_FAILURE;
