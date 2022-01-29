@@ -9,7 +9,7 @@ Produce `hepmc3` input files for the Celeritas demo-loop app.
 
 # Build
 ```shell
-$ cd build
+$ mkdir build; cd build
 $ cmake ..
 $ make
 ```
