@@ -15,15 +15,17 @@ $ make
 ```
 
 # Run
-The `hepmc3-gen` app can produce 2 outputs:  
+The `hepmc3-gen` app can produce 3 outputs:  
 
-- Spherical isotropic distribution of primary particles with fixed energy,
-provided the output filename, the number of events, the number of primaries per
-event, the primary's PDG id and energy (**MeV**). Currently available PDGs:
-  - `22`: photon
-  - `11` (`-11`): electron (positron)
+- Spherical isotropic distribution of primary particles with fixed energy. 
 ```shell
 $ ./hepmc3-gen [isotropic.hepmc3] [num_events] [num_part_per_evt] [pdg_id] [MeV_energy]
+```
+
+- Particle gun events with fixed energy, direction, and vertex. Direction and 
+vertex are expressed in cartesian coordinates. Direction is a unit vector.
+```shell
+$ ./hepmc3-gen [isotropic.hepmc3] [num_events] [num_part_per_evt] [pdg_id] [MeV_energy] [cm_direction] [cm_vertex]
 ```
 
 - Parse a CMS Pythia HEPEVT ASCII file and produce an equivalent hepmc3 file by
@@ -31,3 +33,7 @@ selecting only photon primaries:
 ```shell
 $ ./hepmc3-gen [cms_pythia_hepevt.data] [cms_pythia.hepmc3]
 ```
+
+## Currently available PDGs for the first 2 options
+- `22`: photon
+- `11` (`-11`): electron (positron)
