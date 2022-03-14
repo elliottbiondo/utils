@@ -7,8 +7,8 @@
 //---------------------------------------------------------------------------//
 #include <iostream>
 #include <fstream>
-#include <strstream>
-#include <math.h>
+#include <sstream>
+#include <cmath>
 #include <random>
 
 #include <HepMC3/GenEvent.h>
