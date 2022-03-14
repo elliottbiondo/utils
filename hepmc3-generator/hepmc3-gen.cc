@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2020 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2020-2022 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -97,7 +97,9 @@ void from_pythia(const char* pythia_input, const char* hepmc3_output)
 
 //---------------------------------------------------------------------------//
 /*!
- * Create an isotropic distribution of photons from a point source.
+ * Create a spherical isotropic distribution of photons, electrons, or
+ * positrons from a point source. Current implementation places the source at
+ * the origin.
  */
 void create_isotropic(const char*        hepmc3_output,
                       const unsigned int num_events,
@@ -308,7 +310,7 @@ int main(int argc, char* argv[])
         std::cout << argv[0]
                   << " [particle_gun_out.hepmc3] [num events] "
                      "[num particles per event] [pdg] [particle energy "
-                     "(MeV)][particle directions (x, y, z) (cm)] [particle "
+                     "(MeV)] [particle directions (x, y, z) (cm)] [particle "
                      "vertex (x, y, z) (cm)]"
                   << std::endl;
         std::cout << argv[0] << " [pythia_hepevt.data] [pythia_out.hepmc3]"
