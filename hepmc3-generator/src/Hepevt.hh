@@ -11,7 +11,7 @@ namespace hepmc3gen
 {
 //---------------------------------------------------------------------------//
 /*!
- * Store hepevt ascii data.
+ * Store HEPEVT ASCII data.
  *
  * \note
  * CMS Pythia files have a shorter structure than full HEPEVT files.
@@ -20,12 +20,12 @@ namespace hepmc3gen
  * are stored/read by Pythia/Geant4.
  *
  * [ ] "E" [ ] eventNumber [x] numberOfParticles
- *  status PDG mother1 mother2 daughter2 daughter2 Px Py Pz E m x y z t
+ *  status PDG mother1 mother2 daughter1 daughter2 Px Py Pz E m x y z t
  * [  x     x                      x         x     x  x  x    x        ]
  *
- * HepMC3 ReaderHEPEVT reads partial/full HEPEVT files. The "E" at the
- * beginning of the event line definition seems to be mandatory in HepMC3,
- * though it is not in other HEPEVT readers I've encoutered in the past.
+ * The "E" at the beginning of the event line definition seems to be mandatory
+ * in HepMC3, though it is not in other HEPEVT readers I've encoutered in the
+ * past.
  */
 struct HepevtHeader
 {
@@ -35,7 +35,7 @@ struct HepevtHeader
 
 struct HepevtParticle
 {
-    // The struct declaration ordering is the hepevt ascii standard
+    // This declaration ordering is the same as the hepevt ascii standard
     int    status;
     int    pdg;
     int    mother_1;

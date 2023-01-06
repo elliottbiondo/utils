@@ -49,7 +49,7 @@ void from_pythia(const char* pythia_input, const char* hepmc3_output)
         header.event_number = event_number;
 
         // Create GenEvent that will be written in the hepmc3 output file
-        HepMC3::GenEvent gen_event(HepMC3::Units::MEV, HepMC3::Units::CM);
+        HepMC3::GenEvent gen_event(HepMC3::Units::GEV, HepMC3::Units::MM);
         gen_event.set_event_number(header.event_number);
 
         // Loop over all particles in this event
@@ -64,11 +64,13 @@ void from_pythia(const char* pythia_input, const char* hepmc3_output)
                 >> particle.daughter_1 >> particle.daughter_2 >> particle.p_x
                 >> particle.p_y >> particle.p_z >> particle.mass;
 
+#if 0
             if (particle.pdg != 22)
             {
                 // Skip any particle that is not a photon
                 continue;
             }
+#endif
 
             // Calculate energy
             const double p_squared = particle.p_x * particle.p_x
@@ -132,9 +134,9 @@ void create_isotropic(const char*        hepmc3_output,
             gen_particle_data.status      = 1; // Must be tracked
             gen_particle_data.pid         = pdg_id;
             gen_particle_data.momentum    = {particle_energy * random_dir[0],
-                                          particle_energy * random_dir[1],
-                                          particle_energy * random_dir[2],
-                                          particle_energy};
+                                             particle_energy * random_dir[1],
+                                             particle_energy * random_dir[2],
+                                             particle_energy};
             gen_particle_data.is_mass_set = true;
 
             switch (pdg_id)
@@ -190,9 +192,9 @@ void create_particle_gun(const char*        hepmc3_output,
             gen_particle_data.status      = 1; // Must be tracked
             gen_particle_data.pid         = pdg_id;
             gen_particle_data.momentum    = {energy * direction[0],
-                                          energy * direction[1],
-                                          energy * direction[2],
-                                          energy};
+                                             energy * direction[1],
+                                             energy * direction[2],
+                                             energy};
             gen_particle_data.is_mass_set = true;
 
             switch (pdg_id)
