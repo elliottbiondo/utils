@@ -41,7 +41,6 @@ void from_pythia(const char* pythia_input, const char* hepmc3_output)
     while (std::getline(pythia_file, line))
     {
         std::istringstream str_stream_header(line);
-        event_number++;
 
         // Store header information
         hepmc3gen::HepevtHeader header;
@@ -92,6 +91,7 @@ void from_pythia(const char* pythia_input, const char* hepmc3_output)
                 std::make_shared<HepMC3::GenParticle>(gen_particle_data));
         }
         hepmc3_writer->write_event(gen_event);
+        event_number++;
     }
 
     hepmc3_writer->close();
