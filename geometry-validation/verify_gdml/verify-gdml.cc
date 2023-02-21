@@ -52,8 +52,11 @@ int main(int argc, char* argv[])
     run_manager.Initialize();
     run_manager.RunInitialization();
 
-    auto geometry_store = GeometryStore();
-    geometry_store.save("cmshllhc-parse.md");
+    auto        geometry_store = GeometryStore();
+    std::string parsed_file    = gdml_filename;
+    parsed_file.resize(parsed_file.size() - 5);
+    parsed_file += "-parsed.md";
+    geometry_store.save(parsed_file);
 
     return EXIT_SUCCESS;
 }

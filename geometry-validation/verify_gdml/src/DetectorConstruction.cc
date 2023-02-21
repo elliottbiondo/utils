@@ -17,6 +17,7 @@ DetectorConstruction::DetectorConstruction(std::string gdml_filename)
 
 {
     G4GDMLParser gdml_parser;
+    gdml_parser.SetStripFlag(false);
     gdml_parser.Read(gdml_filename, false);
     world_phys_vol_.reset(gdml_parser.GetWorldVolume());
 }
