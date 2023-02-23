@@ -5,12 +5,11 @@
 //---------------------------------------------------------------------------//
 //! \file vgapp.cc
 //---------------------------------------------------------------------------//
-#include <iostream>
-#include <iomanip>
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <string>
-
 #include <VecGeom/gdml/Frontend.h>
 #include <VecGeom/gdml/Middleware.h>
 #include <VecGeom/management/GeoManager.h>
@@ -95,8 +94,9 @@ int main(int argc, char* argv[])
     }
 
     // Load gdml
-    std::string gdml_input = argv[1];
-    const auto  loaded     = vgdml::Frontend::Load(gdml_input);
+    std::string   gdml_input = argv[1];
+    vgdml::Parser parser;
+    const auto    loaded = parser.Load(gdml_input, false);
 
     // Load material and volume information
     vgdml::Middleware::MaterialMap_t  material_map = loaded->GetMaterialMap();
