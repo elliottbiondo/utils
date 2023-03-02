@@ -13,7 +13,21 @@
 #include <string>
 #include <G4PhysicalVolumeStore.hh>
 
-#include "GeometryData.hh"
+//---------------------------------------------------------------------------//
+/*!
+ * Store volume information.
+ */
+struct Volume
+{
+    int         logical_volume_id;
+    int         physical_volume_id;
+    int         material_id;
+    std::string material_name;
+    std::string physical_volume_name;
+    std::string logical_volume_name;
+    int         copy_num;
+    int         num_replicas;
+};
 
 //---------------------------------------------------------------------------//
 /*!
@@ -36,6 +50,9 @@ class GeometryStore
 
     // Save a text output file with the data loaded in this->ids_volumes_
     void save(const std::string filename);
+
+    // Verify if volume ID numbering scheme has any discontinuity
+    bool continuous_volume_ids();
 
   private:
     // Recursive loop over logical volumes

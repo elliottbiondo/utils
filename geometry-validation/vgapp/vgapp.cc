@@ -27,7 +27,7 @@ struct Volume
 };
 
 // Map volume id and Volume
-using VolumeMap = std::map<unsigned int, Volume>;
+using VolumeMap = std::map<int, Volume>;
 
 } // namespace vgapp
 
