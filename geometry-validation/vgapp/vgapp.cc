@@ -104,8 +104,7 @@ int main(int argc, char* argv[])
     const auto    loaded = parser.Load(gdml_input, false);
 
     // Load material and volume information
-    vgdml::Middleware::MaterialMap_t  material_map = loaded->GetMaterialMap();
-    vgdml::Middleware::VolumeMatMap_t vol_mat_map  = loaded->GetVolumeMatMap();
+    vgdml::Middleware::VolumeMatMap_t vol_mat_map = loaded->GetVolumeMatMap();
     std::vector<vecgeom::LogicalVolume*> logical_volumes;
     vecgeom::GeoManager::Instance().GetAllLogicalVolumes(logical_volumes);
 
