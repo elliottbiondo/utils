@@ -37,7 +37,7 @@ using VolumeMap = std::map<int, Volume>;
  */
 std::ostream& operator<<(std::ostream& os, const vgapp::VolumeMap& map)
 {
-    size_t width_ids      = 6 + map.size() / 10;
+    size_t width_ids      = 7;
     size_t width_volume   = 0;
     size_t width_material = 0;
     for (const auto& it : map)
@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& os, const vgapp::VolumeMap& map)
     os << " | ";
     for (int i = 0; i < width_volume; i++)
         os << "-";
-    os << " | ";
+    os << " |";
     os << std::endl;
 
     // Table content
@@ -81,8 +81,8 @@ std::ostream& operator<<(std::ostream& os, const vgapp::VolumeMap& map)
 
 //---------------------------------------------------------------------------//
 /*!
- * Minimal app that loads a gdml input file and prints volume and material
- * information.
+ * Minimal app that loads a gdml input file and generates a .md output file
+ * with volume and material information.
  */
 int main(int argc, char* argv[])
 {
@@ -93,8 +93,13 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    std::string gdml_input = argv[1];
+    std::string md_filename
+        = gdml_input.substr(0, gdml_input.find_last_of('.')) + ".md";
+    std::cout << "Loading geometry and generating " << md_filename << "... ";
+    std::cout.flush();
+
     // Load gdml
-    std::string   gdml_input = argv[1];
     vgdml::Parser parser;
     const auto    loaded = parser.Load(gdml_input, false);
 
@@ -105,7 +110,6 @@ int main(int argc, char* argv[])
     vecgeom::GeoManager::Instance().GetAllLogicalVolumes(logical_volumes);
 
     vgapp::VolumeMap volume_map;
-
     for (const auto& vg_volume : logical_volumes)
     {
         vgapp::Volume volume;
@@ -115,13 +119,10 @@ int main(int argc, char* argv[])
     }
 
     std::ofstream output;
-    std::string   txt_filename
-        = gdml_input.substr(0, gdml_input.find_last_of('.')) + ".txt";
-    output.open(txt_filename);
+    output.open(md_filename);
     output << volume_map << std::endl;
     output.close();
-
-    std::cout << volume_map << std::endl;
+    std::cout << "Done" << std::endl;
 
     return EXIT_SUCCESS;
 }

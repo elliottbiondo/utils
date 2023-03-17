@@ -18,11 +18,7 @@ $ ./g4app [input.gdml]
 
 # Notes
 The thin `vgdml::Frontend` does not provide material id information, which
-limits the comparison with `g4app` tables. Nevertheless, the two available maps,
-namely `vgdml::Middleware::MaterialMap_t` and
-`vgdml::Middleware::VolumeMatMap_t`, provide enough information to know that a
-given volume id defines a given volume that is linked to a given material.
-
+limits the comparison with `g4app` tables.
 The link between volume id, volume, and material do match with the outputs
 produced by the `g4app`.
 
@@ -31,7 +27,7 @@ produced by the `g4app`.
 ## **simple-cms**
 
 | Vol ID | Material                  | Volume                              |
-| ------ | ------------------------- | ----------------------------------- | 
+| ------ | ------------------------- | ----------------------------------- |
 | 0      | G4_Si0x7f828b4434b0       | si_tracker_lv0x7f828b446eb0         |
 | 1      | G4_Pb0x7f828b443c90       | em_calorimeter_lv0x7f828b446f80     |
 | 2      | G4_C0x7f828b444820        | had_calorimeter_lv0x7f828b447050    |
@@ -42,7 +38,7 @@ produced by the `g4app`.
 ## **Geant4/examples/basic/B1**
 
 | Vol ID | Material                           | Volume                 |
-| ------ | ---------------------------------- | ---------------------- | 
+| ------ | ---------------------------------- | ---------------------- |
 | 0      | G4_A-150_TISSUE0x7f8f5fc4b480      | Shape10x7f8f5fc4bef0   |
 | 1      | G4_BONE_COMPACT_ICRU0x7f8f5fc4bfd0 | Shape20x7f8f5fc4de80   |
 | 2      | G4_WATER0x7f8f5fc486f0             | Envelope0x7f8f5fc4b350 |
@@ -61,7 +57,7 @@ produced by the `g4app`.
 ## **Geant4/examples/advanced/amsEcal**
 
 | Vol ID | Material                   | Volume                    |
-| ------ | -------------------------- | ------------------------- | 
+| ------ | -------------------------- | ------------------------- |
 | 0      | Scintillator0x7ff1e8f59dd0 | fiber0x7ff1e8f5b900       |
 | 1      | Lead0x7ff1e8f58fe0         | layer0x7ff1e8f5bd30       |
 | 2      | Lead0x7ff1e8f58fe0         | module0x7ff1e8f694c0      |
