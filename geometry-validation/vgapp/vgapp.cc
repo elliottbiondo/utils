@@ -25,9 +25,9 @@ struct Volume
 {
     std::string volume_name;
     std::string material_name;
-    int num_placed = 0;
-    int min_copy_num = std::numeric_limits<int>::digits10;
-    int max_copy_num = -1;
+    int         num_placed   = 0;
+    int         min_copy_num = std::numeric_limits<int>::max();
+    int         max_copy_num = -1;
 };
 
 // Map volume id and Volume
@@ -41,7 +41,7 @@ using VolumeMap = std::map<int, Volume>;
  */
 std::ostream& operator<<(std::ostream& os, const vgapp::VolumeMap& map)
 {
-    size_t width_ids      = 7;
+    size_t width_ids      = 10;
     size_t width_volume   = 6;
     size_t width_material = 8;
     size_t width_placed   = 11;
@@ -56,7 +56,7 @@ std::ostream& operator<<(std::ostream& os, const vgapp::VolumeMap& map)
 
     // Titles line
     os << std::endl;
-    os << "| " << std::left << std::setw(width_ids) << "Vol ID"
+    os << "| " << std::left << std::setw(width_ids) << "Log vol ID"
        << " | " << std::setw(width_material) << "Material"
        << " | " << std::setw(width_volume) << "Volume"
        << " | " << std::setw(width_placed) << "Num placed"
@@ -117,17 +117,25 @@ int main(int argc, char* argv[])
     std::string gdml_input = argv[1];
     std::string md_filename
         = gdml_input.substr(0, gdml_input.find_last_of('.')) + ".md";
-    std::cout << "Loading geometry and generating " << md_filename << "... ";
+    std::cout << "Loading geometry and generating " << md_filename << "... "
+              << std::endl;
     std::cout.flush();
 
     // Load gdml
     vgdml::Parser parser;
     const auto    loaded = parser.Load(gdml_input, false);
 
-    // Load material and volume information
+    // >>> Load material and volume information
+    const auto& geo_mgr = vecgeom::GeoManager::Instance();
+
+    // Logical volumes
     vgdml::Middleware::VolumeMatMap_t vol_mat_map = loaded->GetVolumeMatMap();
     std::vector<vecgeom::LogicalVolume*> logical_volumes;
-    vecgeom::GeoManager::Instance().GetAllLogicalVolumes(logical_volumes);
+    geo_mgr.GetAllLogicalVolumes(logical_volumes);
+
+    // Placed volumes
+    std::vector<vecgeom::VPlacedVolume*> placed_volumes;
+    geo_mgr.getAllPlacedVolumes(placed_volumes);
 
     vgapp::VolumeMap volume_map;
     for (const auto& vg_volume : logical_volumes)
@@ -138,38 +146,39 @@ int main(int argc, char* argv[])
         volume_map.insert({vg_volume->id(), volume});
     }
 
-    // Placed volumes
-    auto& geomgr = vecgeom::GeoManager::Instance();
-    std::vector<vecgeom::VPlacedVolume*> placed_volumes;
-    geomgr.getAllPlacedVolumes(placed_volumes);
-    std::cout<<" GeoManager: AllPlVol.size="<< placed_volumes.size()
-	     <<" PlVolsCount="<< geomgr.GetPlacedVolumesCount()
-	     <<" NodeCount="<< geomgr.GetTotalNodeCount()
-	     <<"\n";
-
     for (const auto& plvol : placed_volumes)
     {
-	int copynum = plvol->GetCopyNo();
-	// get its logical volume
+        int copynum = plvol->GetCopyNo();
+        // get its logical volume
         vecgeom::LogicalVolume const* logvol = plvol->GetLogicalVolume();
-	int volid = logvol->id();
-	std::map<int, vgapp::Volume>::iterator iter = volume_map.find(volid);
-	if (iter != volume_map.end())
+        int                           volid  = logvol->id();
+        std::map<int, vgapp::Volume>::iterator iter = volume_map.find(volid);
+        if (iter != volume_map.end())
         {
             auto& volume = iter->second;
             volume.num_placed++;
-	    volume.min_copy_num = std::min(volume.min_copy_num, copynum);
-	    volume.max_copy_num = std::max(volume.max_copy_num, copynum);
+            volume.min_copy_num = std::min(volume.min_copy_num, copynum);
+            volume.max_copy_num = std::max(volume.max_copy_num, copynum);
         }
-	else {
-	  std::cerr<<"*** Not found: id="<< logvol->id() << std::endl;
-	}
+        else
+        {
+            std::cerr << "Logical volume id " << logvol->id() << " not found"
+                      << std::endl;
+        }
     }
 
     std::ofstream output;
     output.open(md_filename);
+    output << "geo_manager.GetAllLogicalVolumes(...).size() = "
+           << placed_volumes.size() << std::endl;
+    output << "geo_manager.GetPlacedVolumesCount() = "
+           << geo_mgr.GetPlacedVolumesCount() << std::endl;
+    output
+        << "geo_manager.GetTotalNodeCount() = " << geo_mgr.GetTotalNodeCount()
+        << std::endl;
     output << volume_map << std::endl;
     output.close();
+
     std::cout << "Done" << std::endl;
 
     return EXIT_SUCCESS;
