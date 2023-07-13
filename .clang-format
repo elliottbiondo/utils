@@ -2,11 +2,11 @@
 Language:        Cpp
 AccessModifierOffset: -2
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: Left
 AlignOperands:   true
-AlignTrailingComments: true
+AlignTrailingComments: false
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: false
@@ -89,19 +89,23 @@ IncludeCategories:
     Priority:        2
     SortPriority:    7
     CaseSensitive:   true
+  - Regex:           '^"accel/'
+    Priority:        2
+    SortPriority:    8
+    CaseSensitive:   true
   - Regex:           '^"[^/]+"'
     Priority:        5
-    SortPriority:    8
+    SortPriority:    9
   - Regex:           '^"detail/"'
     Priority:        5
-    SortPriority:    9
+    SortPriority:    10
   - Regex:           '"(^gtest/|TestBase|\.test\.hh|celeritas_test\.hh)'
     Priority:        7
     CaseSensitive:   true
-    SortPriority:    10
+    SortPriority:    11
   - Regex:           '.*'
     Priority:        5
-    SortPriority:    8
+    SortPriority:    9
 IncludeIsMainRegex: '(\.[^.]+)?$'
 IncludeIsMainSourceRegex: '\.cu$' # Allow CU files as main
 IndentCaseLabels: true
@@ -128,6 +132,7 @@ PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 25
 PenaltyReturnTypeOnItsOwnLine: 10
 PointerAlignment: Left
+QualifierAlignment: Right
 ReflowComments:  true
 SortIncludes:    true
 SortUsingDeclarations: true
@@ -140,7 +145,7 @@ SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
 SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 1
+SpacesBeforeTrailingComments: 2
 SpacesInAngles:  false
 SpacesInContainerLiterals: false
 SpacesInCStyleCastParentheses: false

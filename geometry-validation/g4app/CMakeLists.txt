@@ -15,15 +15,13 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Geant4 REQUIRED vis_all)
 
 #----------------------------------------------------------------------------#
-# Locate sources and headers of the project
-#----------------------------------------------------------------------------#
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/src/*.hh)
-
-#----------------------------------------------------------------------------#
 # Add executable
 #----------------------------------------------------------------------------#
-add_executable(g4app g4app.cc ${sources} ${headers})
+add_executable(g4app g4app.cc
+  src/DetectorConstruction.cc
+  src/GeometryStore.cc
+  src/PrimaryGeneratorAction.cc
+)
 
 target_include_directories(g4app PRIVATE
  ${PROJECT_SOURCE_DIR}/src
@@ -39,7 +37,7 @@ target_link_libraries(g4app PRIVATE
 #----------------------------------------------------------------------------#
 install(TARGETS g4app DESTINATION .)
 
-file(COPY 
+file(COPY
   ${PROJECT_SOURCE_DIR}/compare_geometries.sh
   DESTINATION
   ${CMAKE_CURRENT_BINARY_DIR}
