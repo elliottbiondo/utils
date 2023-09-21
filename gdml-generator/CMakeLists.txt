@@ -3,12 +3,15 @@
 # See the Celeritas top-level COPYRIGHT file for details.
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 #----------------------------------------------------------------------------#
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.15)
 project(gdml-generator)
 
-cmake_policy(VERSION 3.12...3.16)
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_BUILD_TYPE Release)
+cmake_policy(VERSION 3.15...3.23)
+
+if(DEFINED CMAKE_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+  message(STATUS "Set default CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+endif()
 
 #----------------------------------------------------------------------------#
 # Find packages
@@ -16,35 +19,25 @@ set(CMAKE_BUILD_TYPE Release)
 find_package(Geant4 REQUIRED gdml)
 
 #----------------------------------------------------------------------------#
-# Locate sources and headers of the project
-#----------------------------------------------------------------------------#
-set(core_dir ${PROJECT_SOURCE_DIR}/src/core)
-set(geo_dir ${PROJECT_SOURCE_DIR}/src)
-
-set(core_src
-  ${core_dir}/PhysicsList.cc
-  ${core_dir}/SensitiveDetector.cc
-)
-
-set(geo_src
-  ${geo_dir}/BoxDetector.cc
-  ${geo_dir}/SimpleCMSDetector.cc
-  ${geo_dir}/TestEm3Detector.cc
-)
-
-#----------------------------------------------------------------------------#
 # Add executable
 #----------------------------------------------------------------------------#
+
 add_executable(gdml-gen gdml-gen.cc
-  ${core_src}
-  ${geo_src}
+  src/core/PhysicsList.cc
+  src/core/SensitiveDetector.cc
+  src/BoxDetector.cc
+  src/SimpleCMSDetector.cc
+  src/TestEm3Detector.cc
+)
+
+target_compile_features(gdml-gen
+  PUBLIC cxx_std_14
 )
 
 target_include_directories(gdml-gen PRIVATE
   $<BUILD_INTERFACE:
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${Geant4_INCLUDE_DIR}>
+    ${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
 
 target_link_libraries(gdml-gen PRIVATE ${Geant4_LIBRARIES})
