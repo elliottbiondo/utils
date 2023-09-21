@@ -19,6 +19,7 @@
 #include <G4GDMLParser.hh>
 #include <G4PhysicalVolumeStore.hh>
 #include <G4VPhysicalVolume.hh>
+#include <G4Version.hh>
 
 using namespace celeritas;
 
