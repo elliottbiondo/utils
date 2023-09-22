@@ -15,7 +15,11 @@ $ cmake ..; make
 
 # Run
 ```shell
-$ ./gdml-gen [geometry_enum] [optional production_cuts_mm (default is 0.7)]
+$ ./gdml-gen [geometry_enum]
+```
+For the segmented simple cms, the number of segments are also needed:
+```shell
+$ ./gdml-gen [3 or 4] [num_segments_r] [num_segments_theta] [num_segments_z]
 ```
 
 The available geometries are:
@@ -25,15 +29,17 @@ The available geometries are:
 | 0    | `G4_Pb` cube of 500 m side ("infinite") |
 | 1    | Simple CMS with simple materials |
 | 2    | Simple CMS with composite materials |
-| 3    | [TestEm3][testem3] with simple materials |
-| 4    | [TestEm3][testem3] with composite materials |
-| 5    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
-| 6    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
+| 3    | Segmented simple CMS with simple materials |
+| 4    | Segmented simple CMS with composite materials |
+| 5    | [TestEm3][testem3] with simple materials |
+| 6    | [TestEm3][testem3] with composite materials |
+| 7    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
+| 8    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
 
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
 Secondary production cut thresholds are set equally for protons, electrons,
-positrons, and gammas and are in **[mm]**.
+positrons, and gammas and are are set to 0.7 **[mm]**.
 
 
 # Adding new geometries

@@ -3,22 +3,22 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file SimpleCMSDetector.hh
+//! \file SimpleCmsDetector.hh
 //! \brief Create the detector geometry.
 //---------------------------------------------------------------------------//
 #pragma once
 
 #include <string>
-#include <G4VUserDetectorConstruction.hh>
 #include <G4Material.hh>
-#include <G4VPhysicalVolume.hh>
 #include <G4SystemOfUnits.hh>
+#include <G4VPhysicalVolume.hh>
+#include <G4VUserDetectorConstruction.hh>
 
 //---------------------------------------------------------------------------//
 /*!
  * Construct a programmatic detector geometry.
  */
-class SimpleCMSDetector : public G4VUserDetectorConstruction
+class SimpleCmsDetector : public G4VUserDetectorConstruction
 {
   public:
     enum class MaterialType
@@ -28,7 +28,7 @@ class SimpleCMSDetector : public G4VUserDetectorConstruction
     };
 
     // Construct with geometry type
-    SimpleCMSDetector(MaterialType type);
+    SimpleCmsDetector(MaterialType type);
 
     // Construct geometry
     G4VPhysicalVolume* Construct() final;
