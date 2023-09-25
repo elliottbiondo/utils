@@ -16,7 +16,7 @@
 #include <G4PVReplica.hh>
 #include <G4SDManager.hh>
 #include <G4VisAttributes.hh>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "core/SensitiveDetector.hh"
 
@@ -33,7 +33,7 @@ SegmentedSimpleCmsDetector::SegmentedSimpleCmsDetector(
     {
         std::cout << "Number of segments must be at least 1 in every axis"
                   << std::endl;
-        exit(EXIT_FAILURE);
+        std::exit(EXIT_FAILURE);
     }
 
     materials_ = this->build_materials();
@@ -377,9 +377,9 @@ void SegmentedSimpleCmsDetector::create_segments(
     G4Material* cyl_material)
 {
     std::string name_segment = name + "_segment";
-    std::string name_theta = name_segment + "_theta";
     std::string name_r = name_segment + "_r";
     std::string name_z = name_segment + "_z";
+    std::string name_theta = name_segment + "_theta";
 
     // Theta
     double const segment_theta = 2 * CLHEP::pi / num_segments_.num_theta;
@@ -467,20 +467,20 @@ void SegmentedSimpleCmsDetector::flat_segmented_cylinder(
     // Initial z position
     double const init_z = -half_length_ + half_segment_z;
 
-    for (int theta = 0; theta < num_segments_.num_theta; theta++)
+    for (int r = 0; r < num_segments_.num_r; r++)
     {
-        double const theta_min = theta * segment_theta;
+        double const r_min = inner_r + r * segment_r;
+        double const r_max = r_min + segment_r;
 
-        for (int r = 0; r < num_segments_.num_r; r++)
+        for (int z = 0; z < num_segments_.num_z; z++)
         {
-            double const r_min = inner_r + r * segment_r;
-            double const r_max = r_min + segment_r;
-
-            for (int z = 0; z < num_segments_.num_z; z++)
+            for (int theta = 0; theta < num_segments_.num_theta; theta++)
             {
+                double const theta_min = theta * segment_theta;
+
                 std::string segment_name = name + "_" + std::to_string(r) + "_"
-                                           + std::to_string(theta) + "_"
-                                           + std::to_string(z) ;
+                                           + std::to_string(z) + "_"
+                                           + std::to_string(theta);
                 std::string segment_def_str = segment_name + "_def";
                 std::string segment_pv_str = segment_name + "_pv";
                 auto segment_def = new G4Tubs(segment_def_str,
@@ -490,8 +490,8 @@ void SegmentedSimpleCmsDetector::flat_segmented_cylinder(
                                               theta_min,
                                               segment_theta);
 
-                auto segment_lv = new G4LogicalVolume(
-                    segment_def, material, segment_name);
+                auto segment_lv
+                    = new G4LogicalVolume(segment_def, material, segment_name);
 
                 G4ThreeVector pos;
                 pos.setRhoPhiZ(0, 0, init_z + z * segment_z);

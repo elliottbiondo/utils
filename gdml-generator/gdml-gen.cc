@@ -66,7 +66,7 @@ void print_help(char const* argv)
     std::cout << std::endl;
     std::cout << "For Geometries 3 and 4:" << std::endl;
     std::cout << "3 extra parameters are needed - [num_segments_r] "
-                 "[num_segments_theta] [num_segments_z]"
+                 "[num_segments_z] [num_segments_theta]"
               << std::endl;
 }
 
@@ -81,15 +81,15 @@ get_segments(int argc, char* argv[])
     {
         std::cout << "Missing arguments" << std::endl;
         std::cout << argv[0] << " " << argv[1] << " "
-                  << "[num_segments_r] [num_segments_theta] [num_segments_z]"
+                  << "[num_segments_r] [num_segments_z] [num_segments_theta]"
                   << std::endl;
         exit(EXIT_FAILURE);
     }
 
     SegmentedSimpleCmsDetector::SegmentDefinition def;
     def.num_r = std::stoi(argv[2]);
-    def.num_theta = std::stoi(argv[3]);
-    def.num_z = std::stoi(argv[4]);
+    def.num_z = std::stoi(argv[3]);
+    def.num_theta = std::stoi(argv[4]);
     return def;
 }
 
