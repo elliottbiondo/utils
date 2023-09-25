@@ -144,7 +144,7 @@ G4VPhysicalVolume* SegmentedSimpleCmsDetector::segmented_simple_cms()
         "world_def", world_size_ / 2, world_size_ / 2, world_size_);
 
     auto const world_lv
-        = new G4LogicalVolume(world_def, materials_.world, "world_lv");
+        = new G4LogicalVolume(world_def, materials_.world, "world");
 
     auto const world_pv = new G4PVPlacement(0,  // Rotation matrix
                                             G4ThreeVector(),  // Position
@@ -164,7 +164,7 @@ G4VPhysicalVolume* SegmentedSimpleCmsDetector::segmented_simple_cms()
                                          360 * deg);  // Spanning angle
 
     auto const vacuum_tube_lv = new G4LogicalVolume(
-        vacuum_tube_def, materials_.vacuum_tube, "vacuum_tube_lv");
+        vacuum_tube_def, materials_.vacuum_tube, "vacuum_tube");
 
     new G4PVPlacement(0,
                       G4ThreeVector(),  // Spans -z/2 to +z/2
@@ -207,7 +207,7 @@ G4VPhysicalVolume* SegmentedSimpleCmsDetector::segmented_simple_cms()
                                                 360 * deg);
 
         auto const em_calorimeter_lv = new G4LogicalVolume(
-            em_calorimeter_def, materials_.world, "em_calorimeter_lv");
+            em_calorimeter_def, materials_.world, "em_calorimeter");
 
         new G4PVPlacement(0,
                           G4ThreeVector(),
@@ -227,7 +227,7 @@ G4VPhysicalVolume* SegmentedSimpleCmsDetector::segmented_simple_cms()
                                                  360 * deg);
 
         auto const had_calorimeter_lv = new G4LogicalVolume(
-            had_calorimeter_def, materials_.world, "had_calorimeter_lv");
+            had_calorimeter_def, materials_.world, "had_calorimeter");
 
         new G4PVPlacement(0,
                           G4ThreeVector(),
@@ -247,7 +247,7 @@ G4VPhysicalVolume* SegmentedSimpleCmsDetector::segmented_simple_cms()
                                              360 * deg);
 
         auto const sc_solenoid_lv = new G4LogicalVolume(
-            sc_solenoid_def, materials_.world, "sc_solenoid_lv");
+            sc_solenoid_def, materials_.world, "sc_solenoid");
 
         new G4PVPlacement(0,
                           G4ThreeVector(),
@@ -267,7 +267,7 @@ G4VPhysicalVolume* SegmentedSimpleCmsDetector::segmented_simple_cms()
                                                360 * deg);
 
         auto const muon_chambers_lv = new G4LogicalVolume(
-            muon_chambers_def, materials_.world, "muon_chambers_lv");
+            muon_chambers_def, materials_.world, "muon_chambers");
 
         new G4PVPlacement(0,
                           G4ThreeVector(),
@@ -388,7 +388,7 @@ void SegmentedSimpleCmsDetector::create_segments(
     G4Tubs* segment_theta_def = new G4Tubs(
         name_theta_def, inner_r, outer_r, half_length_, 0, segment_theta);
 
-    std::string name_theta_lv = name_theta + "_lv";
+    std::string name_theta_lv = name_theta + "";
     auto const segment_theta_lv = new G4LogicalVolume(
         full_culinder_def, materials_.world, name_theta_lv);
 
@@ -399,7 +399,7 @@ void SegmentedSimpleCmsDetector::create_segments(
     G4Tubs* segment_r_def = new G4Tubs(
         name_r_def, inner_r, inner_r + segment_r, half_length_, 0, segment_theta);
 
-    std::string name_r_lv = name_r + "_lv";
+    std::string name_r_lv = name_r + "";
     auto const segment_r_lv
         = new G4LogicalVolume(segment_r_def, materials_.world, name_r_lv);
 
@@ -430,7 +430,7 @@ void SegmentedSimpleCmsDetector::create_segments(
                                                   0,
                                                   segment_theta);
 
-    std::string name_z_lv = name_z + "_lv";
+    std::string name_z_lv = name_z + "";
     auto const si_tracker_segment_z_lv = new G4LogicalVolume(
         si_tracker_segment_z_def, cyl_material, name_z_lv);
 
@@ -480,9 +480,8 @@ void SegmentedSimpleCmsDetector::flat_segmented_cylinder(
             {
                 std::string segment_name = name + "_" + std::to_string(r) + "_"
                                            + std::to_string(theta) + "_"
-                                           + std::to_string(z);
+                                           + std::to_string(z) ;
                 std::string segment_def_str = segment_name + "_def";
-                std::string segment_lv_str = segment_name + "_lv";
                 std::string segment_pv_str = segment_name + "_pv";
                 auto segment_def = new G4Tubs(segment_def_str,
                                               r_min,
@@ -492,7 +491,7 @@ void SegmentedSimpleCmsDetector::flat_segmented_cylinder(
                                               segment_theta);
 
                 auto segment_lv = new G4LogicalVolume(
-                    segment_def, material, segment_lv_str);
+                    segment_def, material, segment_name);
 
                 G4ThreeVector pos;
                 pos.setRhoPhiZ(0, 0, init_z + z * segment_z);
