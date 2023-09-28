@@ -100,7 +100,7 @@ get_segments(int argc, char* argv[])
 void export_gdml(std::string const& gdml_filename)
 {
     G4GDMLParser parser;
-    parser.SetEnergyCutsExport(true);
+    parser.SetEnergyCutsExport(false);
     parser.SetSDExport(true);
     parser.SetOverlapCheck(true);
     parser.SetOutputFileOverwrite(true);
