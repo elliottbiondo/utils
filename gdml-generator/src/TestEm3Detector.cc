@@ -248,7 +248,7 @@ G4VPhysicalVolume* TestEm3Detector::create_testem3_flat()
     G4Box* worldBox = new G4Box(
         "world_shape", 0.5 * WorldSizeX, 0.5 * WorldSizeYZ, 0.5 * WorldSizeYZ);
     G4LogicalVolume* worldLog
-        = new G4LogicalVolume(worldBox, materials.world, "world_lv");
+        = new G4LogicalVolume(worldBox, materials.world, "world");
     G4PVPlacement* worldPlaced = new G4PVPlacement(
         nullptr, G4ThreeVector(), worldLog, "world", nullptr, false, false);
 
