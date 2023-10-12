@@ -1,0 +1,53 @@
+{
+    "geometry": "simple-cms.gdml",
+    "simulation": {
+        "hepmc3": "",
+        "particle_gun": {
+            "events": 1,
+            "pdg": 22,
+            "energy": 10,
+            "vertex": [
+                0,
+                0,
+                0
+            ],
+            "direction": [
+                1,
+                1,
+                1
+            ]
+        },
+        "num_threads": 4,
+        "offload": false,
+        "performance_run": false,
+        "primary_info": true,
+        "secondary_info": true,
+        "step_info": true,
+        "sensdet_info": true,
+        "random_seed": false,
+        "spline": true,
+        "eloss_fluctuation": false
+    },
+    "physics": {
+        "compton_scattering": true,
+        "photoelectric": true,
+        "rayleigh_scattering": true,
+        "gamma_conversion": true,
+        "positron_annihilation": true,
+        "bremsstrahlung": true,
+        "e_ionization": true,
+        "coulomb_scattering": false,
+        "multiple_scattering_low": false,
+        "multiple_scattering_high": false
+    },
+    "verbosity": {
+        "RunManager": 0,
+        "RunAction": 0,
+        "EventAction": 0,
+        "PhysicsList": 0,
+        "PrintProgress": 1000
+    },
+    "export_celeritas_root": false,
+    "GUI": false,
+    "vis_macro": "vis.mac"
+}

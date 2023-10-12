@@ -1,0 +1,32 @@
+# Create an OpenGL view
+/vis/open OGL 600x600-0+0
+
+# Draw geometry
+/vis/drawVolume
+
+# Specify view angle
+/vis/viewer/set/viewpointThetaPhi 90. 180.
+
+# Draw smooth trajectories and show trajectory points
+/vis/scene/add/trajectories smooth
+/vis/modeling/trajectories/create/drawByCharge
+/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 3
+
+# Draw hits
+/vis/scene/add/hits
+
+# Draw only gammas
+# /vis/filtering/trajectories/create/particleFilter
+# /vis/filtering/trajectories/particleFilter-0/add gamma
+
+# Select color by particle ID
+# /vis/modeling/trajectories/create/drawByParticleID
+# /vis/modeling/trajectories/drawByParticleID-0/default/setDrawStepPts true
+
+# Superimpose all of the events from a given run
+/vis/scene/endOfEventAction accumulate
+
+# Establish auto refreshing and verbosity
+/vis/viewer/set/autoRefresh true
+/vis/verbose warnings
