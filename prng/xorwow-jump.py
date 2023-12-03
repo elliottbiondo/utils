@@ -66,7 +66,10 @@ T = np.block([
 
 
 def calc_jump_matrices(size, start, exp=4):
-    """Generate jump matrices T^start, T^{start * exp}, T^{start * exp^2}, ...
+    """Generate the jump matrices.
+
+    This builds the jump matrices T^{start * exp^0}, T^{start * exp^1},
+    T^{start * exp^2}, ..., T^{start * exp^{size - 1}}.
 
     By representing the rows of the binary matrixs as computer words, fast
     binary matrix products can be evaluated by XORing all of the rows of the
@@ -146,7 +149,10 @@ def calc_jump_poly(char_poly, jump_size):
     return jp
 
 def calc_jump_polys(char_poly, size, start, exp=4):
-    """Calculate polynomials for jumps start, start * exp, start * exp^2, ...
+    """Calculate the jump polynomials.
+
+    This generates the jump polynomials for jumps start * exp^0, start * exp^1,
+    start * exp^2, ..., start * exp^{size - 1}.
     """
     result = []
     jump_size = start
