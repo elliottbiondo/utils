@@ -165,7 +165,7 @@ def print_jump_polys(jump, name):
     polys = []
     for jp in jump:
         jp_bits = f'{jp:0{nk}b}'
-        jp_words = [hex(int(jp_bits[i:i + nb], base=2)) for i in range(0, nk, nb)][::-1]
+        jp_words = [f'{int(jp_bits[i:i + nb], base=2):#010x}u' for i in range(0, nk, nb)][::-1]
         polys.append(f'{{{", ".join(x for x in jp_words)}}}')
     print(f'static unsigned int const {name}[] = {{{", ".join(x for x in polys)}}};')
 
