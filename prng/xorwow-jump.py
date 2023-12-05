@@ -178,23 +178,23 @@ def main():
     )
     args = parser.parse_args()
 
-    num_jumps = 10
+    num_jumps = 32
     if args.type == 'matrix':
-        # T^1, T^4, T^16, ..., T^262144
+        # T^(4^i) for i in [0, 32)
         jump_mat = calc_jump_matrices(num_jumps, 1)
         print_jump_matrices(jump_mat, 'jump')
 
-        # T^(1 * 2^67), T^(4 * 2^67), T^(16 * 2^67), ..., T^(262144 * 2^67)
+        # T^(4^i * 2^67) for i in [0, 32)
         jump_subsequence_mat = calc_jump_matrices(num_jumps, 2**67)
         print_jump_matrices(jump_subsequence_mat, 'jump_subsequence')
     else:
         char_poly = calc_char_poly()
 
-        # Jump sizes nu = 1, 4, 16, ..., 262144
+        # Jump sizes 4^i for i in [0, 32)
         jump_poly = calc_jump_polys(char_poly, num_jumps, 1)
         print_jump_polys(jump_poly, 'jump')
 
-        # Jump sizes nu = 2^67, 4 * 2^67, 16 * 2^67, ..., 262144 * 2^67
+        # Jump sizes 4^i * 2^67 for i ini [0, 32)
         jump_subsequence_poly = calc_jump_polys(char_poly, num_jumps, 2**67)
         print_jump_polys(jump_subsequence_poly, 'jump_subsequence')
 
