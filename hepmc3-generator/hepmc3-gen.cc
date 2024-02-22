@@ -309,12 +309,13 @@ int main(int argc, char* argv[])
                   << " [isotropic_out.hepmc3] [num events] "
                      "[num particles per event] [pdg] [particle energy (MeV)]"
                   << std::endl;
-        std::cout << argv[0]
-                  << " [particle_gun_out.hepmc3] [num events] "
-                     "[num particles per event] [pdg] [particle energy "
-                     "(MeV)] [particle directions (x, y, z) (cm)] [particle "
-                     "vertex (x, y, z) (cm)]"
-                  << std::endl;
+        std::cout
+            << argv[0]
+            << " [particle_gun_out.hepmc3] [num events] "
+               "[num particles per event] [pdg] [particle energy "
+               "(MeV)] [particle directions (x, y, z) (unity)] [particle "
+               "vertex (x, y, z) (cm)]"
+            << std::endl;
         std::cout << argv[0] << " [pythia_hepevt.data] [pythia_out.hepmc3]"
                   << std::endl;
         std::cout << "Currently available PDGs are -11 (e+), 11 (e-), and "

@@ -39,7 +39,7 @@ The available geometries are:
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
 Secondary production cut thresholds are set equally for protons, electrons,
-positrons, and gammas and are are set to 0.7 **[mm]**.
+positrons, and gammas and are set to 0.7 **[mm]**.
 
 
 # Adding new geometries
@@ -120,7 +120,7 @@ representing a gap (light blue) and an absorber (red).
 
 | Volume   | Material    | Size (x, y, z) [cm] |
 | -------- | ----------- | ------------------- |
-| World    | G4_Galactic | (44, 44, 44) |
+| World    | G4_Galactic | (48, 48, 48) |
 | Gap      | Pb or PbWO4 | (40, 40, 0.23) |
 | Absorber | LAr         | (40, 40, 0.57) |
 

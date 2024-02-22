@@ -44,7 +44,7 @@ find_package(Geant4 REQUIRED gdml ${_g4_mt} ${_g4_qt})
 find_package(nlohmann_json REQUIRED)
 find_package(HepMC3 REQUIRED)
 find_package(Celeritas REQUIRED)
-include(CeleritasLibrary)
+include(CudaRdcUtils)
 
 message(STATUS "Use ROOT: ${USE_ROOT}")
 message(STATUS "Use multithread: ${USE_MT}")
@@ -126,7 +126,7 @@ endif()
 #----------------------------------------------------------------------------#
 add_executable(g4app g4-app.cc ${_src})
 target_include_directories(g4app PRIVATE $<BUILD_INTERFACE:${_includes}>)
-celeritas_target_link_libraries(g4app ${_libs})
+cuda_rdc_target_link_libraries(g4app ${_libs})
 
 #----------------------------------------------------------------------------#
 # Copy input_example.json and vis.mac to the build directory
