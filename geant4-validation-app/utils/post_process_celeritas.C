@@ -7,15 +7,15 @@
 //! \brief Post-process Celeritas MC Truth output data.
 //---------------------------------------------------------------------------//
 #include <iostream>
-#include <string>
-#include <assert.h>
 #include <map>
-#include <TFile.h>
-#include <TTree.h>
+#include <string>
 #include <TBranch.h>
+#include <TFile.h>
 #include <TLeaf.h>
-#include <TTreeIndex.h>
 #include <TSystem.h>
+#include <TTree.h>
+#include <TTreeIndex.h>
+#include <assert.h>
 
 #include "../src/RootData.hh"
 
@@ -32,7 +32,7 @@ using IdToTrackMap
 /*!
  * Map Action label and ProcessId.
  */
-const std::map<std::string, ProcessId> action_processid_map = {
+std::map<std::string, ProcessId> const action_processid_map = {
     // clang-format off
     // Physics actions
     {"ioni-moller-bhabha",        ProcessId::e_ioni},
@@ -45,9 +45,9 @@ const std::map<std::string, ProcessId> action_processid_map = {
     {"scat-rayleigh",             ProcessId::rayleigh},
     {"annihil-2-gamma",           ProcessId::annihilation},
     {"coulomb-wentzel",           ProcessId::coulomb_scat},
+    {"msc-range",                 ProcessId::msc_range},
     // Other actions
     {"pre-step",                  ProcessId::pre_step},
-    {"msc-range",                 ProcessId::msc_range},
     {"eloss-range",               ProcessId::eloss_range},
     {"physics-discrete-select",   ProcessId::physics_discrete_select},
     {"physics-integral-rejected", ProcessId::physics_integral_rejected},
@@ -93,23 +93,23 @@ store_step(TTree* steps_ttree, std::vector<std::string>* action_labels)
 {
     rootdata::Step step;
 
-    const auto action_id = steps_ttree->GetLeaf("action_id")->GetValue();
-    const auto key = action_processid_map.find(action_labels->at(action_id));
+    auto const action_id = steps_ttree->GetLeaf("action_id")->GetValue();
+    auto const key = action_processid_map.find(action_labels->at(action_id));
 
     step.process_id = (key != action_processid_map.end())
                           ? key->second
                           : ProcessId::not_mapped;
 
     step.kinetic_energy = steps_ttree->GetLeaf("post_energy")->GetValue();
-    step.global_time    = steps_ttree->GetLeaf("post_time")->GetValue();
-    step.length         = steps_ttree->GetLeaf("step_length")->GetValue();
+    step.global_time = steps_ttree->GetLeaf("post_time")->GetValue();
+    step.length = steps_ttree->GetLeaf("step_length")->GetValue();
 
-    const auto& post_dir = steps_ttree->GetLeaf("post_dir");
-    step.direction       = {
+    auto const& post_dir = steps_ttree->GetLeaf("post_dir");
+    step.direction = {
         post_dir->GetValue(0), post_dir->GetValue(1), post_dir->GetValue(2)};
 
-    const auto& post_pos = steps_ttree->GetLeaf("post_pos");
-    step.position        = {
+    auto const& post_pos = steps_ttree->GetLeaf("post_pos");
+    step.position = {
         post_pos->GetValue(0), post_pos->GetValue(1), post_pos->GetValue(2)};
 
     return step;
@@ -121,14 +121,14 @@ store_step(TTree* steps_ttree, std::vector<std::string>* action_labels)
  */
 void init_track(TTree* steps_ttree, rootdata::Track& track)
 {
-    track.id            = steps_ttree->GetLeaf("track_id")->GetValue();
-    track.pdg           = steps_ttree->GetLeaf("particle")->GetValue();
-    track.parent_id     = steps_ttree->GetLeaf("parent_id")->GetValueLong64();
+    track.id = steps_ttree->GetLeaf("track_id")->GetValue();
+    track.pdg = steps_ttree->GetLeaf("particle")->GetValue();
+    track.parent_id = steps_ttree->GetLeaf("parent_id")->GetValueLong64();
     track.vertex_energy = steps_ttree->GetLeaf("pre_energy")->GetValue();
     track.vertex_global_time = steps_ttree->GetLeaf("pre_time")->GetValue();
 
-    const auto& pre_pos = steps_ttree->GetLeaf("pre_pos");
-    const auto& pre_dir = steps_ttree->GetLeaf("pre_dir");
+    auto const& pre_pos = steps_ttree->GetLeaf("pre_pos");
+    auto const& pre_dir = steps_ttree->GetLeaf("pre_dir");
     track.vertex_position
         = {pre_pos->GetValue(0), pre_pos->GetValue(1), pre_pos->GetValue(2)};
     track.vertex_direction
@@ -141,7 +141,7 @@ void init_track(TTree* steps_ttree, rootdata::Track& track)
  * in a rootdata::Event accordingly.
  */
 void store_event_tracks(rootdata::Event* event_ptr,
-                        IdToTrackMap&    trackid_track_map)
+                        IdToTrackMap& trackid_track_map)
 {
     // Loop over map and push_back primaries and secondaries
     for (auto& key : trackid_track_map)
@@ -149,7 +149,7 @@ void store_event_tracks(rootdata::Event* event_ptr,
         // Sort steps by time
         std::sort(key.second.steps.begin(),
                   key.second.steps.end(),
-                  [](const rootdata::Step& lhs, const rootdata::Step& rhs) {
+                  [](rootdata::Step const& lhs, rootdata::Step const& rhs) {
                       return lhs.global_time < rhs.global_time;
                   });
 
@@ -181,7 +181,7 @@ void store_data_limits(rootdata::Event* event_ptr, rootdata::DataLimits* limits)
                    static_cast<std::size_t>(event_ptr->secondaries.size()));
 
     std::size_t steps_per_event{0};
-    for (const auto& track : event_ptr->primaries)
+    for (auto const& track : event_ptr->primaries)
     {
         limits->max_primary_num_steps
             = std::max(limits->max_primary_num_steps,
@@ -189,7 +189,7 @@ void store_data_limits(rootdata::Event* event_ptr, rootdata::DataLimits* limits)
         limits->max_primary_energy
             = std::max(limits->max_primary_energy, track.vertex_energy);
 
-        const auto& pos    = track.vertex_position;
+        auto const& pos = track.vertex_position;
         limits->min_vertex = {std::min(limits->min_vertex.x, pos.x),
                               std::min(limits->min_vertex.y, pos.y),
                               std::min(limits->min_vertex.z, pos.z)};
@@ -200,7 +200,7 @@ void store_data_limits(rootdata::Event* event_ptr, rootdata::DataLimits* limits)
 
         steps_per_event += track.number_of_steps;
     }
-    for (const auto& track : event_ptr->secondaries)
+    for (auto const& track : event_ptr->secondaries)
     {
         limits->max_secondary_num_steps
             = std::max(limits->max_secondary_num_steps,
@@ -208,7 +208,7 @@ void store_data_limits(rootdata::Event* event_ptr, rootdata::DataLimits* limits)
         limits->max_secondary_energy
             = std::max(limits->max_secondary_energy, track.vertex_energy);
 
-        const auto& pos    = track.vertex_position;
+        auto const& pos = track.vertex_position;
         limits->min_vertex = {std::min(limits->min_vertex.x, pos.x),
                               std::min(limits->min_vertex.y, pos.y),
                               std::min(limits->min_vertex.z, pos.z)};
@@ -236,25 +236,25 @@ void post_process_celeritas(std::string input_filename)
     gSystem->Load("../build/librootdata");
 
     // Load Celeritas MC truth input
-    auto input       = new TFile(input_filename.c_str(), "read");
-    auto steps_tree  = (TTree*)input->Get("steps");
+    auto input = new TFile(input_filename.c_str(), "read");
+    auto steps_tree = (TTree*)input->Get("steps");
     auto params_tree = (TTree*)input->Get("core_params");
 
     std::vector<std::string>* action_labels = nullptr;
     params_tree->SetBranchAddress("action_labels", &action_labels);
-    params_tree->GetEntry(0); // Load all labels at once
+    params_tree->GetEntry(0);  // Load all labels at once
 
     // Sort tree by a major (event_id) and minor (track_id) value
     steps_tree->BuildIndex("event_id", "track_id");
-    auto tree_index   = (TTreeIndex*)steps_tree->GetTreeIndex();
+    auto tree_index = (TTreeIndex*)steps_tree->GetTreeIndex();
     auto sorted_index = tree_index->GetIndex();
 
     // Create post-processed ROOT output
     std::string output_filename = input_filename;
     output_filename.resize(output_filename.size() - 5);
     output_filename += ".post.root";
-    auto output           = new TFile(output_filename.c_str(), "recreate");
-    auto event_tree       = new TTree("events", "events");
+    auto output = new TFile(output_filename.c_str(), "recreate");
+    auto event_tree = new TTree("events", "events");
     auto data_limits_tree = new TTree("limits", "limits");
 
     // Initialize branch with a rootdata::Event object
@@ -274,11 +274,11 @@ void post_process_celeritas(std::string input_filename)
     IdToTrackMap trkid_track_map;
 
     // Set up progress indicator
-    const float percent_increment = 1; // Print msg at every increment [%]
-    const int   events_per_print  = (percent_increment / 100)
+    float const percent_increment = 1;  // Print msg at every increment [%]
+    int const events_per_print = (percent_increment / 100)
                                  * steps_tree->GetEntries();
-    int events_per_print_counter = 0; // Addition is better than modulo
-    int n_printed_msgs = 0; // One printed msg for every percent increment
+    int events_per_print_counter = 0;  // Addition is better than modulo
+    int n_printed_msgs = 0;  // One printed msg for every percent increment
     std::cout << "Processing " << input_filename << ": 0%";
     std::cout.flush();
 
@@ -315,8 +315,8 @@ void post_process_celeritas(std::string input_filename)
         }
 
         // Store event data
-        event_ptr->id      = event_id;
-        const int track_id = steps_tree->GetLeaf("track_id")->GetValue();
+        event_ptr->id = event_id;
+        int const track_id = steps_tree->GetLeaf("track_id")->GetValue();
 
         if (trkid_track_map.find(track_id) == trkid_track_map.end())
         {
