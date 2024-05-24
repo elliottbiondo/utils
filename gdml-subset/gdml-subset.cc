@@ -9,9 +9,9 @@
 #include "corecel/cont/Range.hh"
 #include "corecel/io/Logger.hh"
 #include "corecel/io/Join.hh"
-#include "celeritas/ext/GeantGeoUtils.hh"
-#include "celeritas/ext/ScopedGeantExceptionHandler.hh"
-#include "celeritas/ext/ScopedGeantLogger.hh"
+#include "geocel/GeantGeoUtils.hh"
+#include "geocel/ScopedGeantExceptionHandler.hh"
+#include "geocel/ScopedGeantLogger.hh"
 
 #include <cstdlib>
 #include <string>
