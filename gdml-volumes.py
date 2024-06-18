@@ -19,22 +19,32 @@ def ilen(iter):
     return next(counter)
 
 
+def get_material(volume_el):
+    el = next(volume_el.iter("materialref"))
+    return el.attrib["ref"]
+
+
 def parse_gdml(filename):
     tree = ET.parse(filename)
     structure = next(tree.iter("structure"))
 
     physical = 0
+    materials = set()
     for logical, el in enumerate(structure):
-        if el.tag in ('volume', 'assembly'):
-            physical += ilen(el.iter("volumeref"))
-        else:
+        if el.tag not in ('volume', 'assembly'):
             raise ValueError(f"Unrecognized structure tag: {el!r}")
+
+        physical += ilen(el.iter("volumeref"))
+        if el.tag == 'volume':
+            materials.add(get_material(el))
 
     # Account for world volume
     logical += 1
     physical += 1
+    world = tree.findall("./setup/world")[0]
 
-    return {'filename': filename, 'logical': logical, 'physical': physical}
+    return {'filename': filename, 'logical': logical, 'physical': physical,
+            'material': len(materials)}
 
 def main(*args):
     from argparse import ArgumentParser
@@ -45,7 +55,11 @@ def main(*args):
 
     result = []
     for filename in ns.input:
-        result.append(parse_gdml(filename))
+        try:
+            result.append(parse_gdml(filename))
+        except Exception as e:
+            print(f"While processing {filename}: {e!s}")
+            result.append(None)
 
     if ns.output == '-':
         json.dump(result, sys.stdout, indent=1)
