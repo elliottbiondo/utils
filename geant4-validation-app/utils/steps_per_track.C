@@ -6,15 +6,14 @@
 //! \file steps_per_track.C
 //! \brief Plot Geant4 vs. Celeritas steps per track and their relative error.
 //---------------------------------------------------------------------------//
-#include <TH1D.h>
+#include <iostream>
 #include <TCanvas.h>
+#include <TH1D.h>
+#include <TLatex.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TStyle.h>
 #include <TText.h>
-#include <TLatex.h>
-
-#include <iostream>
 
 //---------------------------------------------------------------------------//
 /*!
@@ -59,8 +58,8 @@ enum PID
 void steps_per_track()
 {
     // Create histograms pointers for G4 and Celeritas for each particle type
-    TH1D*            h_steps[MC::size][PID::size];
-    static const int n_bins = 180;
+    TH1D* h_steps[MC::size][PID::size];
+    static int const n_bins = 180;
 
     for (int i = 0; i < MC::size; i++)
     {
@@ -81,7 +80,7 @@ void steps_per_track()
     }
 
     // >>> Geant4 histogram data
-    const int g4_positron_steps[200] = {
+    int const g4_positron_steps[200] = {
         0,     3177,  53962, 25350, 19264, 16336, 14681, 12984, 12419, 12401,
         12423, 12616, 13058, 13265, 13421, 13516, 12573, 11987, 11400, 10855,
         10148, 9521,  8927,  8231,  7937,  7377,  6898,  6486,  6035,  5592,
@@ -103,7 +102,7 @@ void steps_per_track()
         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
         0,     0,     0,     0,     0,     0,     0,     0,     0,     0};
 
-    const int g4_electron_steps[200]
+    int const g4_electron_steps[200]
         = {0,     6080292, 512384, 215510, 141365, 103657, 81385, 68801, 61376,
            56837, 53848,   51677,  49907,  48110,  46322,  44080, 41427, 38560,
            35719, 33012,   30550,  27805,  25719,  23779,  21846, 19804, 17891,
@@ -128,7 +127,7 @@ void steps_per_track()
            0,     0,       0,      0,      0,      1,      0,     0,     0,
            0,     0};
 
-    const int g4_gamma_steps[200]
+    int const g4_gamma_steps[200]
         = {0,      1080174, 400325, 448511, 270035, 245198, 183655, 177353,
            135274, 135067,  102510, 104504, 80527,  83630,  64295,  68016,
            52581,  56173,   43632,  47328,  36316,  40481,  30885,  34621,
@@ -156,7 +155,7 @@ void steps_per_track()
            0,      0,       0,      0,      0,      0,      0,      0};
 
     // >>> Celeritas histogram data
-    const int cel_positron_steps[200] = {
+    int const cel_positron_steps[200] = {
         0,     24621, 42058, 22206, 18238, 15773, 14171, 13126, 12273, 12354,
         12361, 12802, 13308, 13686, 13648, 13341, 13158, 12308, 11654, 10872,
         10192, 9458,  9009,  8466,  7619,  7333,  6763,  6271,  5876,  5385,
@@ -178,7 +177,7 @@ void steps_per_track()
         0,     0,     0,     0,     0,     0,     0,     0,     1,     0,
         0,     0,     0,     0,     0,     0,     0,     0,     0,     0};
 
-    const int cel_electron_steps[200]
+    int const cel_electron_steps[200]
         = {0,     6030882, 504255, 214347, 143832, 105377, 82455, 68996, 62107,
            57289, 54278,   52305,  51331,  49899,  47061,  44898, 42034, 38919,
            35858, 33171,   30887,  28153,  25802,  23560,  21493, 19875, 18099,
@@ -203,7 +202,7 @@ void steps_per_track()
            0,     0,       0,      0,      0,      1,      0,     0,     0,
            0,     0};
 
-    const int cel_gamma_steps[200]
+    int const cel_gamma_steps[200]
         = {0,      1074306, 395556, 451711, 268020, 245149, 182634, 177100,
            133821, 133688,  102164, 104178, 79954,  83255,  63897,  68172,
            52121,  56733,   42831,  47553,  36223,  40889,  31152,  34769,
@@ -231,7 +230,7 @@ void steps_per_track()
            0,      0,       0,      0,      0,      0,      0,      0};
 
     // >>> Fill histogram data
-    auto& h_steps_g4  = h_steps[MC::g4];
+    auto& h_steps_g4 = h_steps[MC::g4];
     auto& h_steps_cel = h_steps[MC::cel];
 
     for (int i = 0; i < h_steps_g4[photon]->GetNbinsX(); i++)

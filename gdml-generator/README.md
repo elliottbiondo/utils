@@ -35,6 +35,7 @@ The available geometries are:
 | 6    | [TestEm3][testem3] with composite materials |
 | 7    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
 | 8    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
+| 9    | Set of boxes with optical properties |
 
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
@@ -130,3 +131,13 @@ inverted in AdePT's implementation. This choice is replicated here for
 consistency. Figure axes are in `mm`.
 
 <img src="testem3_evd.png" width="800"/>
+
+
+## Optical properties geometry
+
+Scintillation data is taken from
+[SSLG4](https://github.com/mkandemirr/SSLG4/tree/main). The materials defined
+in the README table have their data also shown
+[here](https://neutrino.erciyes.edu.tr/SSLG4/).
+
+TODO: describe detector

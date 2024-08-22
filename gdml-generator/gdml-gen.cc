@@ -40,6 +40,7 @@ enum class GeometryID
     testem3_composite,  //!< Composite materials
     testem3_flat,  //!< Simple materials, flat (for ORANGE)
     testem3_composite_flat,  //!< Composite materials flat (for ORANGE)
+    optical,  //!< Simple geometry with optical properties
     size_
 };
 
@@ -49,25 +50,27 @@ enum class GeometryID
  */
 void print_help(char const* argv)
 {
-    std::cout << "Usage:" << std::endl;
-    std::cout << argv << " [geometry_id]" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Geometries:" << std::endl;
-    std::cout << "0: Box" << std::endl;
-    std::cout << "1: Simple CMS - simple materials" << std::endl;
-    std::cout << "2: Simple CMS - composite materials" << std::endl;
-    std::cout << "3: Segmented Simple CMS - simple materials" << std::endl;
-    std::cout << "4: Segmented Simple CMS - composite materials" << std::endl;
-    std::cout << "5: TestEm3 - simple materials" << std::endl;
-    std::cout << "6: TestEm3 - composite materials" << std::endl;
-    std::cout << "7: TestEm3 flat - simple materials, for ORANGE" << std::endl;
-    std::cout << "8: TestEm3 flat - composite materials, for ORANGE"
-              << std::endl;
-    std::cout << std::endl;
-    std::cout << "For Geometries 3 and 4:" << std::endl;
-    std::cout << "3 extra parameters are needed - [num_segments_r] "
-                 "[num_segments_z] [num_segments_theta]"
-              << std::endl;
+    using std::cout;
+    using std::endl;
+    cout << "Usage:" << endl;
+    cout << argv << " [geometry_id]" << endl;
+    cout << endl;
+    cout << "Geometries:" << endl;
+    cout << "0: Box" << endl;
+    cout << "1: Simple CMS - simple materials" << endl;
+    cout << "2: Simple CMS - composite materials" << endl;
+    cout << "3: Segmented Simple CMS - simple materials" << endl;
+    cout << "4: Segmented Simple CMS - composite materials" << endl;
+    cout << "5: TestEm3 - simple materials" << endl;
+    cout << "6: TestEm3 - composite materials" << endl;
+    cout << "7: TestEm3 flat - simple materials, for ORANGE" << endl;
+    cout << "8: TestEm3 flat - composite materials, for ORANGE" << endl;
+    cout << "9: Optical - composite materials with optical properties" << endl;
+    cout << endl;
+    cout << "For Geometries 3 and 4:" << endl;
+    cout << "3 extra parameters are needed - [num_segments_r] "
+            "[num_segments_z] [num_segments_theta]"
+         << endl;
 }
 
 //---------------------------------------------------------------------------//
@@ -216,9 +219,14 @@ int main(int argc, char* argv[])
             gdml_filename = "testem3-flat-composite.gdml";
             break;
 
+        case GeometryID::optical:
+            run_manager->SetUserInitialization(new OpticalDetector());
+            gdml_filename = "optical.gdml";
+            break;
+
         default:
-            std::cout << (int)geometry_id << " is an invalid geometry id."
-                      << std::endl;
+            std::cout << static_cast<int>(geometry_id)
+                      << " is an invalid geometry id." << std::endl;
             return EXIT_FAILURE;
     }
 

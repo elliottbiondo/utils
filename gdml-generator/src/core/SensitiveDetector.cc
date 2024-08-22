@@ -13,7 +13,7 @@
 /*!
  * Construct with sensitive detector name.
  */
-SensitiveDetector::SensitiveDetector(G4String sd_name)
+SensitiveDetector::SensitiveDetector(std::string sd_name)
     : G4VSensitiveDetector(sd_name)
 {
 }

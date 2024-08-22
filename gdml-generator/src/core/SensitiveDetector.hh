@@ -8,17 +8,18 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
+#include <string>
 #include <G4VSensitiveDetector.hh>
 
 //---------------------------------------------------------------------------//
 /*!
- * Interface for sensitive detectors.
+ * This class is only used to flag volumes as sensitive in the GDML file.
  */
 class SensitiveDetector : public G4VSensitiveDetector
 {
   public:
     // Construct with sensitive detector name
-    SensitiveDetector(G4String sd_name);
+    SensitiveDetector(std::string sd_name);
 
     // Mandatory. Called at each step
     G4bool ProcessHits(G4Step*, G4TouchableHistory*) final;
