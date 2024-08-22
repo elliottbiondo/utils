@@ -47,13 +47,19 @@ class OpticalDetector : public G4VUserDetectorConstruction
     G4Material* scint_material();
 
     // EJ-204/NE-104/BC-404 data (see OPSC-101 at github.com/mkandemirr/SSLG4)
-    Table scint_data();
+    Table scint_comp();
 
     // EJ-204/NE-104/BC-404 data (see OPSC-101 at github.com/mkandemirr/SSLG4)
-    Table rindex_data();
+    Table scint_rindex();
 
-    // TBD
-    Table cerenkov_data();
+    // Construct Cerenkov material (water)
+    G4Material* cerenkov_material();
+
+    // Water refractive index (from Geant4 examples/extended/optical/OpNovice)
+    Table cerenkov_rindex();
+
+    // Water absorption values (from Geant4 examples/extended/optical/OpNovice)
+    Table cerenkov_absorption();
 
     // Return mass fraction of a given element
     double to_mass_fraction(std::string element_name,
