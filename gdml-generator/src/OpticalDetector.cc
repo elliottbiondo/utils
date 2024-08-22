@@ -84,7 +84,7 @@ G4VPhysicalVolume* OpticalDetector::create_geometry()
         = new G4Box("cerenkov_box", cerenkov_size, world_size, world_size);
     auto const cerenkov_lv = new G4LogicalVolume(
         cerenkov_box, this->cerenkov_material(), "cerenkov_lv");
-    G4ThreeVector cerenkov_pos(1 * m, 0, 0);
+    G4ThreeVector cerenkov_pos(3 * m, 0, 0);
     auto const cerenkov_pv = new G4PVPlacement(nullptr,
                                                cerenkov_pos,
                                                cerenkov_lv,
