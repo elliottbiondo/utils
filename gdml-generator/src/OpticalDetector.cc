@@ -73,10 +73,10 @@ G4VPhysicalVolume* OpticalDetector::create_geometry()
     auto* scint_box
         = new G4Box("scint_box", scint_size, world_size, world_size);
     auto const scint_lv
-        = new G4LogicalVolume(scint_box, this->scint_material(), "world");
+        = new G4LogicalVolume(scint_box, this->scint_material(), "scint_lv");
     G4ThreeVector scint_pos(-3 * m, 0, 0);
     auto const scint_pv = new G4PVPlacement(
-        nullptr, scint_pos, scint_lv, "scint_pv", nullptr, false, 0, false);
+        nullptr, scint_pos, scint_lv, "scint_pv", world_lv, false, 0, false);
 
     //// Cerenkov volume ////
 
@@ -92,7 +92,7 @@ G4VPhysicalVolume* OpticalDetector::create_geometry()
                                                cerenkov_pos,
                                                cerenkov_lv,
                                                "cerenkov_pv",
-                                               nullptr,
+                                               world_lv,
                                                false,
                                                0,
                                                false);
@@ -107,9 +107,9 @@ G4VPhysicalVolume* OpticalDetector::create_geometry()
  */
 void OpticalDetector::set_sd()
 {
-    auto world_sd = new SensitiveDetector("world_sd");
-    G4SDManager::GetSDMpointer()->AddNewDetector(world_sd);
-    G4VUserDetectorConstruction::SetSensitiveDetector("world", world_sd);
+    auto scint_sd = new SensitiveDetector("scint_sd");
+    G4SDManager::GetSDMpointer()->AddNewDetector(scint_sd);
+    G4VUserDetectorConstruction::SetSensitiveDetector("scint_lv", scint_sd);
 }
 
 //---------------------------------------------------------------------------//
@@ -128,14 +128,14 @@ G4Material* OpticalDetector::scint_material()
     auto nist = G4NistManager::Instance();
     assert(nist);
 
-    double const density = 1.023 * g / cm3;
+    double const density = 1.023 * CLHEP::g / CLHEP::cm3;
     auto result = new G4Material("pvt-ej-204", density, 2);
     result->AddElement(
         nist->FindOrBuildElement("H"),
-        this->to_mass_fraction("H", 5.15e+22 * (1. / cm3), density));
+        this->to_mass_fraction("H", 5.15e+22 * (1. / CLHEP::cm3), density));
     result->AddElement(
         nist->FindOrBuildElement("C"),
-        this->to_mass_fraction("C", 4.68e+22 * (1. / cm3), density));
+        this->to_mass_fraction("C", 4.68e+22 * (1. / CLHEP::cm3), density));
 
     auto const scint_data = this->scint_data();
     auto const rindex_data = this->rindex_data();

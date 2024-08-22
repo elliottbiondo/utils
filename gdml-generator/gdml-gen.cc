@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2022-2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2022-2024 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -24,11 +24,16 @@
 #include <stdlib.h>
 
 #include "BoxDetector.hh"
+#include "OpticalDetector.hh"
 #include "SegmentedSimpleCmsDetector.hh"
 #include "SimpleCmsDetector.hh"
 #include "TestEm3Detector.hh"
 #include "core/PhysicsList.hh"
 
+//---------------------------------------------------------------------------//
+/*!
+ * GDML selection enum.
+ */
 enum class GeometryID
 {
     box,

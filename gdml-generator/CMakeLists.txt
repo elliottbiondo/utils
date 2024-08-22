@@ -1,5 +1,5 @@
 #---------------------------------*-CMake-*----------------------------------#
-# Copyright 2022-2023 UT-Battelle, LLC, and other Celeritas developers.
+# Copyright 2022-2024 UT-Battelle, LLC, and other Celeritas developers.
 # See the Celeritas top-level COPYRIGHT file for details.
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 #----------------------------------------------------------------------------#
@@ -26,6 +26,7 @@ add_executable(gdml-gen gdml-gen.cc
   src/core/PhysicsList.cc
   src/core/SensitiveDetector.cc
   src/BoxDetector.cc
+  src/OpticalDetector.cc
   src/SegmentedSimpleCmsDetector.cc
   src/SimpleCmsDetector.cc
   src/TestEm3Detector.cc
