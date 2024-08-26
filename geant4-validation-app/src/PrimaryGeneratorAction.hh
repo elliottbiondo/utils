@@ -9,10 +9,9 @@
 #pragma once
 
 #include <memory>
-#include <G4VUserPrimaryGeneratorAction.hh>
 #include <G4Event.hh>
-
 #include <G4ParticleGun.hh>
+#include <G4VUserPrimaryGeneratorAction.hh>
 
 //---------------------------------------------------------------------------//
 /*!
@@ -36,5 +35,5 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
   private:
     std::shared_ptr<G4ParticleGun> particle_gun_;
-    bool                           is_hepmc3_;
+    bool is_hepmc3_;
 };

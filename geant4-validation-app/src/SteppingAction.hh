@@ -8,8 +8,8 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
-#include <G4UserSteppingAction.hh>
 #include <G4Step.hh>
+#include <G4UserSteppingAction.hh>
 
 #include "RootIO.hh"
 
@@ -24,15 +24,15 @@ class SteppingAction : public G4UserSteppingAction
     SteppingAction();
 
     // Called at every step
-    void UserSteppingAction(const G4Step* step) override;
+    void UserSteppingAction(G4Step const* step) override;
 
   private:
-    void store_track_data(const G4Step* step);
-    void store_step_data(const G4Step* step);
+    void store_track_data(G4Step const* step);
+    void store_step_data(G4Step const* step);
 
   private:
     RootIO* root_io_;
-    bool    store_step_;
-    bool    store_primary_;
-    bool    store_secondary_;
+    bool store_step_;
+    bool store_primary_;
+    bool store_secondary_;
 };

@@ -8,15 +8,14 @@
 #include "Geant4Run.hh"
 
 #include <iostream>
-
+#include <G4UIExecutive.hh>
 #include <G4UImanager.hh>
 #include <G4VisExecutive.hh>
-#include <G4UIExecutive.hh>
 
-#include "PhysicsList.hh"
 #include "ActionInitialization.hh"
-#include "HepMC3Reader.hh"
 #include "DetectorConstruction.hh"
+#include "HepMC3Reader.hh"
+#include "PhysicsList.hh"
 
 //---------------------------------------------------------------------------//
 /*!
@@ -26,9 +25,9 @@
 Geant4Run::Geant4Run()
 {
     // Construct json
-    json_                          = JsonReader::instance()->json();
-    const auto&       json_sim     = json_.at("simulation");
-    const std::string hepmc3_input = json_sim.at("hepmc3").get<std::string>();
+    json_ = JsonReader::instance()->json();
+    auto const& json_sim = json_.at("simulation");
+    std::string const hepmc3_input = json_sim.at("hepmc3").get<std::string>();
 
     // Fetch correct number of events
     num_events_
@@ -40,9 +39,9 @@ Geant4Run::Geant4Run()
 #if G4_V10
     // Geant4 v10.x.x
 #    if USE_MT
-    run_manager_.reset(new G4MTRunManager()); // Multithread
+    run_manager_.reset(new G4MTRunManager());  // Multithread
 #    else
-    run_manager_.reset(new G4RunManager()); // Singlethread
+    run_manager_.reset(new G4RunManager());  // Singlethread
 #    endif
 
 #else
@@ -116,13 +115,13 @@ void Geant4Run::initialize()
  */
 void Geant4Run::init_vis_manager()
 {
-    char* argv[]     = {};
-    qt_interface_    = new G4UIExecutive(1, argv);
+    char* argv[] = {};
+    qt_interface_ = new G4UIExecutive(1, argv);
     auto vis_manager = new G4VisExecutive();
     vis_manager->Initialize();
 
     G4UImanager* ui_manager = G4UImanager::GetUIpointer();
-    std::string  vis_macro  = "/control/execute "
+    std::string vis_macro = "/control/execute "
                             + json_.at("vis_macro").get<std::string>();
     ui_manager->ApplyCommand(vis_macro);
 }
@@ -134,9 +133,9 @@ void Geant4Run::init_vis_manager()
 int Geant4Run::num_threads()
 {
     // Set up number of cores
-    const auto& json_sim    = json_.at("simulation");
-    const int   num_threads = json_sim.at("num_threads").get<int>();
-    const int   num_cores   = G4Threading::G4GetNumberOfCores();
+    auto const& json_sim = json_.at("simulation");
+    int const num_threads = json_sim.at("num_threads").get<int>();
+    int const num_cores = G4Threading::G4GetNumberOfCores();
 
     if (num_threads > num_cores)
     {

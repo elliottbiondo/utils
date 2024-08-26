@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2021-2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2021-2024 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -31,6 +31,8 @@ class PhysicsList : public G4VUserPhysicsList
     void add_gamma_processes();
     // Add EM processes for electrons and positrons
     void add_e_processes(G4ParticleDefinition* particle);
+    // Add optical physics processes to all applicable particles
+    void add_optical_processes();
 
   private:
     // Map of selected processes; booleans are updated at construction time
@@ -44,5 +46,7 @@ class PhysicsList : public G4VUserPhysicsList
            {"e_ionization", false},
            {"coulomb_scattering", false},
            {"multiple_scattering_low", false},
-           {"multiple_scattering_high", false}};
+           {"multiple_scattering_high", false},
+           {"scintillation", false},
+           {"cerenkov", false}};
 };

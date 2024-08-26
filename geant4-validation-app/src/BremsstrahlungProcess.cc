@@ -7,14 +7,14 @@
 //---------------------------------------------------------------------------//
 #include "BremsstrahlungProcess.hh"
 
-#include <G4SystemOfUnits.hh>
-#include <G4ParticleDefinition.hh>
-#include <G4Gamma.hh>
 #include <G4Electron.hh>
+#include <G4EmParameters.hh>
+#include <G4Gamma.hh>
+#include <G4ParticleDefinition.hh>
 #include <G4Positron.hh>
 #include <G4SeltzerBergerModel.hh>
+#include <G4SystemOfUnits.hh>
 #include <G4eBremsstrahlungRelModel.hh>
-#include <G4EmParameters.hh>
 
 //---------------------------------------------------------------------------//
 /*!
@@ -41,7 +41,7 @@ BremsstrahlungProcess::~BremsstrahlungProcess() {}
 /*!
  * Define applicability based on particle definition.
  */
-bool BremsstrahlungProcess::IsApplicable(const G4ParticleDefinition& particle)
+bool BremsstrahlungProcess::IsApplicable(G4ParticleDefinition const& particle)
 {
     return (&particle == G4Electron::Electron()
             || &particle == G4Positron::Positron());
@@ -66,7 +66,7 @@ void BremsstrahlungProcess::ProcessDescription(std::ostream& output) const
  * Initialise process by constructing models based on \c ModelSelection .
  */
 void BremsstrahlungProcess::InitialiseEnergyLossProcess(
-    const G4ParticleDefinition*, const G4ParticleDefinition*)
+    G4ParticleDefinition const*, G4ParticleDefinition const*)
 {
     if (is_initialized_)
     {
@@ -74,12 +74,12 @@ void BremsstrahlungProcess::InitialiseEnergyLossProcess(
         return;
     }
 
-    const auto& em_parameters = G4EmParameters::Instance();
+    auto const& em_parameters = G4EmParameters::Instance();
 
-    double energy_min      = em_parameters->MinKinEnergy();
-    double energy_max      = em_parameters->MaxKinEnergy();
+    double energy_min = em_parameters->MinKinEnergy();
+    double energy_max = em_parameters->MaxKinEnergy();
     double sb_energy_limit = 1 * GeV;
-    double energy_limit    = std::min(energy_max, sb_energy_limit);
+    double energy_limit = std::min(energy_max, sb_energy_limit);
     G4VEmFluctuationModel* fluctuation_model = nullptr;
 
     std::size_t model_index = 0;
@@ -133,8 +133,8 @@ void BremsstrahlungProcess::StreamProcessInfo(std::ostream& output) const
 {
     if (EmModel(0))
     {
-        const auto&  param            = G4EmParameters::Instance();
-        const double energy_threshold = param->BremsstrahlungTh();
+        auto const& param = G4EmParameters::Instance();
+        double const energy_threshold = param->BremsstrahlungTh();
 
         output << "      LPM flag: " << param->LPM() << " for E > "
                << EmModel(0)->HighEnergyLimit() / GeV << " GeV";

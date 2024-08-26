@@ -10,8 +10,8 @@
 #include <G4ParticleTable.hh>
 #include <G4SystemOfUnits.hh>
 
-#include "JsonReader.hh"
 #include "HepMC3Reader.hh"
+#include "JsonReader.hh"
 #include "RootData.hh"
 
 //---------------------------------------------------------------------------//
@@ -21,7 +21,7 @@
 PrimaryGeneratorAction::PrimaryGeneratorAction()
     : G4VUserPrimaryGeneratorAction()
 {
-    const auto  json_input = JsonReader::instance()->json();
+    auto const json_input = JsonReader::instance()->json();
     std::string hepmc3_input
         = json_input.at("simulation").at("hepmc3").get<std::string>();
 
@@ -42,12 +42,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
     if (is_hepmc3_)
     {
-        const auto hepmc3 = HepMC3Reader::instance();
+        auto const hepmc3 = HepMC3Reader::instance();
 
         // Read event and set appropriate conditions
         hepmc3->read_event();
-        const auto primaries = hepmc3->event_primaries();
-        for (const auto& primary : primaries)
+        auto const primaries = hepmc3->event_primaries();
+        for (auto const& primary : primaries)
         {
             auto* g4_particle_def
                 = G4ParticleTable::GetParticleTable()->FindParticle(
@@ -93,11 +93,11 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
  */
 void PrimaryGeneratorAction::set_particle_gun()
 {
-    const auto json_input = JsonReader::instance()->json();
-    const auto part_gun   = json_input.at("simulation").at("particle_gun");
+    auto const json_input = JsonReader::instance()->json();
+    auto const part_gun = json_input.at("simulation").at("particle_gun");
 
     HepMC3Reader::Primary primary;
-    primary.pdg    = part_gun.at("pdg").get<int>();
+    primary.pdg = part_gun.at("pdg").get<int>();
     primary.energy = part_gun.at("energy").get<double>() * MeV;
     G4ThreeVector vertex(part_gun.at("vertex")[0].get<double>() * cm,
                          part_gun.at("vertex")[1].get<double>() * cm,
@@ -108,7 +108,7 @@ void PrimaryGeneratorAction::set_particle_gun()
     direction = direction.unit();
 
     // Create the particle gun
-    const int number_of_particles = 1;
+    int const number_of_particles = 1;
     particle_gun_ = std::make_shared<G4ParticleGun>(number_of_particles);
 
     // Particle gun setup

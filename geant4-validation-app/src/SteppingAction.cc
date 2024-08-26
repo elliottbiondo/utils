@@ -7,12 +7,12 @@
 //---------------------------------------------------------------------------//
 #include "SteppingAction.hh"
 
-#include <G4VProcess.hh>
 #include <G4SystemOfUnits.hh>
+#include <G4VProcess.hh>
 
-#include "RootIO.hh"
 #include "JsonReader.hh"
 #include "RootData.hh"
+#include "RootIO.hh"
 
 //---------------------------------------------------------------------------//
 /*!
@@ -21,24 +21,24 @@
 SteppingAction::SteppingAction()
     : G4UserSteppingAction(), root_io_(RootIO::instance())
 {
-    const auto& json_sim = JsonReader::instance()->json().at("simulation");
-    store_step_          = json_sim.at("step_info").get<bool>();
-    store_primary_       = json_sim.at("primary_info").get<bool>();
-    store_secondary_     = json_sim.at("secondary_info").get<bool>();
+    auto const& json_sim = JsonReader::instance()->json().at("simulation");
+    store_step_ = json_sim.at("step_info").get<bool>();
+    store_primary_ = json_sim.at("primary_info").get<bool>();
+    store_secondary_ = json_sim.at("secondary_info").get<bool>();
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * Fetch data at every new step and populate Event object.
  */
-void SteppingAction::UserSteppingAction(const G4Step* step)
+void SteppingAction::UserSteppingAction(G4Step const* step)
 {
     if (!root_io_)
     {
         return;
     }
 
-    const auto parent_id = step->GetTrack()->GetParentID();
+    auto const parent_id = step->GetTrack()->GetParentID();
 
     if (store_primary_ && parent_id == 0)
     {
@@ -59,7 +59,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 /*!
  * Store track data.
  */
-void SteppingAction::store_track_data(const G4Step* step)
+void SteppingAction::store_track_data(G4Step const* step)
 {
     root_io_->track_.energy_dep += step->GetTotalEnergyDeposit() / MeV;
     root_io_->track_.number_of_steps++;
@@ -74,32 +74,36 @@ void SteppingAction::store_track_data(const G4Step* step)
 /*!
  * Populate step information in RootIO::track_.
  */
-void SteppingAction::store_step_data(const G4Step* step)
+void SteppingAction::store_step_data(G4Step const* step)
 {
     rootdata::Step this_step;
 
-    const auto& post_step = step->GetPostStepPoint();
+    auto const& post_step = step->GetPostStepPoint();
     if (post_step->GetStepStatus() == fUndefined)
     {
         // Post step status is undefined; GetProcessDefinedStep() is a nullptr
         // Only caused by geantinos
         this_step.process_id = rootdata::ProcessId::not_mapped;
+        std::cout << "not mapped" << std::endl;
     }
     else
     {
         // Post step is defined; find its ID
         this_step.process_id = rootdata::to_process_name_id(
             step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName());
+        std::cout
+            << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()
+            << std::endl;
     }
 
     this_step.kinetic_energy = post_step->GetKineticEnergy() / MeV;
-    this_step.energy_loss    = step->GetTotalEnergyDeposit() / MeV;
-    this_step.length         = step->GetStepLength() / cm;
-    this_step.global_time    = post_step->GetGlobalTime() / s;
-    G4ThreeVector pos        = post_step->GetPosition() / cm;
-    G4ThreeVector dir        = post_step->GetMomentumDirection();
-    this_step.position       = {pos.x(), pos.y(), pos.z()};
-    this_step.direction      = {dir.x(), dir.y(), dir.z()};
+    this_step.energy_loss = step->GetTotalEnergyDeposit() / MeV;
+    this_step.length = step->GetStepLength() / cm;
+    this_step.global_time = post_step->GetGlobalTime() / s;
+    G4ThreeVector pos = post_step->GetPosition() / cm;
+    G4ThreeVector dir = post_step->GetMomentumDirection();
+    this_step.position = {pos.x(), pos.y(), pos.z()};
+    this_step.direction = {dir.x(), dir.y(), dir.z()};
 
     root_io_->track_.steps.push_back(std::move(this_step));
 

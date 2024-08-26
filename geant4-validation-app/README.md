@@ -60,6 +60,7 @@ _Celeritas_ `demo-loop` app.
 - Set `GUI` to true to open Qt5 interface to visualize geometry and events. Not
 used if `USE_QT=OFF`.  
   - Edit the visualization macro `vis.mac` to change viewing preferences.  
+- Scintillation physics needs `"e_ionization": true`.  
 
 ```json
 {
@@ -101,7 +102,9 @@ used if `USE_QT=OFF`.
         "e_ionization": true,
         "coulomb_scattering": false,
         "multiple_scattering_low": false,
-        "multiple_scattering_high": false
+        "multiple_scattering_high": false,
+        "scintillation": false,
+        "cerenkov": false
     },
     "verbosity": {
         "RunManager": 0,

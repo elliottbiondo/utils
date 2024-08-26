@@ -8,16 +8,15 @@
 #include "TrackingAction.hh"
 
 #include <algorithm>
-#include <G4Track.hh>
-#include <G4SystemOfUnits.hh>
 #include <G4Electron.hh>
 #include <G4Gamma.hh>
 #include <G4Positron.hh>
+#include <G4SystemOfUnits.hh>
 #include <G4Track.hh>
-
-#include "JsonReader.hh"
-#include "Celeritas.hh"
 #include <accel/ExceptionConverter.hh>
+
+#include "Celeritas.hh"
+#include "JsonReader.hh"
 
 //---------------------------------------------------------------------------//
 /*!
@@ -26,17 +25,17 @@
 TrackingAction::TrackingAction()
     : G4UserTrackingAction(), root_io_(RootIO::instance())
 {
-    const auto& json_sim = JsonReader::instance()->json().at("simulation");
-    offload_             = json_sim.at("offload").get<bool>();
-    store_primaries_     = json_sim.at("primary_info").get<bool>();
-    store_secondaries_   = json_sim.at("secondary_info").get<bool>();
+    auto const& json_sim = JsonReader::instance()->json().at("simulation");
+    offload_ = json_sim.at("offload").get<bool>();
+    store_primaries_ = json_sim.at("primary_info").get<bool>();
+    store_secondaries_ = json_sim.at("secondary_info").get<bool>();
 }
 
 //---------------------------------------------------------------------------//
 /*!
  *  Pre-track simulation actions.
  */
-void TrackingAction::PreUserTrackingAction(const G4Track* track)
+void TrackingAction::PreUserTrackingAction(G4Track const* track)
 {
     if (offload_)
     {
@@ -74,7 +73,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track)
 /*!
  *  Post-track simulation actions.
  */
-void TrackingAction::PostUserTrackingAction(const G4Track* track)
+void TrackingAction::PostUserTrackingAction(G4Track const* track)
 {
     if (!root_io_)
     {
@@ -92,13 +91,13 @@ void TrackingAction::PostUserTrackingAction(const G4Track* track)
 
     // Store track information
     root_io_->track_.pdg = track->GetParticleDefinition()->GetPDGEncoding();
-    root_io_->track_.id  = track->GetTrackID();
-    root_io_->track_.parent_id        = track->GetParentID();
-    root_io_->track_.length           = track->GetTrackLength() / cm;
-    root_io_->track_.vertex_energy    = track->GetVertexKineticEnergy() / MeV;
-    G4ThreeVector pos                 = track->GetVertexPosition() / cm;
-    G4ThreeVector dir                 = track->GetVertexMomentumDirection();
-    root_io_->track_.vertex_position  = {pos.x(), pos.y(), pos.z()};
+    root_io_->track_.id = track->GetTrackID();
+    root_io_->track_.parent_id = track->GetParentID();
+    root_io_->track_.length = track->GetTrackLength() / cm;
+    root_io_->track_.vertex_energy = track->GetVertexKineticEnergy() / MeV;
+    G4ThreeVector pos = track->GetVertexPosition() / cm;
+    G4ThreeVector dir = track->GetVertexMomentumDirection();
+    root_io_->track_.vertex_position = {pos.x(), pos.y(), pos.z()};
     root_io_->track_.vertex_direction = {dir.x(), dir.y(), dir.z()};
 
     if (store_primaries_ && track->GetParentID() == 0)

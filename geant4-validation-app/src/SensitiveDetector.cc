@@ -8,11 +8,11 @@
 #include "SensitiveDetector.hh"
 
 #include <algorithm>
-#include <G4SystemOfUnits.hh>
-#include <G4VProcess.hh>
 #include <G4PhysicalVolumeStore.hh>
-#include <G4ThreeVector.hh>
 #include <G4Step.hh>
+#include <G4SystemOfUnits.hh>
+#include <G4ThreeVector.hh>
+#include <G4VProcess.hh>
 
 #include "RootIO.hh"
 
@@ -20,7 +20,7 @@
 /*!
  * Construct with sensitive detector name.
  */
-SensitiveDetector::SensitiveDetector(G4String         sd_name,
+SensitiveDetector::SensitiveDetector(G4String sd_name,
                                      G4LogicalVolume* logical_volume)
     : G4VSensitiveDetector(sd_name)
     , sd_name_(sd_name)
@@ -31,15 +31,15 @@ SensitiveDetector::SensitiveDetector(G4String         sd_name,
         return;
     }
 
-    const auto* phys_vol_store = G4PhysicalVolumeStore::GetInstance();
-    const auto& log_vol_name   = logical_volume->GetName();
+    auto const* phys_vol_store = G4PhysicalVolumeStore::GetInstance();
+    auto const& log_vol_name = logical_volume->GetName();
 
-    for (const auto& phys_vol : *phys_vol_store)
+    for (auto const& phys_vol : *phys_vol_store)
     {
         if (phys_vol->GetLogicalVolume()->GetName() == log_vol_name)
         {
             rootdata::SensDetGdml sd_gdml;
-            sd_gdml.name        = sd_name;
+            sd_gdml.name = sd_name;
             sd_gdml.copy_number = phys_vol->GetCopyNo();
 
             root_io_->add_sd(sd_gdml);
@@ -70,7 +70,7 @@ G4bool SensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
         return false;
     }
 
-    const double energy_dep = step->GetTotalEnergyDeposit() / MeV;
+    double const energy_dep = step->GetTotalEnergyDeposit() / MeV;
 
     if (!energy_dep)
     {
@@ -92,11 +92,12 @@ G4bool SensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
     }
 
     rootdata::SensDetGdml sd_gdml;
-    sd_gdml.name        = sd_name_;
-    sd_gdml.copy_number = step->GetPreStepPoint()->GetTouchableHandle()->GetVolume()->GetCopyNo();
+    sd_gdml.name = sd_name_;
+    sd_gdml.copy_number
+        = step->GetPreStepPoint()->GetTouchableHandle()->GetVolume()->GetCopyNo();
 
     // Find correct index in root_io->event_.sensitive_detectors
-    const auto& iter = root_io_->sdgdml_sensdetidx_.find(sd_gdml);
+    auto const& iter = root_io_->sdgdml_sensdetidx_.find(sd_gdml);
     assert(iter != root_io_->sdgdml_sensdetidx_.end());
     auto idx = iter->second;
 
@@ -125,9 +126,9 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
     }
 
     // Store data limit information
-    const auto& sd_vector = root_io_->event_.sensitive_detectors;
-    auto&       lim       = root_io_->data_limits_;
-    for (const auto& sd : sd_vector)
+    auto const& sd_vector = root_io_->event_.sensitive_detectors;
+    auto& lim = root_io_->data_limits_;
+    for (auto const& sd : sd_vector)
     {
         lim.max_sd_energy = std::max(sd.energy_deposition, lim.max_sd_energy);
         lim.max_sd_num_steps

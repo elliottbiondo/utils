@@ -34,15 +34,15 @@ class BremsstrahlungProcess : public G4VEnergyLossProcess
     ~BremsstrahlungProcess();
 
     // True for electrons and positrons
-    bool IsApplicable(const G4ParticleDefinition& particle) final;
+    bool IsApplicable(G4ParticleDefinition const& particle) final;
 
     // Print documentation
     void ProcessDescription(std::ostream&) const override;
 
   protected:
     // Initialise process by constructing selected models
-    void InitialiseEnergyLossProcess(const G4ParticleDefinition*,
-                                     const G4ParticleDefinition*) override;
+    void InitialiseEnergyLossProcess(G4ParticleDefinition const*,
+                                     G4ParticleDefinition const*) override;
     // Print class parameters
     void StreamProcessInfo(std::ostream& output) const override;
 
@@ -51,9 +51,9 @@ class BremsstrahlungProcess : public G4VEnergyLossProcess
 
   private:
     // Hide assignment operator
-    BremsstrahlungProcess& operator=(const BremsstrahlungProcess& right)
+    BremsstrahlungProcess& operator=(BremsstrahlungProcess const& right)
         = delete;
-    BremsstrahlungProcess(const BremsstrahlungProcess&) = delete;
+    BremsstrahlungProcess(BremsstrahlungProcess const&) = delete;
 
   private:
     ModelSelection model_selection_;

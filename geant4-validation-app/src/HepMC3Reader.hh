@@ -10,9 +10,9 @@
 
 #include <memory>
 #include <vector>
+#include <HepMC3/GenEvent.h>
 #include <HepMC3/GenParticle_fwd.h>
 #include <HepMC3/GenVertex_fwd.h>
-#include <HepMC3/GenEvent.h>
 
 #include "RootData.hh"
 
@@ -20,7 +20,7 @@ namespace HepMC3
 {
 class GenEvent;
 class Reader;
-} // namespace HepMC3
+}  // namespace HepMC3
 
 //---------------------------------------------------------------------------//
 /*!
@@ -35,7 +35,7 @@ class HepMC3Reader
   public:
     struct Primary
     {
-        int    pdg;
+        int pdg;
         double energy;
         double vertex[3];
         double momentum[3];

@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2021-2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2021-2024 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -7,45 +7,39 @@
 //---------------------------------------------------------------------------//
 #include "PhysicsList.hh"
 
-#include "JsonReader.hh"
-#include "G4appMacros.hh"
-
-#include <G4ProcessManager.hh>
-#include <G4SystemOfUnits.hh>
-#include <G4PhysicsListHelper.hh>
-#include <G4TransportationManager.hh>
-
-#include <G4Gamma.hh>
-#include <G4Electron.hh>
-#include <G4Positron.hh>
-#include <G4Proton.hh>
-#include <G4GenericIon.hh>
-
-#include "BremsstrahlungProcess.hh"
-
-#include <G4PhotoElectricEffect.hh>
-#include <G4LivermorePhotoElectricModel.hh>
-
+#include <G4Cerenkov.hh>
 #include <G4ComptonScattering.hh>
-
-#include <G4GammaConversion.hh>
-#include <G4PairProductionRelModel.hh>
-
 #include <G4CoulombScattering.hh>
-#include <G4eCoulombScatteringModel.hh>
-
-#include <G4eIonisation.hh>
-#include <G4MollerBhabhaModel.hh>
-
-#include <G4RayleighScattering.hh>
+#include <G4Electron.hh>
+#include <G4Gamma.hh>
+#include <G4GammaConversion.hh>
+#include <G4GenericIon.hh>
+#include <G4LivermorePhotoElectricModel.hh>
 #include <G4LivermoreRayleighModel.hh>
-
-#include <G4eplusAnnihilation.hh>
-#include <G4eeToTwoGammaModel.hh>
-
-#include <G4eMultipleScattering.hh>
+#include <G4MollerBhabhaModel.hh>
+#include <G4OpticalParameters.hh>
+#include <G4OpticalPhoton.hh>
+#include <G4PairProductionRelModel.hh>
+#include <G4PhotoElectricEffect.hh>
+#include <G4PhysicsListHelper.hh>
+#include <G4Positron.hh>
+#include <G4ProcessManager.hh>
+#include <G4Proton.hh>
+#include <G4RayleighScattering.hh>
+#include <G4Scintillation.hh>
+#include <G4SystemOfUnits.hh>
+#include <G4TransportationManager.hh>
 #include <G4UrbanMscModel.hh>
 #include <G4WentzelVIModel.hh>
+#include <G4eCoulombScatteringModel.hh>
+#include <G4eIonisation.hh>
+#include <G4eMultipleScattering.hh>
+#include <G4eeToTwoGammaModel.hh>
+#include <G4eplusAnnihilation.hh>
+
+#include "BremsstrahlungProcess.hh"
+#include "G4appMacros.hh"
+#include "JsonReader.hh"
 
 //---------------------------------------------------------------------------//
 /*!
@@ -53,8 +47,8 @@
  */
 PhysicsList::PhysicsList() : G4VUserPhysicsList()
 {
-    const auto  json     = JsonReader::instance()->json();
-    const auto& json_sim = json.at("simulation");
+    auto const json = JsonReader::instance()->json();
+    auto const& json_sim = json.at("simulation");
 
     // Update selected processes according to the json
     for (auto pair : selected_processes_)
@@ -64,16 +58,13 @@ PhysicsList::PhysicsList() : G4VUserPhysicsList()
     }
 
     auto em_parameters = G4EmParameters::Instance();
-
     bool eloss_fluct = json_sim.at("eloss_fluctuation").get<bool>();
     em_parameters->SetLossFluctuations(eloss_fluct);
+    int level = json.at("verbosity").at("PhysicsList").get<int>();
+    em_parameters->SetVerbose(level);
 
     // TODO implement binning
     // em_parameters->SetNumberOfBinsPerDecade(nbins);
-
-    // Set verbosity level
-    int level = json.at("verbosity").at("PhysicsList").get<int>();
-    em_parameters->SetVerbose(level);
 
     // Set spline; TODO use G4VEmProcess::SetSplineFlag for v11
 #if G4_V10
@@ -102,16 +93,21 @@ void PhysicsList::ConstructParticle()
     G4Positron::PositronDefinition();
     G4Proton::ProtonDefinition();
 
-    const bool msc_on
+    bool const msc
         = (selected_processes_.find("multiple_scattering_low")->second
            || selected_processes_.find("multiple_scattering_high")->second);
-
-    const bool coulomb_on
+    bool const coulomb_on
         = selected_processes_.find("coulomb_scattering")->second;
-
-    if (msc_on || coulomb_on)
+    if (msc || coulomb)
     {
         G4GenericIon::GenericIonDefinition();
+    }
+
+    bool const optical = (selected_processes_.find("scintillation")->second
+                          || selected_processes_.find("cerenkov")->second);
+    if (optical)
+    {
+        G4OpticalPhoton::OpticalPhotonDefinition();
     }
 }
 
@@ -128,6 +124,9 @@ void PhysicsList::ConstructProcess()
     this->add_gamma_processes();
     this->add_e_processes(G4Electron::Electron());
     this->add_e_processes(G4Positron::Positron());
+
+    // Add optical physics processes
+    this->add_optical_processes();
 }
 
 //---------------------------------------------------------------------------//
@@ -147,8 +146,8 @@ void PhysicsList::ConstructProcess()
  */
 void PhysicsList::add_gamma_processes()
 {
-    auto       physics_list = G4PhysicsListHelper::GetPhysicsListHelper();
-    const auto gamma        = G4Gamma::Gamma();
+    auto* physics_list = G4PhysicsListHelper::GetPhysicsListHelper();
+    auto const gamma = G4Gamma::Gamma();
 
     if (selected_processes_.find("compton_scattering")->second)
     {
@@ -185,7 +184,7 @@ void PhysicsList::add_gamma_processes()
  * Add EM processes for electrons and positrons.
  *
  * | Processes                    | Model class               |
- * | ---------------------------- | --------------------------|
+ * | ---------------------------- | ------------------------- |
  * | Pair annihilation            | G4eeToTwoGammaModel       |
  * | Ionization                   | G4MollerBhabhaModel       |
  * | Bremsstrahlung (low E)       | G4SeltzerBergerModel      |
@@ -199,7 +198,7 @@ void PhysicsList::add_gamma_processes()
  */
 void PhysicsList::add_e_processes(G4ParticleDefinition* particle)
 {
-    auto physics_list = G4PhysicsListHelper::GetPhysicsListHelper();
+    auto* physics_list = G4PhysicsListHelper::GetPhysicsListHelper();
 
     if (selected_processes_.find("positron_annihilation")->second
         && particle == G4Positron::Positron())
@@ -219,7 +218,7 @@ void PhysicsList::add_e_processes(G4ParticleDefinition* particle)
     if (selected_processes_.find("bremsstrahlung")->second)
     {
         // Bremmstrahlung: G4SeltzerBergerModel + G4eBremsstrahlungRelModel
-        auto models        = BremsstrahlungProcess::ModelSelection::all;
+        auto models = BremsstrahlungProcess::ModelSelection::all;
         auto brems_process = std::make_unique<BremsstrahlungProcess>(models);
         physics_list->RegisterProcess(brems_process.release(), particle);
 
@@ -232,7 +231,7 @@ void PhysicsList::add_e_processes(G4ParticleDefinition* particle)
             // information on which "do its" are activated for each process and
             // the default process ordering.
             auto* process_manager = particle->GetProcessManager();
-            auto* bremsstrahlung  = dynamic_cast<BremsstrahlungProcess*>(
+            auto* bremsstrahlung = dynamic_cast<BremsstrahlungProcess*>(
                 process_manager->GetProcess("eBrem"));
             auto order = process_manager->GetProcessOrdering(
                 bremsstrahlung, G4ProcessVectorDoItIndex::idxPostStep);
@@ -247,11 +246,11 @@ void PhysicsList::add_e_processes(G4ParticleDefinition* particle)
     if (selected_processes_.find("coulomb_scattering")->second)
     {
         // Coulomb scattering: G4eCoulombScatteringModel
-        const double msc_threshold_energy
+        double const msc_threshold_energy
             = G4EmParameters::Instance()->MscEnergyLimit();
 
         auto coulomb_process = std::make_unique<G4CoulombScattering>();
-        auto coulomb_model   = std::make_unique<G4eCoulombScatteringModel>();
+        auto coulomb_model = std::make_unique<G4eCoulombScatteringModel>();
         coulomb_process->SetMinKinEnergy(msc_threshold_energy);
         coulomb_model->SetLowEnergyLimit(msc_threshold_energy);
         coulomb_model->SetActivationLowEnergyLimit(msc_threshold_energy);
@@ -259,15 +258,15 @@ void PhysicsList::add_e_processes(G4ParticleDefinition* particle)
         physics_list->RegisterProcess(coulomb_process.release(), particle);
     }
 
-    const bool msc_low
+    bool const msc_low
         = selected_processes_.find("multiple_scattering_low")->second;
-    const bool msc_high
+    bool const msc_high
         = selected_processes_.find("multiple_scattering_high")->second;
 
     if (msc_low || msc_high)
     {
         // Multiple scattering
-        const double msc_threshold_energy
+        double const msc_threshold_energy
             = G4EmParameters::Instance()->MscEnergyLimit();
         auto msc_process = std::make_unique<G4eMultipleScattering>();
 
@@ -290,5 +289,52 @@ void PhysicsList::add_e_processes(G4ParticleDefinition* particle)
         }
 
         physics_list->RegisterProcess(msc_process.release(), particle);
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Add optical physics processes to all applicable particles.
+ *
+ * | Processes     | Model class      |
+ * | --------------| ---------------- |
+ * | Scintillation | G4Scintillation  |
+ * | Cerenkov      | G4Cerenkov       |
+ */
+void PhysicsList::add_optical_processes()
+{
+    using G4PVDII = G4ProcessVectorDoItIndex;
+
+    auto* physics_list = G4PhysicsListHelper::GetPhysicsListHelper();
+    auto const* params = G4OpticalParameters::Instance();
+
+    auto* cerenkov = new G4Cerenkov();
+    auto* scintillation = new G4Scintillation();
+
+    auto iter_part = GetParticleIterator();
+    iter_part->reset();
+    while ((*iter_part)())
+    {
+        auto const& particle_def = *iter_part->value();
+        assert(&particle_def);
+        auto const& particle_name = particle_def.GetParticleName();
+        auto* proc_mgr = particle_def.GetProcessManager();
+        assert(proc_mgr);
+
+        if (cerenkov->IsApplicable(particle_def)
+            && params->GetProcessActivation("Cerenkov"))
+        {
+            proc_mgr->AddProcess(cerenkov);
+            proc_mgr->SetProcessOrdering(cerenkov, G4PVDII::idxPostStep);
+        }
+        if (scintillation->IsApplicable(particle_def)
+            && params->GetProcessActivation("Scintillation"))
+        {
+            proc_mgr->AddProcess(scintillation);
+            proc_mgr->SetProcessOrderingToLast(scintillation,
+                                               G4PVDII::idxAtRest);
+            proc_mgr->SetProcessOrderingToLast(scintillation,
+                                               G4PVDII::idxPostStep);
+        }
     }
 }

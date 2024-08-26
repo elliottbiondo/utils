@@ -7,11 +7,11 @@
 //---------------------------------------------------------------------------//
 #include "ActionInitialization.hh"
 
+#include "EventAction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
-#include "TrackingAction.hh"
 #include "SteppingAction.hh"
-#include "EventAction.hh"
+#include "TrackingAction.hh"
 
 //---------------------------------------------------------------------------//
 /*!

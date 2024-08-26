@@ -8,9 +8,9 @@
 #include "HepMC3Reader.hh"
 
 #include <iostream>
-#include <assert.h>
-#include <HepMC3/ReaderFactory.h>
 #include <G4SystemOfUnits.hh>
+#include <HepMC3/ReaderFactory.h>
+#include <assert.h>
 
 #include "JsonReader.hh"
 
@@ -63,23 +63,23 @@ bool HepMC3Reader::read_event()
 
         event_primaries_.clear();
 
-        const auto& pos       = gen_event_.event_pos();
-        const auto& particles = gen_event_.particles();
+        auto const& pos = gen_event_.event_pos();
+        auto const& particles = gen_event_.particles();
 
-        for (const auto& particle : particles)
+        for (auto const& particle : particles)
         {
-            const auto& data = particle->data();
-            const auto& p    = data.momentum;
+            auto const& data = particle->data();
+            auto const& p = data.momentum;
 
             Primary primary;
-            primary.pdg         = data.pid;
-            primary.energy      = data.momentum.e();
+            primary.pdg = data.pid;
+            primary.energy = data.momentum.e();
             primary.momentum[0] = p.x();
             primary.momentum[1] = p.y();
             primary.momentum[2] = p.z();
-            primary.vertex[0]   = pos.x() * cm;
-            primary.vertex[1]   = pos.y() * cm;
-            primary.vertex[2]   = pos.z() * cm;
+            primary.vertex[0] = pos.x() * cm;
+            primary.vertex[1] = pos.y() * cm;
+            primary.vertex[2] = pos.z() * cm;
 
             event_primaries_.push_back(std::move(primary));
         }
@@ -103,12 +103,12 @@ bool HepMC3Reader::read_event()
 HepMC3Reader::HepMC3Reader() : number_of_events_(-1)
 {
     // Load input
-    const auto json  = JsonReader::instance()->json();
-    const auto input = json.at("simulation").at("hepmc3").get<std::string>();
-    input_file_      = HepMC3::deduce_reader(input);
+    auto const json = JsonReader::instance()->json();
+    auto const input = json.at("simulation").at("hepmc3").get<std::string>();
+    input_file_ = HepMC3::deduce_reader(input);
 
     // Fetch total number of events
-    const auto file = HepMC3::deduce_reader(input);
+    auto const file = HepMC3::deduce_reader(input);
 
     while (!file->failed())
     {

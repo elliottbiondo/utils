@@ -8,9 +8,9 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
-#include <string>
-#include <memory>
 #include <map>
+#include <memory>
+#include <string>
 
 #include "G4appMacros.hh"
 #include "RootData.hh"
@@ -39,7 +39,7 @@ class RootIO
 {
   public:
     // Construct by initializing singleton and TFile
-    static void construct(const char* root_filename);
+    static void construct(char const* root_filename);
 
     // Get singleton instance
     static RootIO* instance();
@@ -86,17 +86,17 @@ class RootIO
     RootUP<TTree> ttree_data_limits_;
 
     // Temporary objects in memory written to the TFile at TTree->Fill()
-    rootdata::Event      event_;
-    rootdata::Track      track_;
+    rootdata::Event event_;
+    rootdata::Track track_;
     rootdata::DataLimits data_limits_;
-    unsigned long        steps_per_event_;
+    unsigned long steps_per_event_;
 
     // Map SD name/copy number to index in event_.sensitive_detectors
     SensitiveDetectorMap sdgdml_sensdetidx_;
 
   private:
     // Invoked by construct()
-    RootIO(const char* root_filename);
+    RootIO(char const* root_filename);
 
   private:
     bool is_performance_run_;
@@ -104,7 +104,7 @@ class RootIO
 
 //---------------------------------------------------------------------------//
 #if !USE_ROOT
-inline void RootIO::construct(const char*)
+inline void RootIO::construct(char const*)
 {
     // Do not initialize singleton
     return;

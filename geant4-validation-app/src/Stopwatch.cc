@@ -19,7 +19,7 @@ Stopwatch::Stopwatch() {}
  */
 void Stopwatch::start()
 {
-    cpu_start_  = std::clock(); // [ms]
+    cpu_start_ = std::clock();  // [ms]
     wall_start_ = std::chrono::high_resolution_clock::now();
 }
 
@@ -29,7 +29,7 @@ void Stopwatch::start()
  */
 void Stopwatch::stop()
 {
-    cpu_stop_  = std::clock(); // [ms]
+    cpu_stop_ = std::clock();  // [ms]
     wall_stop_ = std::chrono::high_resolution_clock::now();
 }
 

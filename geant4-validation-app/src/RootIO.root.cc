@@ -8,13 +8,13 @@
 #include "RootIO.hh"
 
 #include <iostream>
-#include <assert.h>
 #include <G4RunManager.hh>
 #include <TFile.h>
 #include <TTree.h>
+#include <assert.h>
 
-#include "JsonReader.hh"
 #include "HepMC3Reader.hh"
+#include "JsonReader.hh"
 
 //---------------------------------------------------------------------------//
 /*!
@@ -30,7 +30,7 @@ static RootIO* rootio_singleton = nullptr;
 /*!
  * Constructor singleton.
  */
-void RootIO::construct(const char* root_filename)
+void RootIO::construct(char const* root_filename)
 {
     if (!rootio_singleton)
     {
@@ -127,17 +127,17 @@ void RootIO::store_sd_map()
     std::unique_ptr<TTree> ttree_sd_map;
     ttree_sd_map.reset(new TTree("sensitive_detectors", "sensitive_detectors"));
 
-    std::string  name;
+    std::string name;
     unsigned int copy_num;
     unsigned int event_sd_index;
     ttree_sd_map->Branch("name", &name);
     ttree_sd_map->Branch("copy_num", &copy_num);
     ttree_sd_map->Branch("event_sd_index", &event_sd_index);
 
-    for (const auto& key : sdgdml_sensdetidx_)
+    for (auto const& key : sdgdml_sensdetidx_)
     {
-        name           = key.first.name;
-        copy_num       = key.first.copy_number;
+        name = key.first.name;
+        copy_num = key.first.copy_number;
         event_sd_index = key.second;
         ttree_sd_map->Fill();
     }
@@ -154,7 +154,7 @@ void RootIO::store_input()
     assert(tfile_->IsOpen());
 
     // >>> Fetch input data
-    const auto& json          = JsonReader::instance()->json();
+    auto const& json = JsonReader::instance()->json();
     auto* hepmc3_reader = HepMC3Reader::instance();
 
     unsigned int g4_version = G4VERSION_NUMBER;
@@ -163,44 +163,46 @@ void RootIO::store_input()
     std::string geometry_name = json.at("geometry").get<std::string>();
 
     // Simulation
-    const auto& json_sim   = json.at("simulation");
+    auto const& json_sim = json.at("simulation");
     std::string hepmc3_inp = json_sim.at("hepmc3").get<std::string>();
-    const auto  json_gun   = json_sim.at("particle_gun");
+    auto const json_gun = json_sim.at("particle_gun");
 
     std::string simulation = !hepmc3_inp.empty() ? hepmc3_inp : "particle_gun";
-    std::size_t events     = !hepmc3_inp.empty()
-                                 ? hepmc3_reader->number_of_events()
-                                 : json_gun.at("events").get<size_t>();
+    std::size_t events = !hepmc3_inp.empty()
+                             ? hepmc3_reader->number_of_events()
+                             : json_gun.at("events").get<size_t>();
 
-    int    pdg    = json_gun.at("pdg").get<int>();
+    int pdg = json_gun.at("pdg").get<int>();
     double energy = json_gun.at("energy").get<double>();
 
     double vertex[3], direction[3];
     for (int i = 0; i < 3; i++)
     {
-        vertex[i]    = json_gun.at("vertex")[i].get<double>();
+        vertex[i] = json_gun.at("vertex")[i].get<double>();
         direction[i] = json_gun.at("direction")[i].get<double>();
     }
 
-    long        seed        = CLHEP::HepRandom::getTheSeed();
-    std::string rng         = CLHEP::HepRandom::getTheEngine()->name();
-    int         threads     = USE_MT ? json_sim.at("threads").get<int>() : 1;
-    bool        spline      = json_sim.at("spline").get<bool>();
-    bool        eloss_fluct = json_sim.at("eloss_fluctuation").get<bool>();
+    long seed = CLHEP::HepRandom::getTheSeed();
+    std::string rng = CLHEP::HepRandom::getTheEngine()->name();
+    int threads = USE_MT ? json_sim.at("threads").get<int>() : 1;
+    bool spline = json_sim.at("spline").get<bool>();
+    bool eloss_fluct = json_sim.at("eloss_fluctuation").get<bool>();
 
     // Physics list
-    const auto jphys = json.at("physics");
+    auto const jphys = json.at("physics");
 
-    bool compton_scattering    = jphys.at("compton_scattering").get<bool>();
-    bool photoelectric         = jphys.at("photoelectric").get<bool>();
-    bool rayleigh_scattering   = jphys.at("rayleigh_scattering").get<bool>();
-    bool gamma_conversion      = jphys.at("gamma_conversion").get<bool>();
+    bool compton_scattering = jphys.at("compton_scattering").get<bool>();
+    bool photoelectric = jphys.at("photoelectric").get<bool>();
+    bool rayleigh_scattering = jphys.at("rayleigh_scattering").get<bool>();
+    bool gamma_conversion = jphys.at("gamma_conversion").get<bool>();
     bool positron_annihilation = jphys.at("positron_annihilation").get<bool>();
-    bool bremsstrahlung        = jphys.at("bremsstrahlung").get<bool>();
-    bool e_ionization          = jphys.at("e_ionization").get<bool>();
-    bool coulomb_scattering    = jphys.at("coulomb_scattering").get<bool>();
-    bool msc_low  = jphys.at("multiple_scattering_low").get<bool>();
+    bool bremsstrahlung = jphys.at("bremsstrahlung").get<bool>();
+    bool e_ionization = jphys.at("e_ionization").get<bool>();
+    bool coulomb_scattering = jphys.at("coulomb_scattering").get<bool>();
+    bool msc_low = jphys.at("multiple_scattering_low").get<bool>();
     bool msc_high = jphys.at("multiple_scattering_high").get<bool>();
+    bool scint = jphys.at("scintillation").get<bool>();
+    bool cerenkov = jphys.at("cerenkov").get<bool>();
 
     // >>> Store info into branches
     std::unique_ptr<TTree> ttree_input;
@@ -236,6 +238,8 @@ void RootIO::store_input()
     ttree_input->Branch("coulomb_scattering", &coulomb_scattering);
     ttree_input->Branch("multiple_scattering_low", &msc_low);
     ttree_input->Branch("multiple_scattering_high", &msc_high);
+    ttree_input->Branch("scintillation", &scint);
+    ttree_input->Branch("cerenkov", &cerenkov);
 
     ttree_input->Fill();
     ttree_input->Write();
@@ -267,7 +271,7 @@ void RootIO::write_tfile()
 /*!
  * Construct new TFile with ROOT filename.
  */
-RootIO::RootIO(const char* root_filename)
+RootIO::RootIO(char const* root_filename)
 {
     tfile_.reset(TFile::Open(root_filename, "recreate"));
 
@@ -278,7 +282,7 @@ RootIO::RootIO(const char* root_filename)
     ttree_data_limits_->Branch("data_limits", &data_limits_);
     data_limits_ = rootdata::DataLimits();
 
-    const auto json = JsonReader::instance()->json();
+    auto const json = JsonReader::instance()->json();
     is_performance_run_
         = json.at("simulation").at("performance_run").get<bool>();
 

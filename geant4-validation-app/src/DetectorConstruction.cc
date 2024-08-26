@@ -21,7 +21,7 @@
 DetectorConstruction::DetectorConstruction() : G4VUserDetectorConstruction()
 {
     // Fetch GDML name and load physical world volume
-    const auto&  json            = JsonReader::instance()->json();
+    auto const& json = JsonReader::instance()->json();
     std::string gdml_input_file = json.at("geometry").get<std::string>();
 
     gdml_parser_.SetStripFlag(false);
@@ -44,7 +44,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
  */
 void DetectorConstruction::ConstructSDandField()
 {
-    const auto& json_sim = JsonReader::instance()->json().at("simulation");
+    auto const& json_sim = JsonReader::instance()->json().at("simulation");
     if (json_sim.at("sensdet_info").get<bool>())
     {
         this->set_sd();
@@ -63,15 +63,15 @@ void DetectorConstruction::ConstructSDandField()
  */
 void DetectorConstruction::set_sd()
 {
-    auto       sd_manager = G4SDManager::GetSDMpointer();
-    const auto aux_map    = gdml_parser_.GetAuxMap();
+    auto sd_manager = G4SDManager::GetSDMpointer();
+    auto const aux_map = gdml_parser_.GetAuxMap();
 
     for (auto iter = aux_map->begin(); iter != aux_map->end(); iter++)
     {
-        const auto& log_vol       = iter->first;
-        const auto& aux_list_type = iter->second;
+        auto const& log_vol = iter->first;
+        auto const& aux_list_type = iter->second;
 
-        for (const auto& element : aux_list_type)
+        for (auto const& element : aux_list_type)
         {
             if (element.type != "SensDet")
             {
@@ -81,7 +81,7 @@ void DetectorConstruction::set_sd()
 
             // Add sensitive detector
             std::string sd_name = element.value;
-            auto        this_sd = new SensitiveDetector(sd_name, log_vol);
+            auto this_sd = new SensitiveDetector(sd_name, log_vol);
             sd_manager->AddNewDetector(this_sd);
             G4VUserDetectorConstruction::SetSensitiveDetector(
                 log_vol->GetName(), this_sd);

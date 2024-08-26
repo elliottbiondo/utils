@@ -8,10 +8,10 @@
 #include "RunAction.hh"
 
 #include <G4RunManager.hh>
-
-#include "JsonReader.hh"
-#include "Celeritas.hh"
 #include <accel/ExceptionConverter.hh>
+
+#include "Celeritas.hh"
+#include "JsonReader.hh"
 
 //---------------------------------------------------------------------------//
 /*!
@@ -19,7 +19,7 @@
  */
 RunAction::RunAction() : G4UserRunAction(), root_io_(RootIO::instance())
 {
-    const auto& json = JsonReader::instance()->json();
+    auto const& json = JsonReader::instance()->json();
 
     G4RunManager::GetRunManager()->SetVerboseLevel(
         json.at("verbosity").at("RunAction").get<int>());
@@ -44,7 +44,7 @@ RunAction::RunAction() : G4UserRunAction(), root_io_(RootIO::instance())
 /*!
  * Begin of run actions.
  */
-void RunAction::BeginOfRunAction(const G4Run*)
+void RunAction::BeginOfRunAction(G4Run const*)
 {
     if (offload_)
     {
@@ -76,7 +76,7 @@ void RunAction::BeginOfRunAction(const G4Run*)
 /*!
  * Write data to the ROOT file and write file to disk.
  */
-void RunAction::EndOfRunAction(const G4Run*)
+void RunAction::EndOfRunAction(G4Run const*)
 {
     if (offload_)
     {

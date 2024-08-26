@@ -25,12 +25,12 @@ class RunAction : public G4UserRunAction
     RunAction();
 
     // Mandatory begin of run action
-    void BeginOfRunAction(const G4Run*) override;
+    void BeginOfRunAction(G4Run const*) override;
 
     // Mandatory end of run action
-    void EndOfRunAction(const G4Run*) override;
+    void EndOfRunAction(G4Run const*) override;
 
   private:
     RootIO* root_io_;
-    bool    offload_;
+    bool offload_;
 };

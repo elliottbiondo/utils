@@ -23,13 +23,13 @@ class EventAction : public G4UserEventAction
     EventAction();
 
     // Mandatory begin of event function
-    void BeginOfEventAction(const G4Event* event) override;
+    void BeginOfEventAction(G4Event const* event) override;
     // Mandatory end of event function
-    void EndOfEventAction(const G4Event*) override;
+    void EndOfEventAction(G4Event const*) override;
 
   private:
     RootIO* root_io_;
-    bool    offload_;
-    bool    store_primaries_;
-    bool    store_secondaries_;
+    bool offload_;
+    bool store_primaries_;
+    bool store_secondaries_;
 };

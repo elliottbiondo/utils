@@ -8,8 +8,8 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
-#include <memory>
 #include <fstream>
+#include <memory>
 
 #include "G4appMacros.hh"
 #include "JsonReader.hh"
@@ -72,7 +72,7 @@ class Geant4Run
 #endif
 
     std::unique_ptr<RunManager> run_manager_;
-    nlohmann::json              json_;
-    G4UIExecutive*              qt_interface_{nullptr}; // Owned by RunManager
-    int                         num_events_;
+    nlohmann::json json_;
+    G4UIExecutive* qt_interface_{nullptr};  // Owned by RunManager
+    int num_events_;
 };

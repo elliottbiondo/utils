@@ -8,9 +8,9 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
-#include <G4VUserDetectorConstruction.hh>
-#include <G4VPhysicalVolume.hh>
 #include <G4GDMLParser.hh>
+#include <G4VPhysicalVolume.hh>
+#include <G4VUserDetectorConstruction.hh>
 
 //---------------------------------------------------------------------------//
 /*!
@@ -34,5 +34,5 @@ class DetectorConstruction : public G4VUserDetectorConstruction
   private:
     // Assigned by Constr() and released ownership at Construct()
     std::unique_ptr<G4VPhysicalVolume> phys_vol_world_;
-    G4GDMLParser                       gdml_parser_;
+    G4GDMLParser gdml_parser_;
 };

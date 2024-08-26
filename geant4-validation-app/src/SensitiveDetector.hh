@@ -8,8 +8,9 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
-#include <G4VSensitiveDetector.hh>
 #include <vector>
+#include <G4VSensitiveDetector.hh>
+
 #include "RootIO.hh"
 
 //---------------------------------------------------------------------------//
@@ -32,6 +33,6 @@ class SensitiveDetector : public G4VSensitiveDetector
     void EndOfEvent(G4HCofThisEvent*) override;
 
   private:
-    RootIO*     root_io_;
+    RootIO* root_io_;
     std::string sd_name_;
 };
