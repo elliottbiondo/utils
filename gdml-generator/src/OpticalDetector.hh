@@ -53,13 +53,16 @@ class OpticalDetector : public G4VUserDetectorConstruction
     Table scint_rindex();
 
     // Construct Cerenkov material (water)
-    G4Material* cerenkov_material();
+    G4Material* water_material();
 
     // Water refractive index (from Geant4 examples/extended/optical/OpNovice)
-    Table cerenkov_rindex();
+    Table water_rindex();
 
     // Water absorption values (from Geant4 examples/extended/optical/OpNovice)
-    Table cerenkov_absorption();
+    Table water_absorption();
+
+    // Water energy table data
+    std::vector<double> water_energy_table();
 
     // Return mass fraction of a given element
     double to_mass_fraction(std::string element_name,

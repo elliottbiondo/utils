@@ -13,7 +13,7 @@ Geant4 validation app
 ## NOTE
 **DO NOT** mismatch Geant4 versions between Celeritas and this app. E.g. do not
 link an installation of Celeritas that was built using Geant4 10.7.3 to a Geant4
-11.0.3 version of this app. This will result in missing symbol errors.
+11.0.3 version of this app, as some symbols may be undefined.
 
 
 # Build
@@ -40,27 +40,28 @@ If no root output is provided, simulation times are printed on the terminal.
 A json input file is used to set up the simulation run. Most of it is
 self-explanatory, but here is a short help:  
 
-- `geometry`: GDML input. See `geometry-exporter`.
+- `geometry`: GDML input. See `utils/gdml-generator`.
 - Leave `hepmc3` field blank to use the `particle_gun`:  
   - `energy` is in **[MeV]**.  
   - `vertex` is in **[cm]**.  
   - `direction` values are always normalized to become a unitary vector.  
 - `num_threads` sets the number of worker threads if `USE_MT=ON`.
 - `performance_run` minimizes I/O. If `true`, only performance metrics are
-produced.   
+produced.  
 - `primary_info`, `secondary_info`, `step_info` and `sensdet_info` toggle I/O
 for each object. I/O is not thread-safe yet, thus this data is not stored if
 `USE_MT=ON`.  
 - `random_seed` uses the Unix clock time as seed.
-- `verbosity` options are `0`, `1`, or `2`, except for `PrintProgress`.
+- `verbosity` options are `0`, `1`, or `2`.
 - `PrintProgress` is the interval between the event numbers printed to the
 terminal.  
 - Set `export_celeritas_root` to true to export the input file for the
-_Celeritas_ `demo-loop` app.   
+_Celeritas_ `celer-sim` app.  
 - Set `GUI` to true to open Qt5 interface to visualize geometry and events. Not
 used if `USE_QT=OFF`.  
   - Edit the visualization macro `vis.mac` to change viewing preferences.  
 - Scintillation physics needs `"e_ionization": true`.  
+- Polarization is only used for optical photon primaries (`"pdg": -22`).
 
 ```json
 {
@@ -78,8 +79,13 @@ used if `USE_QT=OFF`.
             ],
             "direction": [
                 1,
+                0,
+                0
+            ],
+            "polarization": [
                 1,
-                1
+                0,
+                0
             ]
         },
         "num_threads": 4,
@@ -104,7 +110,9 @@ used if `USE_QT=OFF`.
         "multiple_scattering_low": false,
         "multiple_scattering_high": false,
         "scintillation": false,
-        "cerenkov": false
+        "cerenkov": false,
+        "optical_rayleigh": false
+
     },
     "verbosity": {
         "RunManager": 0,

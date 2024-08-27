@@ -17,6 +17,7 @@
 #include <G4LivermorePhotoElectricModel.hh>
 #include <G4LivermoreRayleighModel.hh>
 #include <G4MollerBhabhaModel.hh>
+#include <G4OpRayleigh.hh>
 #include <G4OpticalParameters.hh>
 #include <G4OpticalPhoton.hh>
 #include <G4PairProductionRelModel.hh>
@@ -98,13 +99,17 @@ void PhysicsList::ConstructParticle()
            || selected_processes_.find("multiple_scattering_high")->second);
     bool const coulomb_on
         = selected_processes_.find("coulomb_scattering")->second;
+
     if (msc || coulomb)
     {
         G4GenericIon::GenericIonDefinition();
     }
 
-    bool const optical = (selected_processes_.find("scintillation")->second
-                          || selected_processes_.find("cerenkov")->second);
+    bool const optical
+        = (selected_processes_.find("scintillation")->second
+           || selected_processes_.find("cerenkov")->second
+           || selected_processes_.find("optical_rayleigh")->second);
+
     if (optical)
     {
         G4OpticalPhoton::OpticalPhotonDefinition();
@@ -137,7 +142,7 @@ void PhysicsList::ConstructProcess()
 /*!
  * Add EM processes for photons.
  *
- * | Processes            | Model class                   |
+ * | Process              | Model class                   |
  * | -------------------- | ----------------------------- |
  * | Compton scattering   | G4KleinNishinaCompton         |
  * | Photoelectric effect | G4LivermorePhotoElectricModel |
@@ -183,7 +188,7 @@ void PhysicsList::add_gamma_processes()
 /*!
  * Add EM processes for electrons and positrons.
  *
- * | Processes                    | Model class               |
+ * | Process                      | Model class               |
  * | ---------------------------- | ------------------------- |
  * | Pair annihilation            | G4eeToTwoGammaModel       |
  * | Ionization                   | G4MollerBhabhaModel       |
@@ -296,17 +301,30 @@ void PhysicsList::add_e_processes(G4ParticleDefinition* particle)
 /*!
  * Add optical physics processes to all applicable particles.
  *
- * | Processes     | Model class      |
- * | --------------| ---------------- |
- * | Scintillation | G4Scintillation  |
- * | Cerenkov      | G4Cerenkov       |
+ * | Process          | Model class      |
+ * | ---------------- | ---------------- |
+ * | Scintillation    | G4Scintillation  |
+ * | Cerenkov         | G4Cerenkov       |
+ * | Optical Rayleigh | G4OpRayleigh     |
  */
 void PhysicsList::add_optical_processes()
 {
     using G4PVDII = G4ProcessVectorDoItIndex;
 
-    auto* physics_list = G4PhysicsListHelper::GetPhysicsListHelper();
     auto const* params = G4OpticalParameters::Instance();
+
+    if (selected_processes_.find("optical_rayleigh")->second)
+    {
+        // G4OpRayleigh
+        auto* opt_gamma_mgr
+            = G4OpticalPhoton::OpticalPhoton()->GetProcessManager();
+        assert(opt_gamma_mgr);
+
+        if (params->GetProcessActivation("OpRayleigh"))
+        {
+            opt_gamma_mgr->AddDiscreteProcess(new G4OpRayleigh());
+        }
+    }
 
     auto* cerenkov = new G4Cerenkov();
     auto* scintillation = new G4Scintillation();
@@ -321,20 +339,29 @@ void PhysicsList::add_optical_processes()
         auto* proc_mgr = particle_def.GetProcessManager();
         assert(proc_mgr);
 
-        if (cerenkov->IsApplicable(particle_def)
-            && params->GetProcessActivation("Cerenkov"))
+        if (selected_processes_.find("scintillation")->second)
         {
-            proc_mgr->AddProcess(cerenkov);
-            proc_mgr->SetProcessOrdering(cerenkov, G4PVDII::idxPostStep);
+            if (scintillation->IsApplicable(particle_def)
+                && params->GetProcessActivation("Scintillation"))
+            {
+                // G4Scintillation
+                proc_mgr->AddProcess(scintillation);
+                proc_mgr->SetProcessOrderingToLast(scintillation,
+                                                   G4PVDII::idxAtRest);
+                proc_mgr->SetProcessOrderingToLast(scintillation,
+                                                   G4PVDII::idxPostStep);
+            }
         }
-        if (scintillation->IsApplicable(particle_def)
-            && params->GetProcessActivation("Scintillation"))
+
+        if (selected_processes_.find("cerenkov")->second)
         {
-            proc_mgr->AddProcess(scintillation);
-            proc_mgr->SetProcessOrderingToLast(scintillation,
-                                               G4PVDII::idxAtRest);
-            proc_mgr->SetProcessOrderingToLast(scintillation,
-                                               G4PVDII::idxPostStep);
+            if (cerenkov->IsApplicable(particle_def)
+                && params->GetProcessActivation("Cerenkov"))
+            {
+                // G4Cerenkov
+                proc_mgr->AddProcess(cerenkov);
+                proc_mgr->SetProcessOrdering(cerenkov, G4PVDII::idxPostStep);
+            }
         }
     }
 }

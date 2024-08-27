@@ -175,11 +175,12 @@ void RootIO::store_input()
     int pdg = json_gun.at("pdg").get<int>();
     double energy = json_gun.at("energy").get<double>();
 
-    double vertex[3], direction[3];
+    double vertex[3], direction[3], polarization[3];
     for (int i = 0; i < 3; i++)
     {
         vertex[i] = json_gun.at("vertex")[i].get<double>();
         direction[i] = json_gun.at("direction")[i].get<double>();
+        polarization[i] = json_gun.at("polarization")[i].get<double>();
     }
 
     long seed = CLHEP::HepRandom::getTheSeed();
@@ -219,7 +220,8 @@ void RootIO::store_input()
         ttree_input->Branch("pdg", &pdg);
         ttree_input->Branch("energy", &energy);
         ttree_input->Branch("vertex", vertex, "vertex[3]/D");
-        ttree_input->Branch("directions", direction, "direction[3]/D");
+        ttree_input->Branch("direction", direction, "direction[3]/D");
+        ttree_input->Branch("polarization", polarization, "polarization[3]/D");
     }
 
     ttree_input->Branch("threads", &threads);

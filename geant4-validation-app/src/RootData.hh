@@ -70,6 +70,7 @@ enum class ProcessId
     mu_pair_prod,
     scintillation,
     cerenkov,
+    optical_rayleigh,
     // Celeritas actions
     pre_step,
     msc_range,
@@ -154,26 +155,27 @@ inline bool operator<(SensDetGdml const& lhs, SensDetGdml const& rhs)
 struct Step
 {
     ProcessId process_id{ProcessId::not_mapped};
-    double kinetic_energy{0};  //!< [MeV]
-    double energy_loss{0};  //!< [MeV]
-    double length{0};  //!< [cm]
-    Array3 direction{0, 0, 0};  //!< Unit vector
-    Array3 position{0, 0, 0};  //!< [cm]
-    double global_time{0};  //!< [s]
+    double kinetic_energy{};  //!< [MeV]
+    double energy_loss{};  //!< [MeV]
+    double length{};  //!< [cm]
+    Array3 direction{};  //!< Unit vector
+    Array3 position{};  //!< [cm]
+    Array3 polarization{};  //!< Unit vector
+    double global_time{};  //!< [s]
 };
 
 struct Track
 {
-    int pdg{0};
+    int pdg{};
     int id{-1};
-    unsigned long parent_id{0};
-    double length{0};  //!< [cm]
-    double energy_dep{0};  //!< [MeV]
-    double vertex_energy{0};  //!< [MeV]
-    double vertex_global_time{0};  //!< [s]
-    Array3 vertex_direction{0, 0, 0};  //!< Unit vector
-    Array3 vertex_position{0, 0, 0};  //!< [cm]
-    std::size_t number_of_steps{0};
+    unsigned long parent_id{};
+    double length{};  //!< [cm]
+    double energy_dep{};  //!< [MeV]
+    double vertex_energy{};  //!< [MeV]
+    double vertex_global_time{};  //!< [s]
+    Array3 vertex_direction{};  //!< Unit vector
+    Array3 vertex_position{};  //!< [cm]
+    std::size_t number_of_steps{};
     std::vector<Step> steps;
 };
 
@@ -191,10 +193,10 @@ struct Event
  */
 struct ExecutionTime
 {
-    double wall_total{0};
-    double cpu_total{0};
-    double wall_sim_run{0};
-    double cpu_sim_run{0};
+    double wall_total{};
+    double cpu_total{};
+    double wall_sim_run{};
+    double cpu_sim_run{};
 
     void print()
     {
@@ -270,6 +272,7 @@ std::map<std::string, ProcessId> const process_map = {
     {"muPairProd",                ProcessId::mu_pair_prod},
     {"Scintillation",             ProcessId::scintillation},
     {"Cerenkov",                  ProcessId::cerenkov},
+    {"OpRayleigh",                ProcessId::optical_rayleigh},
     // Celeritas actions
     {"pre-step",                  ProcessId::pre_step},
     {"msc-range",                 ProcessId::msc_range},

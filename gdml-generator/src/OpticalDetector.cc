@@ -77,22 +77,18 @@ G4VPhysicalVolume* OpticalDetector::create_geometry()
     auto const scint_pv = new G4PVPlacement(
         nullptr, scint_pos, scint_lv, "scint_pv", world_lv, false, 0, false);
 
-    //// Cerenkov volume ////
+    //// Water volume ////
 
-    double const cerenkov_size = 2 * m;
-    auto* cerenkov_box
-        = new G4Box("cerenkov_box", cerenkov_size, world_size, world_size);
-    auto const cerenkov_lv = new G4LogicalVolume(
-        cerenkov_box, this->cerenkov_material(), "cerenkov_lv");
-    G4ThreeVector cerenkov_pos(3 * m, 0, 0);
-    auto const cerenkov_pv = new G4PVPlacement(nullptr,
-                                               cerenkov_pos,
-                                               cerenkov_lv,
-                                               "cerenkov_pv",
-                                               world_lv,
-                                               false,
-                                               0,
-                                               false);
+    double const water_size = 2 * m;
+    auto* water_box
+        = new G4Box("water_box", water_size, world_size, world_size);
+    auto const water_lv
+        = new G4LogicalVolume(water_box, this->water_material(), "water_lv");
+    G4ThreeVector water_box_pos(3 * m, 0, 0);
+    auto const water_pv = new G4PVPlacement(
+        nullptr, water_box_pos, water_lv, "water_pv", world_lv, false, 0, false);
+
+    //// Add Rayleigh data to water ////
 
     return world_pv;
 }
@@ -240,7 +236,7 @@ OpticalDetector::Table OpticalDetector::scint_rindex()
  * See Geant4's examples/extended/optical/OpNovice
  * ( \c OpNoviceDetectorConstruction::Construct )
  */
-G4Material* OpticalDetector::cerenkov_material()
+G4Material* OpticalDetector::water_material()
 {
     auto* hydrogen = new G4Element(
         "hydrogen", "H", /* Z = */ 1, /* A = */ 1.01 * g / mole);
@@ -252,14 +248,19 @@ G4Material* OpticalDetector::cerenkov_material()
     result->AddElement(hydrogen, 2);
     result->AddElement(oxygen, 1);
 
-    auto const water_r = this->cerenkov_rindex();
+    auto const rindex = this->water_rindex();
 
     auto prop_table = new G4MaterialPropertiesTable();
-    prop_table->AddProperty("RINDEX", water_r.energy, water_r.value);
+    prop_table->AddProperty("RINDEX", rindex.energy, rindex.value);
 
-    // TODO: enable absorption when needed
-    // auto const water_abs = this->cerenkov_absorption();
-    // prop_table->AddProperty("ABSLENGTH", water_abs.energy, water_abs.value);
+    Table rayleigh_mfp;
+    rayleigh_mfp.energy = {rindex.energy.front(), rindex.energy.back()};
+    rayleigh_mfp.value = {100 * cm, 100 * cm};  // Fake MFP values
+    prop_table->AddProperty(
+        "RAYLEIGH", rayleigh_mfp.energy, rayleigh_mfp.value);
+
+    auto const absorption = this->water_absorption();
+    prop_table->AddProperty("ABSLENGTH", absorption.energy, absorption.value);
 
     result->SetMaterialPropertiesTable(prop_table);
 
@@ -272,16 +273,10 @@ G4Material* OpticalDetector::cerenkov_material()
  * See Geant4's examples/extended/optical/OpNovice
  * ( \c OpNoviceDetectorConstruction::Construct )
  */
-OpticalDetector::Table OpticalDetector::cerenkov_rindex()
+OpticalDetector::Table OpticalDetector::water_rindex()
 {
     Table result;
-    result.energy = {
-        2.034 * eV, 2.068 * eV, 2.103 * eV, 2.139 * eV, 2.177 * eV, 2.216 * eV,
-        2.256 * eV, 2.298 * eV, 2.341 * eV, 2.386 * eV, 2.433 * eV, 2.481 * eV,
-        2.532 * eV, 2.585 * eV, 2.640 * eV, 2.697 * eV, 2.757 * eV, 2.820 * eV,
-        2.885 * eV, 2.954 * eV, 3.026 * eV, 3.102 * eV, 3.181 * eV, 3.265 * eV,
-        3.353 * eV, 3.446 * eV, 3.545 * eV, 3.649 * eV, 3.760 * eV, 3.877 * eV,
-        4.002 * eV, 4.136 * eV};
+    result.energy = this->water_energy_table();
     result.value = {1.3435, 1.344,  1.3445, 1.345,  1.3455, 1.346, 1.3465,
                     1.347,  1.3475, 1.348,  1.3485, 1.3492, 1.35,  1.3505,
                     1.351,  1.3518, 1.3522, 1.3530, 1.3535, 1.354, 1.3545,
@@ -297,16 +292,10 @@ OpticalDetector::Table OpticalDetector::cerenkov_rindex()
  * See Geant4's examples/extended/optical/OpNovice
  * ( \c OpNoviceDetectorConstruction::Construct )
  */
-OpticalDetector::Table OpticalDetector::cerenkov_absorption()
+OpticalDetector::Table OpticalDetector::water_absorption()
 {
     Table result;
-    result.energy = {
-        2.034 * eV, 2.068 * eV, 2.103 * eV, 2.139 * eV, 2.177 * eV, 2.216 * eV,
-        2.256 * eV, 2.298 * eV, 2.341 * eV, 2.386 * eV, 2.433 * eV, 2.481 * eV,
-        2.532 * eV, 2.585 * eV, 2.640 * eV, 2.697 * eV, 2.757 * eV, 2.820 * eV,
-        2.885 * eV, 2.954 * eV, 3.026 * eV, 3.102 * eV, 3.181 * eV, 3.265 * eV,
-        3.353 * eV, 3.446 * eV, 3.545 * eV, 3.649 * eV, 3.760 * eV, 3.877 * eV,
-        4.002 * eV, 4.136 * eV};
+    result.energy = this->water_energy_table();
     result.value = {3.448 * m,  4.082 * m,  6.329 * m,  9.174 * m,  12.346 * m,
                     13.889 * m, 15.152 * m, 17.241 * m, 18.868 * m, 20.000 * m,
                     26.316 * m, 35.714 * m, 45.455 * m, 47.619 * m, 52.632 * m,
@@ -315,6 +304,21 @@ OpticalDetector::Table OpticalDetector::cerenkov_absorption()
                     28.500 * m, 27.000 * m, 24.500 * m, 22.000 * m, 19.500 * m,
                     17.500 * m, 14.500 * m};
     return result;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Return energy bins used for water properties.
+ */
+std::vector<double> OpticalDetector::water_energy_table()
+{
+    return {2.034 * eV, 2.068 * eV, 2.103 * eV, 2.139 * eV, 2.177 * eV,
+            2.216 * eV, 2.256 * eV, 2.298 * eV, 2.341 * eV, 2.386 * eV,
+            2.433 * eV, 2.481 * eV, 2.532 * eV, 2.585 * eV, 2.640 * eV,
+            2.697 * eV, 2.757 * eV, 2.820 * eV, 2.885 * eV, 2.954 * eV,
+            3.026 * eV, 3.102 * eV, 3.181 * eV, 3.265 * eV, 3.353 * eV,
+            3.446 * eV, 3.545 * eV, 3.649 * eV, 3.760 * eV, 3.877 * eV,
+            4.002 * eV, 4.136 * eV};
 }
 
 //---------------------------------------------------------------------------//

@@ -48,5 +48,6 @@ class PhysicsList : public G4VUserPhysicsList
            {"multiple_scattering_low", false},
            {"multiple_scattering_high", false},
            {"scintillation", false},
-           {"cerenkov", false}};
+           {"cerenkov", false},
+           {"optical_rayleigh", false}};
 };
