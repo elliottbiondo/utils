@@ -65,13 +65,15 @@ class Graph:
     def pointer_addresses(self):
         return self.replace_pointers.addrs
 
+known_tags = {"volume", "assembly", "skinsurface", "bordersurface"}
+
 def read_graph(filename):
     tree = ET.parse(filename)
     structure = next(tree.iter("structure"))
 
     g = Graph()
     for el in structure:
-        if el.tag in ('volume', 'assembly'):
+        if el.tag in known_tags:
             g.add_volume(el)
         else:
             raise ValueError(f"Unrecognized structure tag: {el!r}")

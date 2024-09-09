@@ -24,33 +24,52 @@ def get_material(volume_el):
     return el.attrib["ref"]
 
 
-def parse_gdml(filename):
-    tree = ET.parse(filename)
+def parse_materials(tree):
+    materials = next(tree.iter("materials"))
+
+    result = {
+        "isotope": count(),
+        "element": count(),
+        "material": count(),
+    }
+    for el in materials:
+        next(result[el.tag])
+
+    return {k: next(v) for k, v in result.items()}
+
+
+def parse_structure(tree):
     structure = next(tree.iter("structure"))
 
     physical = 0
-    materials = set()
     for logical, el in enumerate(structure):
-        if el.tag not in ('volume', 'assembly'):
+        if el.tag not in ("volume", "assembly", "skinsurface", "bordersurface"):
             raise ValueError(f"Unrecognized structure tag: {el!r}")
 
         physical += ilen(el.iter("volumeref"))
-        if el.tag == 'volume':
-            materials.add(get_material(el))
 
     # Account for world volume
     logical += 1
     physical += 1
     world = tree.findall("./setup/world")[0]
 
-    return {'filename': filename, 'logical': logical, 'physical': physical,
-            'material': len(materials)}
+    return {"logical": logical, "physical": physical}
+
+
+def parse_gdml(filename):
+    result = {"filename": filename}
+
+    tree = ET.parse(filename)
+    result.update(parse_materials(tree))
+    result.update(parse_structure(tree))
+    return result
+
 
 def main(*args):
     from argparse import ArgumentParser
     parser = ArgumentParser(description=__doc__, prog="gdml-to-dot")
-    parser.add_argument('-o', '--output', default='-')
-    parser.add_argument('input', nargs='+')
+    parser.add_argument("-o", "--output", default="-")
+    parser.add_argument("input", nargs="+")
     ns = parser.parse_args(*args)
 
     result = []
@@ -61,10 +80,10 @@ def main(*args):
             print(f"While processing {filename}: {e!s}")
             result.append(None)
 
-    if ns.output == '-':
+    if ns.output == "-":
         json.dump(result, sys.stdout, indent=1)
     else:
-        with open(ns.output, 'w') as f:
+        with open(ns.output, "w") as f:
             json.dump(result, f, indent=0)
 
 if __name__ == "__main__":
