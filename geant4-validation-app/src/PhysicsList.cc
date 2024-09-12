@@ -125,12 +125,10 @@ void PhysicsList::ConstructProcess()
     // Add transportation
     G4VUserPhysicsList::AddTransportation();
 
-    // Add EM processes for photons, electrons, and positrons
+    // Add EM and optical processes
     this->add_gamma_processes();
     this->add_e_processes(G4Electron::Electron());
     this->add_e_processes(G4Positron::Positron());
-
-    // Add optical physics processes
     this->add_optical_processes();
 }
 
@@ -329,6 +327,10 @@ void PhysicsList::add_optical_processes()
     auto* cerenkov = new G4Cerenkov();
     auto* scintillation = new G4Scintillation();
 
+    // Ensure material-only scintillation until implemented in Celeritas
+    scintillation->SetScintillationByParticleType(false);
+
+    // Assign scintillation and Cerenkov to all applicable particles
     auto iter_part = GetParticleIterator();
     iter_part->reset();
     while ((*iter_part)())

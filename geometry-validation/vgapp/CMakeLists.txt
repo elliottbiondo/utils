@@ -1,11 +1,11 @@
 #---------------------------------*-CMake-*----------------------------------#
-# Copyright 2021 UT-Battelle, LLC, and other Celeritas developers.
+# Copyright 2021-2024 UT-Battelle, LLC, and other Celeritas developers.
 # See the Celeritas top-level COPYRIGHT file for details.
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 #----------------------------------------------------------------------------#
+cmake_minimum_required(VERSION 3.9)
 project(vg-app)
 
-cmake_minimum_required(VERSION 3.9)
 set(CMAKE_CXX_STANDARD 11)
 
 #----------------------------------------------------------------------------#

@@ -1,5 +1,5 @@
 #---------------------------------*-CMake-*----------------------------------#
-# Copyright 2021-2023 UT-Battelle, LLC, and other Celeritas developers.
+# Copyright 2021-2024 UT-Battelle, LLC, and other Celeritas developers.
 # See the Celeritas top-level COPYRIGHT file for details.
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 #----------------------------------------------------------------------------#
@@ -42,8 +42,7 @@ endif()
 
 find_package(Geant4 REQUIRED gdml ${_g4_mt} ${_g4_qt})
 find_package(nlohmann_json REQUIRED)
-find_package(HepMC3 REQUIRED)
-find_package(Celeritas REQUIRED)
+find_package(Celeritas 0.5 REQUIRED)
 include(CudaRdcUtils)
 
 message(STATUS "Use ROOT: ${USE_ROOT}")

@@ -41,7 +41,7 @@ void EventAction::BeginOfEventAction(G4Event const* event)
         CELER_TRY_HANDLE(CelerLocalTransporter().Initialize(
                              CelerSetupOptions(), CelerSharedParams()),
                          call_g4exception);
-        CelerLocalTransporter().SetEventId(event->GetEventID());
+        CelerLocalTransporter().InitializeEvent(event->GetEventID());
     }
 
     if (!root_io_)

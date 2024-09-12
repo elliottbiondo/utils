@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2021-2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2021-2024 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -7,12 +7,11 @@
 //! \brief Geant4 validation app.
 //---------------------------------------------------------------------------//
 #include <string>
-
+#include <G4GDMLParser.hh>
+#include <G4TransportationManager.hh>
 #include <celeritas/ext/GeantImporter.hh>
 #include <celeritas/ext/RootExporter.hh>
 #include <corecel/sys/ScopedMpiInit.hh>
-
-#include <G4TransportationManager.hh>
 
 #include "src/G4appMacros.hh"
 #include "src/Geant4Run.hh"
@@ -33,7 +32,7 @@ void export_celeritas_root_input(G4VPhysicalVolume* world_volume)
 #if USE_ROOT
     celeritas::ScopedMpiInit scoped_mpi;
     celeritas::GeantImporter import_data(world_volume);
-    celeritas::RootExporter  export_root("celeritas-demo-loop-input.root");
+    celeritas::RootExporter export_root("celeritas-demo-loop-input.root");
     export_root(import_data());
 #else
     cout << "ERROR: Cannot generate the Celeritas ROOT output file without "
@@ -73,7 +72,7 @@ int main(int argc, char** argv)
     }
 
     // Define if ROOT output should be stored
-    const bool is_root_output_enabled = (argc == 3);
+    bool const is_root_output_enabled = (argc == 3);
     if (is_root_output_enabled && !USE_ROOT)
     {
         // Cannot write ROOT file without ROOT dependency
@@ -91,9 +90,9 @@ int main(int argc, char** argv)
 
     // Construct json reader
     JsonReader::construct(json_input_stream);
-    const auto json = JsonReader::instance()->json();
+    auto const json = JsonReader::instance()->json();
 
-    const std::string hepmc3_input
+    std::string const hepmc3_input
         = json.at("simulation").at("hepmc3").get<std::string>();
     if (!hepmc3_input.empty())
     {
@@ -120,10 +119,10 @@ int main(int argc, char** argv)
     // >>> PERFORMANCE METRICS AND ROOT DATA
 
     rootdata::ExecutionTime exec_time;
-    exec_time.wall_total   = stopwatch_total.duration_wall();
-    exec_time.cpu_total    = stopwatch_total.duration_cpu();
+    exec_time.wall_total = stopwatch_total.duration_wall();
+    exec_time.cpu_total = stopwatch_total.duration_cpu();
     exec_time.wall_sim_run = stopwatch_beamon.duration_wall();
-    exec_time.cpu_sim_run  = stopwatch_beamon.duration_cpu();
+    exec_time.cpu_sim_run = stopwatch_beamon.duration_cpu();
     exec_time.print();
 
     if (is_root_output_enabled && USE_ROOT)

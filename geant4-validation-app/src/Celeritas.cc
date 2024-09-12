@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2024 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -23,7 +23,7 @@ using namespace celeritas;
 namespace
 {
 //---------------------------------------------------------------------------//
-std::shared_ptr<ExplicitActionInterface const>
+std::shared_ptr<CoreStepActionInterface const>
 make_nofield_along_step(AlongStepFactoryInput const& input)
 {
     CELER_LOG(debug) << "Creating along-step action with linear propagation";
@@ -63,7 +63,7 @@ SetupOptions& CelerSetupOptions()
         SetupOptions so;
 
         // Set along-step factory
-        so.make_along_step = make_nofield_along_step;
+        so.make_along_step = UniformAlongStepFactory();
 
         so.max_num_tracks = 1024;
         so.max_num_events = 10000;

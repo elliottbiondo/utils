@@ -1,18 +1,10 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2024 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
 //! \file gdml-subset.cc
 //---------------------------------------------------------------------------//
-#include "corecel/Assert.hh"
-#include "corecel/cont/Range.hh"
-#include "corecel/io/Logger.hh"
-#include "corecel/io/Join.hh"
-#include "geocel/GeantGeoUtils.hh"
-#include "geocel/ScopedGeantExceptionHandler.hh"
-#include "geocel/ScopedGeantLogger.hh"
-
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -21,13 +13,21 @@
 #include <G4VPhysicalVolume.hh>
 #include <G4Version.hh>
 
+#include "corecel/Assert.hh"
+#include "corecel/cont/Range.hh"
+#include "corecel/io/Join.hh"
+#include "corecel/io/Logger.hh"
+#include "celeritas/ext/GeantGeoUtils.hh"
+#include "celeritas/ext/ScopedGeantExceptionHandler.hh"
+#include "celeritas/ext/ScopedGeantLogger.hh"
+
 using namespace celeritas;
 
 //---------------------------------------------------------------------------//
 void print_usage(char const* exec_name)
 {
-    std::cerr
-        << "usage: " << exec_name << " {input}.gdml {physvol-name} {depth} {output}.gdml\n";
+    std::cerr << "usage: " << exec_name
+              << " {input}.gdml {physvol-name} {depth} {output}.gdml\n";
 }
 
 void delete_daughters_after(G4LogicalVolume* lv, int depth)
@@ -47,7 +47,10 @@ void delete_daughters_after(G4LogicalVolume* lv, int depth)
 }
 
 //---------------------------------------------------------------------------//
-void run(std::string const& inp_filename, std::string const& vol_name, int depth, std::string const& out_filename)
+void run(std::string const& inp_filename,
+         std::string const& vol_name,
+         int depth,
+         std::string const& out_filename)
 {
     // Read geometry *without* stripping pointers
     celeritas::load_geant_geometry(inp_filename);
