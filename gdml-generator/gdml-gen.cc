@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include "BoxDetector.hh"
+#include "FourSteelSlabs.hh"
 #include "OpticalDetector.hh"
 #include "SegmentedSimpleCmsDetector.hh"
 #include "SimpleCmsDetector.hh"
@@ -36,7 +37,8 @@
  */
 enum class GeometryID
 {
-    box,
+    box,  //!< 500 m lead box ("infinite" medium)
+    four_steel_slabs,  //!< Four stainless steel slabs in a vacuum
     simple_cms,  //!< Simple materials
     simple_cms_composite,  //!< Composite materials
     segmented_simple_cms,  //!< Segmented Simple CMS
@@ -51,28 +53,75 @@ enum class GeometryID
 
 //---------------------------------------------------------------------------//
 /*!
+ * Geometry description.
+ */
+constexpr char const* label(GeometryID id) noexcept
+{
+    using GID = GeometryID;
+
+    switch (id)
+    {
+        case GID::box:
+            return "Lead box";
+            break;
+        case GID::four_steel_slabs:
+            return "Four steel slabs";
+            break;
+        case GID::simple_cms:
+            return "Simple CMS - simple materials";
+            break;
+        case GID::simple_cms_composite:
+            return "Simple CMS - composite materials";
+            break;
+        case GID::segmented_simple_cms:
+            return "Segmented Simple CMS - simple materials";
+            break;
+        case GID::segmented_simple_cms_composite:
+            return "Segmented Simple CMS - composite materials";
+            break;
+        case GID::testem3:
+            return "TestEm3 - simple materials";
+            break;
+        case GID::testem3_composite:
+            return "TestEm3 - composite materials";
+            break;
+        case GID::testem3_flat:
+            return "TestEm3 flat - simple materials, for ORANGE";
+            break;
+        case GID::testem3_composite_flat:
+            return "TestEm3 flat - composite materials, for ORANGE";
+            break;
+        case GID::optical:
+            return "Optical - composite materials with optical properties";
+            break;
+        default:
+            __builtin_unreachable();
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * Help message.
  */
 void print_help(char const* argv)
 {
     using std::cout;
     using std::endl;
+
     cout << "Usage:" << endl;
     cout << argv << " [geometry_id]" << endl;
     cout << endl;
     cout << "Geometries:" << endl;
-    cout << "0: Box" << endl;
-    cout << "1: Simple CMS - simple materials" << endl;
-    cout << "2: Simple CMS - composite materials" << endl;
-    cout << "3: Segmented Simple CMS - simple materials" << endl;
-    cout << "4: Segmented Simple CMS - composite materials" << endl;
-    cout << "5: TestEm3 - simple materials" << endl;
-    cout << "6: TestEm3 - composite materials" << endl;
-    cout << "7: TestEm3 flat - simple materials, for ORANGE" << endl;
-    cout << "8: TestEm3 flat - composite materials, for ORANGE" << endl;
-    cout << "9: Optical - composite materials with optical properties" << endl;
+    for (auto i = 0; i < static_cast<int>(GeometryID::size_); i++)
+    {
+        std::string divider = (i < 10) ? " : " : ": ";
+        cout << i << divider << label(static_cast<GeometryID>(i)) << endl;
+    }
     cout << endl;
-    cout << "For Geometries 3 and 4:" << endl;
+    cout << "For geometries "
+         << static_cast<int>(GeometryID::segmented_simple_cms) << " and "
+         << static_cast<int>(GeometryID::segmented_simple_cms_composite) << ":"
+         << endl;
     cout << "3 extra parameters are needed - [num_segments_r] "
             "[num_segments_z] [num_segments_theta]"
          << endl;
@@ -142,9 +191,12 @@ int main(int argc, char* argv[])
 
     // Load input parameters
     auto const geometry_id = static_cast<GeometryID>(std::stoi(argv[1]));
-    double const range_cuts = 0.7;
-    // double const range_cuts = (argc == 3) ? std::stod(argv[2]) : 0.7;
-
+    if (geometry_id >= GeometryID::size_)
+    {
+        std::cout << static_cast<int>(geometry_id)
+                  << " is an invalid geometry id." << std::endl;
+        return EXIT_FAILURE;
+    }
     if (geometry_id != GeometryID::segmented_simple_cms
         && geometry_id != GeometryID::segmented_simple_cms_composite
         && argc != 2)
@@ -174,6 +226,11 @@ int main(int argc, char* argv[])
         case GeometryID::box:
             run_manager->SetUserInitialization(new BoxDetector());
             gdml_filename = "box.gdml";
+            break;
+
+        case GeometryID::four_steel_slabs:
+            run_manager->SetUserInitialization(new FourSteelSlabs());
+            gdml_filename = "four-steel-slabs.gdml";
             break;
 
         case GeometryID::simple_cms:
@@ -230,13 +287,12 @@ int main(int argc, char* argv[])
             break;
 
         default:
-            std::cout << static_cast<int>(geometry_id)
-                      << " is an invalid geometry id." << std::endl;
-            return EXIT_FAILURE;
+            __builtin_unreachable();
     }
 
-    // Load phisics list and initialize run manager
-    run_manager->SetUserInitialization(new PhysicsList(range_cuts));
+    // Load physics list and initialize run manager
+    // TODO: set up range cuts as a user input
+    run_manager->SetUserInitialization(new PhysicsList(/* range_cuts = */ 0.7));
     run_manager->Initialize();
     run_manager->RunInitialization();
 

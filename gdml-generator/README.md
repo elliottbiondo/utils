@@ -19,7 +19,7 @@ $ ./gdml-gen [geometry_enum]
 ```
 For the segmented simple cms, the number of segments are also needed:
 ```shell
-$ ./gdml-gen [3 or 4] [num_segments_r] [num_segments_theta] [num_segments_z]
+$ ./gdml-gen [4 or 5] [num_segments_r] [num_segments_theta] [num_segments_z]
 ```
 
 The available geometries are:
@@ -27,15 +27,16 @@ The available geometries are:
 | Enum | Geometry description |
 | ---- | -------------------- |
 | 0    | `G4_Pb` cube of 500 m side ("infinite") |
-| 1    | Simple CMS with simple materials |
-| 2    | Simple CMS with composite materials |
-| 3    | Segmented simple CMS with simple materials |
-| 4    | Segmented simple CMS with composite materials |
-| 5    | [TestEm3][testem3] with simple materials |
-| 6    | [TestEm3][testem3] with composite materials |
-| 7    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
+| 1    | Four `G4_STAINLESS-STEEL` slabs in a vacuum |
+| 2    | Simple CMS with simple materials |
+| 3    | Simple CMS with composite materials |
+| 4    | Segmented simple CMS with simple materials |
+| 5    | Segmented simple CMS with composite materials |
+| 6    | [TestEm3][testem3] with simple materials |
+| 7    | [TestEm3][testem3] with composite materials |
 | 8    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
-| 9    | Set of boxes with optical properties |
+| 9    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
+| 10   | Set of boxes with optical properties |
 
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
@@ -54,6 +55,7 @@ The addition of new geometries only need:
   `G4VUserDetectorConstruction`.  
 - Two updates in `gdml-gen.cc`:  
   - Addition of said geometry in the `GeometryID` enum.  
+  - Addition of said geometry in the `to_string` description  
   - Addition of said geometry in the `switch` statement:  
     ```cpp
     switch (geometry_id) {

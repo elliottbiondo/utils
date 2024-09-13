@@ -26,6 +26,7 @@ add_executable(gdml-gen gdml-gen.cc
   src/core/PhysicsList.cc
   src/core/SensitiveDetector.cc
   src/BoxDetector.cc
+  src/FourSteelSlabs.cc
   src/OpticalDetector.cc
   src/SegmentedSimpleCmsDetector.cc
   src/SimpleCmsDetector.cc
