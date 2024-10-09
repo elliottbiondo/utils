@@ -7,9 +7,12 @@
 //---------------------------------------------------------------------------//
 #include "PhysicsList.hh"
 
+#include <G4AntiNeutrinoE.hh>
+#include <G4AntiNeutrinoMu.hh>
 #include <G4Cerenkov.hh>
 #include <G4ComptonScattering.hh>
 #include <G4CoulombScattering.hh>
+#include <G4Decay.hh>
 #include <G4Electron.hh>
 #include <G4Gamma.hh>
 #include <G4GammaConversion.hh>
@@ -17,6 +20,10 @@
 #include <G4LivermorePhotoElectricModel.hh>
 #include <G4LivermoreRayleighModel.hh>
 #include <G4MollerBhabhaModel.hh>
+#include <G4MuonMinus.hh>
+#include <G4MuonPlus.hh>
+#include <G4NeutrinoE.hh>
+#include <G4NeutrinoMu.hh>
 #include <G4OpRayleigh.hh>
 #include <G4OpticalParameters.hh>
 #include <G4OpticalPhoton.hh>
@@ -64,6 +71,12 @@ PhysicsList::PhysicsList() : G4VUserPhysicsList()
     int level = json.at("verbosity").at("PhysicsList").get<int>();
     em_parameters->SetVerbose(level);
 
+    optical_ = (selected_processes_.find("scintillation")->second
+                || selected_processes_.find("cerenkov")->second
+                || selected_processes_.find("optical_rayleigh")->second);
+
+    decay_ = selected_processes_.find("muon_decay")->second;
+
     // TODO implement binning
     // em_parameters->SetNumberOfBinsPerDecade(nbins);
 
@@ -105,14 +118,19 @@ void PhysicsList::ConstructParticle()
         G4GenericIon::GenericIonDefinition();
     }
 
-    bool const optical
-        = (selected_processes_.find("scintillation")->second
-           || selected_processes_.find("cerenkov")->second
-           || selected_processes_.find("optical_rayleigh")->second);
-
-    if (optical)
+    if (optical_)
     {
         G4OpticalPhoton::OpticalPhotonDefinition();
+    }
+
+    if (decay_)
+    {
+        G4MuonMinus::MuonMinusDefinition();
+        G4MuonPlus::MuonPlusDefinition();
+        G4NeutrinoE::NeutrinoEDefinition();
+        G4AntiNeutrinoE::AntiNeutrinoE();
+        G4NeutrinoMu::NeutrinoMuDefinition();
+        G4AntiNeutrinoMu::AntiNeutrinoMuDefinition();
     }
 }
 
@@ -129,7 +147,15 @@ void PhysicsList::ConstructProcess()
     this->add_gamma_processes();
     this->add_e_processes(G4Electron::Electron());
     this->add_e_processes(G4Positron::Positron());
-    this->add_optical_processes();
+    if (optical_)
+    {
+        this->add_optical_processes();
+    }
+    if (decay_)
+    {
+        this->add_decay_processes(G4MuonMinus::MuonMinus());
+        this->add_decay_processes(G4MuonPlus::MuonPlus());
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -365,5 +391,22 @@ void PhysicsList::add_optical_processes()
                 proc_mgr->SetProcessOrdering(cerenkov, G4PVDII::idxPostStep);
             }
         }
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Add decay processes to all applicable particles.
+ *
+ * | Process          | Class               |
+ * | ---------------- | ------------------- |
+ * | Muon decay       | G4MuonDecayChannel  |
+ */
+void PhysicsList::add_decay_processes(G4ParticleDefinition* particle)
+{
+    auto* physics_list = G4PhysicsListHelper::GetPhysicsListHelper();
+    if (selected_processes_.find("muon_decay")->second)
+    {
+        physics_list->RegisterProcess(new G4Decay(), particle);
     }
 }

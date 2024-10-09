@@ -104,64 +104,33 @@ class RootIO
 
 //---------------------------------------------------------------------------//
 #if !USE_ROOT
-inline void RootIO::construct(char const*)
-{
-    // Do not initialize singleton
-    return;
-}
+inline void RootIO::construct(char const*) {}
 
 inline RootIO* RootIO::instance()
 {
     return nullptr;
 }
 
-inline void RootIO::clear_event()
-{
-    return;
-}
+inline void RootIO::clear_event() {}
 
-inline void RootIO::clear_track()
-{
-    return;
-}
+inline void RootIO::clear_track() {}
 
-inline void RootIO::add_sd(rootdata::SensDetGdml)
-{
-    return;
-}
+inline void RootIO::add_sd(rootdata::SensDetGdml) {}
 
-inline void RootIO::fill_event_ttree()
-{
-    return;
-}
+inline void RootIO::fill_event_ttree() {}
 
-inline void RootIO::fill_data_limits_ttree()
-{
-    return;
-}
+inline void RootIO::fill_data_limits_ttree() {}
 
-inline void RootIO::store_performance_metrics(rootdata::ExecutionTime&)
-{
-    return;
-}
+inline void RootIO::store_performance_metrics(rootdata::ExecutionTime&) {}
 
-inline void RootIO::store_sd_map()
-{
-    return;
-}
+inline void RootIO::store_sd_map() {}
 
-inline void RootIO::store_input()
-{
-    return;
-}
+inline void RootIO::store_input() {}
 
 inline bool RootIO::is_performance_run()
 {
     return true;
 }
 
-inline void RootIO::write_tfile()
-{
-    return;
-}
+inline void RootIO::write_tfile() {}
 #endif

@@ -9,7 +9,7 @@
 
 #include <G4Threading.hh>
 #include <accel/AlongStepFactory.hh>
-#include <celeritas/em/UrbanMscParams.hh>
+#include <celeritas/em/params/UrbanMscParams.hh>
 #include <celeritas/field/UniformFieldData.hh>
 #include <celeritas/global/alongstep/AlongStepGeneralLinearAction.hh>
 #include <celeritas/global/alongstep/AlongStepUniformMscAction.hh>

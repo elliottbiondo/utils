@@ -130,7 +130,7 @@ cuda_rdc_target_link_libraries(g4app ${_libs})
 #----------------------------------------------------------------------------#
 # Copy input_example.json and vis.mac to the build directory
 #----------------------------------------------------------------------------#
-configure_file(${PROJECT_SOURCE_DIR}/input_example.json
+configure_file(${PROJECT_SOURCE_DIR}/input-example.json
   ${PROJECT_BINARY_DIR} COPYONLY
 )
 

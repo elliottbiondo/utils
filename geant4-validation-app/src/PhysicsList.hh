@@ -33,8 +33,14 @@ class PhysicsList : public G4VUserPhysicsList
     void add_e_processes(G4ParticleDefinition* particle);
     // Add optical physics processes to all applicable particles
     void add_optical_processes();
+    // Add decay processes to all applicable particles
+    void add_decay_processes(G4ParticleDefinition* particle);
 
   private:
+    // Bool for optical physics
+    bool optical_;
+    // Bool for decay physics
+    bool decay_;
     // Map of selected processes; booleans are updated at construction time
     std::map<std::string, bool> selected_processes_
         = {{"compton_scattering", false},
@@ -49,5 +55,6 @@ class PhysicsList : public G4VUserPhysicsList
            {"multiple_scattering_high", false},
            {"scintillation", false},
            {"cerenkov", false},
-           {"optical_rayleigh", false}};
+           {"optical_rayleigh", false},
+           {"muon_decay", false}};
 };

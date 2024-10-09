@@ -111,7 +111,8 @@ used if `USE_QT=OFF`.
         "multiple_scattering_high": false,
         "scintillation": false,
         "cerenkov": false,
-        "optical_rayleigh": false
+        "optical_rayleigh": false,
+        "muon_decay": false
 
     },
     "verbosity": {
