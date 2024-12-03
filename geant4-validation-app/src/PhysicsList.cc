@@ -247,8 +247,8 @@ void PhysicsList::add_e_processes(G4ParticleDefinition* particle)
     if (selected_processes_.find("bremsstrahlung")->second)
     {
         // Bremmstrahlung: G4SeltzerBergerModel + G4eBremsstrahlungRelModel
-        auto models = BremsstrahlungProcess::ModelSelection::all;
-        auto brems_process = std::make_unique<BremsstrahlungProcess>(models);
+        using BMS = BremsstrahlungProcess::ModelSelection;
+        auto brems_process = std::make_unique<BremsstrahlungProcess>(BMS::all);
         physics_list->RegisterProcess(brems_process.release(), particle);
 
         if (!selected_processes_.find("e_ionization")->second)

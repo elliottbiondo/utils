@@ -18,7 +18,7 @@
  * in Helper functions and static variables.
  *
  * Plot attributes are meant to be used with the Celeritas plot style. See
- * https://github.com/celeritas-project/celeritas-docs/blob/master/utils/rootlogon.C
+ * https://github.com/celeritas-project/benchmarks/blob/main/rootlogon.C
  */
 //---------------------------------------------------------------------------//
 #include <vector>

@@ -12,18 +12,18 @@
  * results as arrays in simple plotting macros.
  */
 //---------------------------------------------------------------------------//
-#include "../src/RootData.hh"
-#include "ValidationGlobals.hh"
-
 #include <iomanip>
-#include <TFile.h>
-#include <TTree.h>
 #include <TBranch.h>
-#include <TH1D.h>
 #include <TCanvas.h>
+#include <TFile.h>
+#include <TH1D.h>
 #include <TLegend.h>
 #include <TStyle.h>
 #include <TSystem.h>
+#include <TTree.h>
+
+#include "../src/RootData.hh"
+#include "ValidationGlobals.hh"
 
 //---------------------------------------------------------------------------//
 /*!
@@ -46,9 +46,9 @@ enum PID
 
 enum PDG
 {
-    pdg_e_plus  = -11,
+    pdg_e_plus = -11,
     pdg_e_minus = 11,
-    pdg_gamma   = 22
+    pdg_gamma = 22
 };
 
 //---------------------------------------------------------------------------//
@@ -73,13 +73,13 @@ void export_particle_process(TFile* input_file);
  * Usage:
  * root[0] .x diagnostics.C("/path/to/g4_output.root")
  */
-void diagnostics(const char* input)
+void diagnostics(char const* input)
 {
     // Load rootdata shared library
     gSystem->Load("../build/librootdata");
 
     // print_edep(new TFile(input, "read"));
-    //  export_particle_process(new TFile(input, "read"));
+    //  export_particle_process(new TFile(input, "rea.qd"));
     print_steps_per_track(new TFile(input, "read"));
 }
 
@@ -93,12 +93,12 @@ void diagnostics(const char* input)
  */
 void print_data_array(TH1D* histogram, std::string declaration)
 {
-    const int max_nbins = histogram->GetNbinsX();
+    int const max_nbins = histogram->GetNbinsX();
     std::cout << declaration << "[" << max_nbins << "] = {" << std::endl;
 
     for (int i = 0; i < max_nbins; i++)
     {
-        std::cout << histogram->GetBinContent(i);
+        std::cout << std::setprecision(15) << histogram->GetBinContent(i);
 
         if (i < max_nbins - 1)
         {
@@ -132,10 +132,10 @@ void print_data_array(double array[], std::size_t size, std::string declaration)
  * Print histogram bins as a C++ arrays.
  */
 void print_data_array(std::vector<vg::GraphData::Bin>& bins,
-                      std::string                      declaration)
+                      std::string declaration)
 {
     // >>>  Print R values
-    const double n_bins = bins.size();
+    double const n_bins = bins.size();
     std::cout << declaration << "_x[" << n_bins << "] = {" << std::endl;
 
     for (int i = 0; i < n_bins; i++)
@@ -175,8 +175,8 @@ void print_data_array(std::vector<vg::GraphData::Bin>& bins,
  */
 void print_steps_per_track(TFile* input_file)
 {
-    TTree*           event_tree = (TTree*)input_file->Get("events");
-    rootdata::Event* event      = nullptr;
+    TTree* event_tree = (TTree*)input_file->Get("events");
+    rootdata::Event* event = nullptr;
     event_tree->SetBranchAddress("event", &event);
 
     TH1D* h_steps[mc_size][pid_size];
@@ -194,9 +194,9 @@ void print_steps_per_track(TFile* input_file)
     }
 
     // Counters
-    std::size_t total_steps[pid_size]  = {0, 0, 0};
+    std::size_t total_steps[pid_size] = {0, 0, 0};
     std::size_t total_tracks[pid_size] = {0, 0, 0};
-    std::string name[pid_size]         = {"e+", "e-", "gamma"};
+    std::string name[pid_size] = {"e+", "e-", "gamma"};
 
     // >>> Fill Geant4 histograms
     auto& h_steps_g4 = h_steps[MC::G4];
@@ -209,7 +209,7 @@ void print_steps_per_track(TFile* input_file)
         std::cout << "\rProcessing event " << i;
         std::cout.flush();
 
-        for (const auto& primary : event->primaries)
+        for (auto const& primary : event->primaries)
         {
             switch (primary.pdg)
             {
@@ -233,7 +233,7 @@ void print_steps_per_track(TFile* input_file)
             }
         }
 
-        for (const auto& secondary : event->secondaries)
+        for (auto const& secondary : event->secondaries)
         {
             switch (secondary.pdg)
             {
@@ -285,26 +285,26 @@ void print_steps_per_track(TFile* input_file)
  */
 void print_edep(TFile* input_file)
 {
-    TTree*           event_tree = (TTree*)input_file->Get("events");
-    rootdata::Event* event      = nullptr;
+    TTree* event_tree = (TTree*)input_file->Get("events");
+    rootdata::Event* event = nullptr;
     event_tree->SetBranchAddress("event", &event);
 
-    const std::size_t h_nbins = 1025;
-    TH1D*             h_edep  = new TH1D("", "", h_nbins, -700, 700);
+    std::size_t const h_nbins = 1025;
+    TH1D* h_edep = new TH1D("", "", h_nbins, -700, 700);
 
     std::vector<vg::GraphData::Bin> bins;
     for (int i = 0; i < h_edep->GetNbinsX(); i++)
     {
         vg::GraphData::Bin bin;
-        bin.min    = h_edep->GetBinLowEdge(i);
+        bin.min = h_edep->GetBinLowEdge(i);
         bin.center = h_edep->GetBinCenter(i);
-        bin.max    = bin.min + h_edep->GetBinWidth(i);
-        bin.value  = 0;
+        bin.max = bin.min + h_edep->GetBinWidth(i);
+        bin.value = 0;
         bins.push_back(std::move(bin));
     }
 
-    double            total_energy = 0;
-    const std::size_t num_events   = event_tree->GetEntries();
+    double total_energy = 0;
+    std::size_t const num_events = event_tree->GetEntries();
 
     // Create cumulative data array of all events for each z-bin
     std::vector<std::array<double, h_nbins>> vec_cumulative_data{};
@@ -324,9 +324,9 @@ void print_edep(TFile* input_file)
         std::array<double, h_nbins> cumulative_data{};
 
         // >>> Loop over primaries
-        for (const auto& primary : event->primaries)
+        for (auto const& primary : event->primaries)
         {
-            for (const auto& step : primary.steps)
+            for (auto const& step : primary.steps)
             {
                 total_energy += step.energy_loss;
 
@@ -335,11 +335,11 @@ void print_edep(TFile* input_file)
 
                 for (int j = 0; j < bins.size(); j++)
                 {
-                    const auto& bin = bins.at(j);
+                    auto const& bin = bins.at(j);
 
                     if (bin.min <= xyz.z() && bin.max > xyz.z())
                     {
-                        double val    = h_edep->GetBinContent(j);
+                        double val = h_edep->GetBinContent(j);
                         double result = val + step.energy_loss;
                         h_edep->SetBinContent(j, result);
                         cumulative_data[j] = val + step.energy_loss;
@@ -350,9 +350,9 @@ void print_edep(TFile* input_file)
         }
 
         // >>> Loop over secondaries
-        for (const auto& secondary : event->secondaries)
+        for (auto const& secondary : event->secondaries)
         {
-            for (const auto& step : secondary.steps)
+            for (auto const& step : secondary.steps)
             {
                 total_energy += step.energy_loss;
 
@@ -361,11 +361,11 @@ void print_edep(TFile* input_file)
 
                 for (int j = 0; j < bins.size(); j++)
                 {
-                    const auto& bin = bins.at(j);
+                    auto const& bin = bins.at(j);
 
                     if (bin.min <= xyz.z() && bin.max > xyz.z())
                     {
-                        double val    = h_edep->GetBinContent(j);
+                        double val = h_edep->GetBinContent(j);
                         double result = val + step.energy_loss;
                         h_edep->SetBinContent(j, result);
                         cumulative_data[j] = val + step.energy_loss;
@@ -398,10 +398,10 @@ void print_edep(TFile* input_file)
     for (int bin_i = 0; bin_i < h_nbins; bin_i++)
     {
         // Calculate bin average
-        double      x_avg       = 0;
+        double x_avg = 0;
         std::size_t num_entries = 0;
 
-        for (const auto& cumulative_data : vec_cumulative_data)
+        for (auto const& cumulative_data : vec_cumulative_data)
         {
             if (cumulative_data[bin_i] > 0)
             {
@@ -426,7 +426,7 @@ void print_edep(TFile* input_file)
 
         // Calculate variance per bin
         double variance = 0;
-        for (const auto& cumulative_data : vec_cumulative_data)
+        for (auto const& cumulative_data : vec_cumulative_data)
         {
             if (cumulative_data[bin_i] > 0)
             {
@@ -441,7 +441,7 @@ void print_edep(TFile* input_file)
             variance *= 1. / (num_entries - 1);
         }
 
-        double sigma       = std::sqrt(variance);
+        double sigma = std::sqrt(variance);
         z_bin_error[bin_i] = sigma / std::sqrt(num_entries);
     }
     std::cout << "Total energy = " << total_energy << std::endl;
@@ -459,8 +459,8 @@ void print_edep(TFile* input_file)
  */
 void export_particle_process(TFile* input_file)
 {
-    TTree*           event_tree = (TTree*)input_file->Get("events");
-    rootdata::Event* event      = nullptr;
+    TTree* event_tree = (TTree*)input_file->Get("events");
+    rootdata::Event* event = nullptr;
     event_tree->SetBranchAddress("event", &event);
 
     auto h_particle_process = new TH2D("", "", 1, 0, 1, 1, 0, 1);
@@ -475,12 +475,12 @@ void export_particle_process(TFile* input_file)
         // Load i-th event
         event_tree->GetEntry(i);
 
-        for (const auto& primary : event->primaries)
+        for (auto const& primary : event->primaries)
         {
             TParticlePDG* particle = vg::pdg_db.GetParticle(primary.pdg);
             vg::particle_map.insert({primary.pdg, particle->GetName()});
 
-            for (const auto& step : primary.steps)
+            for (auto const& step : primary.steps)
             {
                 if (step.process_id == rootdata::ProcessId::transportation)
                 {
@@ -494,12 +494,12 @@ void export_particle_process(TFile* input_file)
             }
         }
 
-        for (const auto& secondary : event->secondaries)
+        for (auto const& secondary : event->secondaries)
         {
             TParticlePDG* particle = vg::pdg_db.GetParticle(secondary.pdg);
             vg::particle_map.insert({secondary.pdg, particle->GetName()});
 
-            for (const auto& step : secondary.steps)
+            for (auto const& step : secondary.steps)
             {
                 if (step.process_id == rootdata::ProcessId::transportation)
                 {

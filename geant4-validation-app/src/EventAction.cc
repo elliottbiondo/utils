@@ -38,9 +38,6 @@ void EventAction::BeginOfEventAction(G4Event const* event)
     if (offload_)
     {
         celeritas::ExceptionConverter call_g4exception{"celer0002"};
-        CELER_TRY_HANDLE(CelerLocalTransporter().Initialize(
-                             CelerSetupOptions(), CelerSharedParams()),
-                         call_g4exception);
         CelerLocalTransporter().InitializeEvent(event->GetEventID());
     }
 

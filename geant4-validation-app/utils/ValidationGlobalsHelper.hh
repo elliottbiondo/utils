@@ -6,11 +6,11 @@
 //! \file ValidationGlobalsHelper.hh
 //! \brief Helper functions for validation globals (vg) namespace data
 //---------------------------------------------------------------------------//
+#include <Math/Vector3D.h>
+#include <TGraph.h>
 #include <TH1D.h>
 #include <TH2F.h>
-#include <TGraph.h>
 #include <TMath.h>
-#include <Math/Vector3D.h>
 
 #include "../src/RootData.hh"
 
@@ -20,7 +20,7 @@ namespace vg
 /*!
  * Initialize TH1 and TH2 pointers.
  */
-void initialize_histograms(const rootdata::DataLimits& data_limits)
+void initialize_histograms(rootdata::DataLimits const& data_limits)
 {
     // Initialize histograms for both G4 and Celeritas
     for (int i = 0; i < 2; i++)
@@ -55,7 +55,7 @@ void initialize_histograms(const rootdata::DataLimits& data_limits)
                        0,
                        data_limits.max_steps_per_event * plot_margin);
 
-        hist.steps_process    = new TH1D("", "Steps per process", 1, 0, 1);
+        hist.steps_process = new TH1D("", "Steps per process", 1, 0, 1);
         hist.particle_process = new TH2D(
             "", "Fraction of steps per process per particle", 1, 0, 1, 1, 0, 1);
 
@@ -93,9 +93,9 @@ void initialize_histograms(const rootdata::DataLimits& data_limits)
                        data_limits.max_secondary_energy * plot_margin);
 
         // Vertex distributions
-        int  vertex_bins = 50;
-        auto vtx_min     = data_limits.min_vertex;
-        auto vtx_max     = data_limits.max_vertex;
+        int vertex_bins = 50;
+        auto vtx_min = data_limits.min_vertex;
+        auto vtx_max = data_limits.max_vertex;
 
         hist.sec_vtx_x = new TH1D("",
                                   "Secondary vertex x",
@@ -125,9 +125,9 @@ void initialize_histograms(const rootdata::DataLimits& data_limits)
             = new TH1D("", "Secondary vertex #theta", 100, 0, TMath::Pi());
 
         // Vertex directions
-        int    dir_bins = 50;
-        double dir_min  = -1;
-        double dir_max  = 1;
+        int dir_bins = 50;
+        double dir_min = -1;
+        double dir_max = 1;
 
         hist.sec_dir_x = new TH1D(
             "", "Secondary vertex direction x", dir_bins, dir_min, dir_max);
@@ -137,35 +137,35 @@ void initialize_histograms(const rootdata::DataLimits& data_limits)
             "", "Secondary vertex direction z", dir_bins, dir_min, dir_max);
 
         // Time distributions
-        int time_bins       = 100;
+        int time_bins = 100;
         hist.step_prim_time = new TH1D("",
                                        "Primary step time",
                                        time_bins,
                                        0,
                                        data_limits.max_time * plot_margin);
-        hist.step_sec_time  = new TH1D("",
+        hist.step_sec_time = new TH1D("",
                                       "Secondary step time",
                                       time_bins,
                                       0,
                                       data_limits.max_time * plot_margin);
-        hist.vtx_prim_time  = new TH1D("",
+        hist.vtx_prim_time = new TH1D("",
                                       "Primary vertex time",
                                       time_bins,
                                       0,
                                       data_limits.max_time * plot_margin);
-        hist.vtx_sec_time   = new TH1D("",
+        hist.vtx_sec_time = new TH1D("",
                                      "Secondary vertex time",
                                      time_bins,
                                      0,
                                      data_limits.max_time * plot_margin);
 
         // Length distributions
-        hist.prim_length      = new TH1D("",
+        hist.prim_length = new TH1D("",
                                     "Primary length",
                                     time_bins,
                                     0,
                                     data_limits.max_trk_length * plot_margin);
-        hist.sec_length       = new TH1D("",
+        hist.sec_length = new TH1D("",
                                    "Secondary length",
                                    time_bins,
                                    0,
@@ -175,7 +175,7 @@ void initialize_histograms(const rootdata::DataLimits& data_limits)
                                          time_bins,
                                          0,
                                          data_limits.max_length * plot_margin);
-        hist.sec_step_length  = new TH1D("",
+        hist.sec_step_length = new TH1D("",
                                         "Sec. step length",
                                         time_bins,
                                         0,
@@ -223,22 +223,22 @@ void initialize_cumulative_bins()
 
         for (int i = 0; i < graph.r_n_bins; i++)
         {
-            const int ith_bin_pos = i * graph.r_bin_size;
+            int const ith_bin_pos = i * graph.r_bin_size;
 
-            graph.r_bins[i].min    = ith_bin_pos;
+            graph.r_bins[i].min = ith_bin_pos;
             graph.r_bins[i].center = ith_bin_pos + graph.r_bin_half_width;
-            graph.r_bins[i].max    = ith_bin_pos + graph.r_bin_size;
-            graph.r_bins[i].value  = 0;
+            graph.r_bins[i].max = ith_bin_pos + graph.r_bin_size;
+            graph.r_bins[i].value = 0;
         }
 
         for (int i = 0; i < graph.z_n_bins; i++)
         {
-            const int ith_bin_pos = i * graph.z_bin_size;
+            int const ith_bin_pos = i * graph.z_bin_size;
 
-            graph.z_bins[i].min    = graph.z_bin_min + ith_bin_pos;
+            graph.z_bins[i].min = graph.z_bin_min + ith_bin_pos;
             graph.z_bins[i].center = graph.z_bins[i].min
                                      + graph.z_bin_half_width;
-            graph.z_bins[i].max   = graph.z_bins[i].min + graph.z_bin_size;
+            graph.z_bins[i].max = graph.z_bins[i].min + graph.z_bin_size;
             graph.z_bins[i].value = 0;
         }
     }
@@ -255,23 +255,23 @@ void initialize_cumulative_bins(vg::GraphData& graph)
 
     for (int i = 0; i < graph.r_n_bins; i++)
     {
-        const int ith_bin_pos = i * graph.r_bin_size;
+        int const ith_bin_pos = i * graph.r_bin_size;
 
-        graph.r_bins[i].min    = ith_bin_pos;
+        graph.r_bins[i].min = ith_bin_pos;
         graph.r_bins[i].center = ith_bin_pos + graph.r_bin_half_width;
-        graph.r_bins[i].max    = ith_bin_pos + graph.r_bin_size;
-        graph.r_bins[i].value  = 0;
+        graph.r_bins[i].max = ith_bin_pos + graph.r_bin_size;
+        graph.r_bins[i].value = 0;
     }
 
     for (int i = 0; i < graph.z_n_bins; i++)
     {
-        const int ith_bin_pos = i * graph.z_bin_size;
+        int const ith_bin_pos = i * graph.z_bin_size;
 
-        graph.z_bins[i].min    = graph.z_bin_min + ith_bin_pos;
+        graph.z_bins[i].min = graph.z_bin_min + ith_bin_pos;
         graph.z_bins[i].center = graph.z_bins[i].min + graph.z_bin_half_width;
-        graph.z_bins[i].max    = graph.z_bins[i].min + graph.z_bin_size;
-        graph.z_bins[i].value  = 0;
+        graph.z_bins[i].max = graph.z_bins[i].min + graph.z_bin_size;
+        graph.z_bins[i].value = 0;
     }
 }
 //---------------------------------------------------------------------------//
-} // namespace vg
+}  // namespace vg

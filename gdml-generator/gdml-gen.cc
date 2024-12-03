@@ -152,7 +152,7 @@ get_segments(int argc, char* argv[])
 
 //---------------------------------------------------------------------------//
 /*!
- * Export and write GDML file to disk.
+ * Export geometry to GDML.
  */
 void export_gdml(std::string const& gdml_filename)
 {

@@ -1,11 +1,11 @@
 #---------------------------------*-CMake-*----------------------------------#
-# Copyright 2021 UT-Battelle, LLC, and other Celeritas developers.
+# Copyright 2021-2024 UT-Battelle, LLC, and other Celeritas developers.
 # See the Celeritas top-level COPYRIGHT file for details.
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 #----------------------------------------------------------------------------#
+cmake_minimum_required(VERSION 3.10)
 project(hepmc3-generator)
 
-cmake_minimum_required(VERSION 3.9)
 set(CMAKE_CXX_STANDARD 11)
 
 #----------------------------------------------------------------------------#
@@ -17,7 +17,7 @@ find_package(HepMC3 REQUIRED)
 # Add executable
 #----------------------------------------------------------------------------#
 add_executable(hepmc3-gen hepmc3-gen.cc
-  src/Hepevt.hh  
+  src/Hepevt.hh
 )
 
 target_include_directories(hepmc3-gen PRIVATE

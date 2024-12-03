@@ -6,11 +6,11 @@
 //! \file validation.C
 //! \brief Macro with a set of validation plots.
 //---------------------------------------------------------------------------//
-#include "ValidationHelper.hh"
-
-#include <fstream>
 #include <algorithm>
+#include <fstream>
 #include <TSystem.h>
+
+#include "ValidationHelper.hh"
 
 using std::cout;
 using std::endl;
@@ -46,7 +46,7 @@ void print_performance();
 void validation(std::string arg_g4, std::string arg_cel)
 {
     // Load rootdata shared library
-    const char* librootdata = "../build/librootdata";
+    char const* librootdata = "../build/librootdata";
     gSystem->Load(librootdata);
 
     // Check if file extension is a .root
@@ -58,8 +58,8 @@ void validation(std::string arg_g4, std::string arg_cel)
     if (is_root)
     {
         // >>> Single ROOT file provided
-        TFile*                input_g4 = TFile::Open(arg_g4.c_str(), "read");
-        TTree*                limits_tree = (TTree*)input_g4->Get("limits");
+        TFile* input_g4 = TFile::Open(arg_g4.c_str(), "read");
+        TTree* limits_tree = (TTree*)input_g4->Get("limits");
         rootdata::DataLimits* data_limits = nullptr;
         limits_tree->SetBranchAddress("data_limits", &data_limits);
         limits_tree->GetEntry(0);
@@ -120,7 +120,7 @@ void read_single_file(TFile* input, vg::MC mc_enum)
     loop(input, mc_enum);
 
     // Add to global performance metrics
-    TTree* event_tree       = (TTree*)input->Get("events");
+    TTree* event_tree = (TTree*)input->Get("events");
     TTree* performance_tree = (TTree*)input->Get("performance");
 
     if (performance_tree)
@@ -143,7 +143,7 @@ void read_single_file(TFile* input, vg::MC mc_enum)
  */
 void read_file_list(std::ifstream& input_list)
 {
-    auto&       vg_limits = vg::data_limits;
+    auto& vg_limits = vg::data_limits;
     std::string line;
 
     while (std::getline(input_list, line))
@@ -151,8 +151,8 @@ void read_file_list(std::ifstream& input_list)
         TFile* input = new TFile(line.c_str(), "read");
 
         // Collect correct global data limits
-        TTree*                limits_tree = (TTree*)input->Get("limits");
-        rootdata::DataLimits* limits      = nullptr;
+        TTree* limits_tree = (TTree*)input->Get("limits");
+        rootdata::DataLimits* limits = nullptr;
         limits_tree->SetBranchAddress("data_limits", &limits);
         limits_tree->GetEntry(0);
 
@@ -223,9 +223,9 @@ void print_performance()
     using vg::total_num_events;
     using vg::total_num_steps;
 
-    double init_time      = exec_time.cpu_total - exec_time.cpu_sim_run;
+    double init_time = exec_time.cpu_total - exec_time.cpu_sim_run;
     double time_per_event = exec_time.cpu_sim_run / total_num_events;
-    double time_per_step  = exec_time.cpu_sim_run / total_num_steps;
+    double time_per_step = exec_time.cpu_sim_run / total_num_steps;
 
     cout << endl;
     cout << std::fixed << std::scientific;

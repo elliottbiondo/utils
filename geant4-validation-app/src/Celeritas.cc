@@ -9,10 +9,10 @@
 
 #include <G4Threading.hh>
 #include <accel/AlongStepFactory.hh>
+#include <celeritas/alongstep/AlongStepGeneralLinearAction.hh>
+#include <celeritas/alongstep/AlongStepUniformMscAction.hh>
 #include <celeritas/em/params/UrbanMscParams.hh>
 #include <celeritas/field/UniformFieldData.hh>
-#include <celeritas/global/alongstep/AlongStepGeneralLinearAction.hh>
-#include <celeritas/global/alongstep/AlongStepUniformMscAction.hh>
 #include <celeritas/io/ImportData.hh>
 #include <celeritas_version.h>
 
@@ -65,11 +65,11 @@ SetupOptions& CelerSetupOptions()
         // Set along-step factory
         so.make_along_step = UniformAlongStepFactory();
 
-        so.max_num_tracks = 1024;
+        so.max_num_tracks = 1024 * 16;
         so.max_num_events = 10000;
-        so.initializer_capacity = 1024 * 128;
+        so.initializer_capacity = 1024 * 128 * 4;
         so.secondary_stack_factor = 3.0;
-        so.ignore_processes = {};
+        so.ignore_processes = {"CoulombScat"};
 
         // Use Celeritas "hit processor" to call back to Geant4 SDs.
         so.sd.enabled = true;
@@ -82,15 +82,13 @@ SetupOptions& CelerSetupOptions()
 
         // Using the pre-step point, reconstruct the G4 touchable handle.
         so.sd.locate_touchable = true;
+        // Reconstruct the track, needed for particle type
+        so.sd.track = true;
 
         // Save diagnostic information
         so.output_file = "g4-validation-app.json";
 
-        auto const& json = JsonReader::instance()->json();
-        json.at("geometry").get_to(so.geometry_file);
-
         // Post-step data is used
-        // so.sd.pre = {};
         so.sd.pre.position = true;
         so.sd.pre.global_time = true;
         return so;

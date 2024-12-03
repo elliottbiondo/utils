@@ -7,7 +7,6 @@
 //! \brief Helper functions for the main validation plot macro
 //---------------------------------------------------------------------------//
 /*!
- * \note
  * \c loop(...) : Runs the main loop over the events tree, which is composed by
  * smaller loops and functions to fill all the necessary data in \c vg::hist
  * and \c vg::graph .
@@ -15,14 +14,15 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
-#include "ValidationGlobals.hh"
-
-#include <TFile.h>
-#include <TTree.h>
 #include <TBranch.h>
+#include <TCanvas.h>
+#include <TFile.h>
 #include <TLeaf.h>
 #include <TStyle.h>
-#include <TCanvas.h>
+#include <TTree.h>
+
+#include "ProgressIndicator.hh"
+#include "ValidationGlobals.hh"
 
 //---------------------------------------------------------------------------//
 // INNER LOOPS
@@ -34,10 +34,10 @@
  */
 void loop_primaries(rootdata::Event& event, vg::MC mc_enum)
 {
-    auto& hist  = vg::histograms[mc_enum];
+    auto& hist = vg::histograms[mc_enum];
     auto& graph = vg::graphs[mc_enum];
 
-    for (const auto& primary : event.primaries)
+    for (auto const& primary : event.primaries)
     {
         vg::total_num_steps += primary.number_of_steps;
         vg::num_steps_per_event += primary.number_of_steps;
@@ -46,8 +46,8 @@ void loop_primaries(rootdata::Event& event, vg::MC mc_enum)
         hist.n_steps_prim->Fill(primary.number_of_steps);
         hist.prim_edep->Fill(primary.energy_dep);
 
-        TParticlePDG* particle    = vg::pdg_db.GetParticle(primary.pdg);
-        const char* particle_name = particle ? particle->GetName() : "unknown";
+        TParticlePDG* particle = vg::pdg_db.GetParticle(primary.pdg);
+        char const* particle_name = particle ? particle->GetName() : "unknown";
         vg::particle_map.insert({primary.pdg, particle_name});
 
         // Vertex time
@@ -56,7 +56,7 @@ void loop_primaries(rootdata::Event& event, vg::MC mc_enum)
         // track length
         hist.prim_length->Fill(primary.length);
 
-        for (const auto& step : primary.steps)
+        for (auto const& step : primary.steps)
         {
             hist.prim_step_edep->Fill(step.energy_loss);
 
@@ -73,7 +73,7 @@ void loop_primaries(rootdata::Event& event, vg::MC mc_enum)
         ROOT::Math::XYZVector xyz(primary.vertex_position.x,
                                   primary.vertex_position.y,
                                   primary.vertex_position.z);
-        const double          xyz_rho = xyz.rho();
+        double const xyz_rho = xyz.rho();
 
         // >>> Cumulative plots
         for (int i = 0; i < graph.r_n_bins; i++)
@@ -102,10 +102,10 @@ void loop_primaries(rootdata::Event& event, vg::MC mc_enum)
  */
 void loop_secondaries(rootdata::Event& event, vg::MC mc_enum)
 {
-    auto& hist  = vg::histograms[mc_enum];
+    auto& hist = vg::histograms[mc_enum];
     auto& graph = vg::graphs[mc_enum];
 
-    for (const auto& secondary : event.secondaries)
+    for (auto const& secondary : event.secondaries)
     {
         vg::total_num_steps += secondary.number_of_steps;
         vg::num_steps_per_event += secondary.number_of_steps;
@@ -121,13 +121,13 @@ void loop_secondaries(rootdata::Event& event, vg::MC mc_enum)
         ROOT::Math::XYZVector xyz(secondary.vertex_position.x,
                                   secondary.vertex_position.y,
                                   secondary.vertex_position.z);
-        const double          xyz_rho = xyz.rho();
+        double const xyz_rho = xyz.rho();
 
         hist.sec_vtx_x->Fill(secondary.vertex_position.x);
         hist.sec_vtx_y->Fill(secondary.vertex_position.y);
         hist.sec_vtx_z->Fill(secondary.vertex_position.z);
         hist.sec_vtx_r->Fill(xyz_rho);
-        hist.sec_vtx_theta->Fill(xyz.phi()); // Phi = polar theta
+        hist.sec_vtx_theta->Fill(xyz.phi());  // Phi = polar theta
 
         // Direction histograms
         hist.sec_dir_x->Fill(secondary.vertex_direction.x);
@@ -141,11 +141,11 @@ void loop_secondaries(rootdata::Event& event, vg::MC mc_enum)
         hist.sec_length->Fill(secondary.length);
 
         // Particle and process map
-        TParticlePDG* particle    = vg::pdg_db.GetParticle(secondary.pdg);
-        const char* particle_name = particle ? particle->GetName() : "unknown";
+        TParticlePDG* particle = vg::pdg_db.GetParticle(secondary.pdg);
+        char const* particle_name = particle ? particle->GetName() : "unknown";
         vg::particle_map.insert({secondary.pdg, particle_name});
 
-        for (const auto& step : secondary.steps)
+        for (auto const& step : secondary.steps)
         {
             hist.sec_step_edep->Fill(step.energy_loss);
 
@@ -190,8 +190,8 @@ void loop_secondaries(rootdata::Event& event, vg::MC mc_enum)
  */
 void sensitive_detectors(rootdata::Event& event)
 {
-    auto&       hist      = vg::histograms[vg::MC::G4];
-    const auto& detectors = event.sensitive_detectors;
+    auto& hist = vg::histograms[vg::MC::G4];
+    auto const& detectors = event.sensitive_detectors;
 
     if (detectors.size() != 2)
     {
@@ -219,39 +219,24 @@ void sensitive_detectors(rootdata::Event& event)
  */
 void loop(TFile* input_file, vg::MC mc_enum)
 {
-    auto& hist  = vg::histograms[mc_enum];
+    std::cout << input_file->GetName() << std::endl;
+
+    auto& hist = vg::histograms[mc_enum];
     auto& graph = vg::graphs[mc_enum];
 
-    TTree*           event_tree = (TTree*)input_file->Get("events");
-    rootdata::Event* event      = nullptr;
+    TTree* event_tree = (TTree*)input_file->Get("events");
+    rootdata::Event* event = nullptr;
     event_tree->SetBranchAddress("event", &event);
+    auto const num_entries = event_tree->GetEntries();
 
     // Add to global number of events
-    vg::total_num_events += event_tree->GetEntries();
+    vg::total_num_events += num_entries;
 
-    // Set up progress indicator
-    const float percent_increment = 1; // Print msg at every increment [%]
-    const int   events_per_print  = (percent_increment / 100)
-                                 * event_tree->GetEntries();
-    int events_per_print_counter = 0; // Addition is better than modulo
-    int n_printed_msgs = 0; // One printed msg for every percent increment
-    std::cout << "Processing " << input_file->GetName() << ": 0%";
-    std::cout.flush();
-
-    for (int i = 0; i < event_tree->GetEntries(); i++)
+    ProgressIndicator progress(num_entries);
+    for (int i = 0; i < num_entries; i++)
     {
+        progress();
         event_tree->GetEntry(i);
-
-        if (++events_per_print_counter == events_per_print)
-        {
-            // Reached the number of events per print
-            // Increment number of printed messages and reset counter
-            n_printed_msgs++;
-            events_per_print_counter = 0;
-            std::cout << "\rProcessing " << input_file->GetName() << ": "
-                      << n_printed_msgs * percent_increment << "%";
-            std::cout.flush();
-        }
 
         // Reset counter for each event
         vg::num_steps_per_event = 0;
@@ -304,17 +289,17 @@ void loop(TFile* input_file, vg::MC mc_enum)
  */
 void draw_canvas_step()
 {
-    auto& hist_g4  = vg::histograms[vg::MC::G4];
+    auto& hist_g4 = vg::histograms[vg::MC::G4];
     auto& hist_cel = vg::histograms[vg::MC::Cel];
 
-    const auto celeritas_color = kAzure + 1;
+    auto const celeritas_color = kAzure + 1;
     hist_cel.n_steps_prim->SetLineColor(celeritas_color);
     hist_cel.n_secondaries->SetLineColor(celeritas_color);
     hist_cel.n_steps_sec->SetLineColor(celeritas_color);
     hist_cel.n_steps_evt->SetLineColor(celeritas_color);
 
     TCanvas* canvas_steps = new TCanvas("steps", "steps", 1600, 650);
-    canvas_steps->Divide(4, 2); // 3 columns, 2 rows
+    canvas_steps->Divide(4, 2);  // 3 columns, 2 rows
 
     // Row 1
     canvas_steps->cd(1);
@@ -358,7 +343,7 @@ void draw_canvas_step()
     gPad->SetLeftMargin(vg::left_margin);
     gPad->SetRightMargin(vg::right_margin);
     gPad->SetBottomMargin(vg::bottom_margin);
-    gStyle->SetPaintTextFormat("1.2g"); // Set scientific notation inside bins
+    gStyle->SetPaintTextFormat("1.2g");  // Set scientific notation inside bins
     hist_g4.particle_process->Scale(1. / hist_g4.particle_process->Integral());
     hist_g4.particle_process->Draw("ncolz text");
     hist_g4.particle_process->GetYaxis()->SetRangeUser(
@@ -383,7 +368,7 @@ void draw_canvas_step()
     gPad->SetLeftMargin(vg::left_margin);
     gPad->SetRightMargin(vg::right_margin);
     gPad->SetBottomMargin(vg::bottom_margin);
-    gStyle->SetPaintTextFormat("1.2g"); // Set scientific notation inside bins
+    gStyle->SetPaintTextFormat("1.2g");  // Set scientific notation inside bins
     hist_cel.particle_process->Scale(1.
                                      / hist_cel.particle_process->Integral());
     hist_cel.particle_process->Draw("ncolz text");
@@ -405,10 +390,10 @@ void draw_canvas_step()
  */
 void draw_canvas_energy()
 {
-    auto& hist_g4  = vg::histograms[vg::MC::G4];
+    auto& hist_g4 = vg::histograms[vg::MC::G4];
     auto& hist_cel = vg::histograms[vg::MC::Cel];
 
-    const auto celeritas_color = kAzure + 1;
+    auto const celeritas_color = kAzure + 1;
     hist_cel.prim_edep->SetLineColor(celeritas_color);
     hist_cel.sec_edep->SetLineColor(celeritas_color);
     hist_cel.sec_energy->SetLineColor(celeritas_color);
@@ -416,7 +401,7 @@ void draw_canvas_energy()
     hist_cel.sec_step_edep->SetLineColor(celeritas_color);
 
     TCanvas* canvas_energy = new TCanvas("energy", "energy", 1050, 600);
-    canvas_energy->Divide(3, 2); // 3 columns, 2 rows
+    canvas_energy->Divide(3, 2);  // 3 columns, 2 rows
 
     canvas_energy->cd(1);
     gPad->SetLogy();
@@ -461,10 +446,10 @@ void draw_canvas_energy()
  */
 void draw_canvas_vertex()
 {
-    auto& hist_g4  = vg::histograms[vg::MC::G4];
+    auto& hist_g4 = vg::histograms[vg::MC::G4];
     auto& hist_cel = vg::histograms[vg::MC::Cel];
 
-    const auto celeritas_color = kAzure + 1;
+    auto const celeritas_color = kAzure + 1;
     hist_cel.sec_vtx_x->SetLineColor(celeritas_color);
     hist_cel.sec_vtx_y->SetLineColor(celeritas_color);
     hist_cel.sec_vtx_z->SetLineColor(celeritas_color);
@@ -475,7 +460,7 @@ void draw_canvas_vertex()
     hist_cel.sec_vtx_theta->SetLineColor(celeritas_color);
 
     TCanvas* canvas_vertex = new TCanvas("vertex", "vertex", 1050, 600);
-    canvas_vertex->Divide(3, 2); // 3 columns, 2 rows
+    canvas_vertex->Divide(3, 2);  // 3 columns, 2 rows
 
     // Row 1
     canvas_vertex->cd(1);
@@ -544,7 +529,7 @@ void draw_canvas_sensitive_detectors()
 
     TCanvas* canvas_sd
         = new TCanvas("sensitive detectors", "sensitive detectors", 700, 600);
-    canvas_sd->Divide(2, 2); // 2 columns, 2 rows
+    canvas_sd->Divide(2, 2);  // 2 columns, 2 rows
 
     // Row 1
     canvas_sd->cd(1);
@@ -579,16 +564,16 @@ void draw_canvas_sensitive_detectors()
  */
 void draw_canvas_cumulative()
 {
-    auto& graph_g4  = vg::graphs[vg::MC::G4];
+    auto& graph_g4 = vg::graphs[vg::MC::G4];
     auto& graph_cel = vg::graphs[vg::MC::Cel];
 
-    const auto celeritas_color = kAzure + 1;
+    auto const celeritas_color = kAzure + 1;
     graph_cel.cumulative_r->SetLineColor(celeritas_color);
     graph_cel.cumulative_z->SetLineColor(celeritas_color);
 
     TCanvas* canvas_cumulative
         = new TCanvas("cumulative", "cumulative", 1050, 500);
-    canvas_cumulative->Divide(2, 1); // 2 columns, 1 row
+    canvas_cumulative->Divide(2, 1);  // 2 columns, 1 row
 
     canvas_cumulative->cd(1);
     gPad->SetGridx();
@@ -627,17 +612,17 @@ void draw_canvas_cumulative()
  */
 void draw_canvas_time()
 {
-    auto& hist_g4  = vg::histograms[vg::MC::G4];
+    auto& hist_g4 = vg::histograms[vg::MC::G4];
     auto& hist_cel = vg::histograms[vg::MC::Cel];
 
-    const auto celeritas_color = kAzure + 1;
+    auto const celeritas_color = kAzure + 1;
     hist_cel.vtx_prim_time->SetLineColor(celeritas_color);
     hist_cel.vtx_sec_time->SetLineColor(celeritas_color);
     hist_cel.step_prim_time->SetLineColor(celeritas_color);
     hist_cel.step_sec_time->SetLineColor(celeritas_color);
 
     TCanvas* canvas_time = new TCanvas("Global time", "Global time", 700, 600);
-    canvas_time->Divide(2, 2); // 2 columns, 2 rows
+    canvas_time->Divide(2, 2);  // 2 columns, 2 rows
 
     // Row 1
     canvas_time->cd(1);
@@ -679,10 +664,10 @@ void draw_canvas_time()
  */
 void draw_canvas_length()
 {
-    auto& hist_g4  = vg::histograms[vg::MC::G4];
+    auto& hist_g4 = vg::histograms[vg::MC::G4];
     auto& hist_cel = vg::histograms[vg::MC::Cel];
 
-    const auto celeritas_color = kAzure + 1;
+    auto const celeritas_color = kAzure + 1;
     hist_cel.prim_length->SetLineColor(celeritas_color);
     hist_cel.sec_length->SetLineColor(celeritas_color);
     hist_cel.prim_step_length->SetLineColor(celeritas_color);
@@ -690,7 +675,7 @@ void draw_canvas_length()
 
     TCanvas* canvas_time
         = new TCanvas("Track length", "Track length", 700, 600);
-    canvas_time->Divide(2, 2); // 2 columns, 2 rows
+    canvas_time->Divide(2, 2);  // 2 columns, 2 rows
 
     // Row 1
     canvas_time->cd(1);

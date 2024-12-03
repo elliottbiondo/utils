@@ -17,8 +17,9 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
-#include "../src/RootData.hh"
 #include <TDatabasePDG.h>
+
+#include "../src/RootData.hh"
 
 class TH1F;
 class TH2F;
@@ -37,28 +38,28 @@ namespace vg
  */
 
 // Count total steps in the simulation for performance metrics
-static long   total_num_events = 0;
-static double total_num_steps  = 0;
+static long total_num_events = 0;
+static double total_num_steps = 0;
 
 // Total steps per event (for vg::hist.n_steps_evt)
 static double num_steps_per_event = 0;
 
 // Set up maps for scaling histograms
-std::map<int, std::string>                 particle_map;
+std::map<int, std::string> particle_map;
 std::map<rootdata::ProcessId, std::string> process_map;
-TDatabasePDG                               pdg_db;
+TDatabasePDG pdg_db;
 
 // Extend plot margins. Limits start at 1. Thus 1.1 adds 10%
-static const double plot_margin = 1.1;
+static double const plot_margin = 1.1;
 
 // Canvas margins
-static const double bottom_margin = 0.15;
-static const double right_margin  = 0.15;
-static const double left_margin   = 0.13;
-static const double label_size    = 0.06;
-static const double label_offset  = 0.015;
-static const double marker_size   = 1.5;
-static const double marker_color  = 15;
+static double const bottom_margin = 0.15;
+static double const right_margin = 0.15;
+static double const left_margin = 0.13;
+static double const label_size = 0.06;
+static double const label_offset = 0.015;
+static double const marker_size = 1.5;
+static double const marker_color = 15;
 
 // Select plot data safely
 enum MC
@@ -73,14 +74,14 @@ enum MC
  */
 struct HistData
 {
-    int step_bins   = 30;
+    int step_bins = 30;
     int energy_bins = 30;
 
-    int    vertex_bins = 100;
+    int vertex_bins = 100;
     double vtx_min;
     double vtx_max;
 
-    int sd_edep_bins  = 30;
+    int sd_edep_bins = 30;
     int sd_steps_bins = 100;
 
     // Array is for MC::G4 and MC::Cel
@@ -134,17 +135,17 @@ static HistData histograms[2];
 struct GraphData
 {
     // Define binning
-    const int r_n_bins         = 1025; // Select the number of bins
-    double    r_bin_min        = 0;
-    double    r_bin_max        = 700;
-    double    r_bin_size       = r_bin_max / r_n_bins;
-    double    r_bin_half_width = r_bin_size / 2;
+    int const r_n_bins = 1025;  // Select the number of bins
+    double r_bin_min = 0;
+    double r_bin_max = 700;
+    double r_bin_size = r_bin_max / r_n_bins;
+    double r_bin_half_width = r_bin_size / 2;
 
-    const int z_n_bins         = 50; // Select the number of bins
-    double    z_bin_min        = -20;
-    double    z_bin_max        = 20;
-    double    z_bin_size       = (z_bin_max - z_bin_min) / z_n_bins;
-    double    z_bin_half_width = z_bin_size / 2;
+    int const z_n_bins = 50;  // Select the number of bins
+    double z_bin_min = -20;
+    double z_bin_max = 20;
+    double z_bin_size = (z_bin_max - z_bin_min) / z_n_bins;
+    double z_bin_half_width = z_bin_size / 2;
 
     struct Bin
     {
@@ -169,11 +170,11 @@ static GraphData graphs[2];
 /*!
  * Store global data limits and performance metrics when many files are read.
  */
-static rootdata::DataLimits    data_limits;
+static rootdata::DataLimits data_limits;
 static rootdata::ExecutionTime exec_time;
 
 //---------------------------------------------------------------------------//
-} // namespace vg
+}  // namespace vg
 
 //---------------------------------------------------------------------------//
 // Helper functions for the vg namespace data
