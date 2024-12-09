@@ -37,6 +37,7 @@ The available geometries are:
 | 8    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
 | 9    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
 | 10   | Set of boxes with optical properties |
+| 11   | Thin Pb slab for MSC validation |
 
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
@@ -50,13 +51,13 @@ are stored in `/src/core`, leaving the `/src` directory only with the different
 geometries created by different implementations of
 `G4VUserDetectorConstruction`.
 
-The addition of new geometries only need:
-- A new concrete `GeometryName` class implementation of
-  `G4VUserDetectorConstruction`.  
-- Two updates in `gdml-gen.cc`:  
-  - Addition of said geometry in the `GeometryID` enum.  
-  - Addition of said geometry in the `to_string` description  
-  - Addition of said geometry in the `switch` statement:  
+Addition of new geometries todo list:
+- Add new concrete `GeometryName` class implementation of
+  `G4VUserDetectorConstruction` in `src/`  
+- Add the new geometry to the `gdml-gen.cc` by expanding:  
+  - `GeometryID` enum.  
+  - `label` free function  
+  - `switch` statement in `int main()`:  
     ```cpp
     switch (geometry_id) {
         // (...)
@@ -67,6 +68,7 @@ The addition of new geometries only need:
         // (...)
     }
     ```
+- Update this README
 
 
 # Implemented geometries

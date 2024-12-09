@@ -29,6 +29,7 @@
 #include "SegmentedSimpleCmsDetector.hh"
 #include "SimpleCmsDetector.hh"
 #include "TestEm3Detector.hh"
+#include "ThinSlabDetector.hh"
 #include "core/PhysicsList.hh"
 
 //---------------------------------------------------------------------------//
@@ -48,6 +49,7 @@ enum class GeometryID
     testem3_flat,  //!< Simple materials, flat (for ORANGE)
     testem3_composite_flat,  //!< Composite materials flat (for ORANGE)
     optical,  //!< Simple geometry with optical properties
+    thin_slab,  //!< Single material thin slab for MSC validation
     size_
 };
 
@@ -93,6 +95,9 @@ constexpr char const* label(GeometryID id) noexcept
             break;
         case GID::optical:
             return "Optical - composite materials with optical properties";
+            break;
+        case GID::thin_slab:
+            return "Thin Pb slab";
             break;
         default:
             __builtin_unreachable();
@@ -286,17 +291,19 @@ int main(int argc, char* argv[])
             gdml_filename = "optical.gdml";
             break;
 
+        case GeometryID::thin_slab:
+            run_manager->SetUserInitialization(new ThinSlabDetector());
+            gdml_filename = "thin-slab.gdml";
+            break;
+
         default:
             __builtin_unreachable();
     }
 
-    // Load physics list and initialize run manager
-    // TODO: set up range cuts as a user input
+    // Initialize run manager and export GDML (TODO: setup user-input cuts)
     run_manager->SetUserInitialization(new PhysicsList(/* range_cuts = */ 0.7));
     run_manager->Initialize();
     run_manager->RunInitialization();
-
-    // Write GDML to disk
     export_gdml(gdml_filename);
 
     return EXIT_SUCCESS;
