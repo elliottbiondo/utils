@@ -112,8 +112,8 @@ void create_isotropic(const char*        hepmc3_output,
     auto hepmc3_writer = std::make_shared<HepMC3::WriterAscii>(hepmc3_output);
 
     static constexpr double                pi = 3.141592653589793238;
-    std::mt19937                           generator(12345);
-    std::uniform_real_distribution<double> uniform_rng(0, 1);
+    std::mt19937                           rng(12345);
+    std::uniform_real_distribution<double> uniform(0, 1);
     double                                 random_dir[3];
 
     for (int event = 0; event < num_events; event++)
@@ -124,8 +124,8 @@ void create_isotropic(const char*        hepmc3_output,
         for (int part_idx = 0; part_idx < num_part_per_event; part_idx++)
         {
             // Select a random uniform direction over a sphere
-            const double theta = 2 * pi * uniform_rng(generator);
-            const double phi   = acos(2 * uniform_rng(generator) - 1.0);
+            const double theta = 2 * pi * uniform(rng);
+            const double phi   = acos(2 * uniform(rng) - 1.0);
             random_dir[0]      = cos(theta) * sin(phi);
             random_dir[1]      = sin(theta) * sin(phi);
             random_dir[2]      = cos(phi);
@@ -221,18 +221,88 @@ void create_particle_gun(const char*        hepmc3_output,
 
 //---------------------------------------------------------------------------//
 /*!
+ * Create a particle-gun output with fixed direction and vertex, and uniform
+ * energy range.
+ */
+void create_particle_gun(const char*        hepmc3_output,
+                         const unsigned int num_events,
+                         const unsigned int num_part_per_event,
+                         const int          pdg_id,
+                         const double       energy_min,
+                         const double       energy_max,
+                         const double       direction[3],
+                         const double       vertex[3])
+{
+    auto hepmc3_writer = std::make_shared<HepMC3::WriterAscii>(hepmc3_output);
+
+    std::mt19937                           rng(12345);
+    std::uniform_real_distribution<double> uniform(energy_min, energy_max);
+
+    for (int event = 0; event < num_events; event++)
+    {
+        HepMC3::GenEvent gen_event(HepMC3::Units::MEV, HepMC3::Units::CM);
+        gen_event.set_event_number(event);
+
+        HepMC3::FourVector vtx_four_vector;
+        vtx_four_vector.set_x(vertex[0]);
+        vtx_four_vector.set_y(vertex[1]);
+        vtx_four_vector.set_z(vertex[2]);
+        gen_event.shift_position_to(vtx_four_vector);
+
+        for (int part_idx = 0; part_idx < num_part_per_event; part_idx++)
+        {
+            auto energy = uniform(rng);
+
+            HepMC3::GenParticleData gen_particle_data;
+            gen_particle_data.status      = 1; // Must be tracked
+            gen_particle_data.pid         = pdg_id;
+            gen_particle_data.momentum    = {energy * direction[0],
+                                             energy * direction[1],
+                                             energy * direction[2],
+                                             energy};
+            gen_particle_data.is_mass_set = true;
+
+            switch (pdg_id)
+            {
+                case -11:
+                    gen_particle_data.mass = 0.5109989461; //!< [MeV]
+                    break;
+                case 11:
+                    gen_particle_data.mass = 0.5109989461; //!< [MeV]
+                    break;
+                case 22:
+                    gen_particle_data.mass = 0;
+                    break;
+            }
+
+            gen_event.add_particle(
+                std::make_shared<HepMC3::GenParticle>(gen_particle_data));
+        }
+        hepmc3_writer->write_event(gen_event);
+    }
+
+    hepmc3_writer->close();
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * Produce HepMC3 input files for Celeritas demo-loop app.
  *
  * Possible HepMC3 files:
  * - Spherically isotropic source with fixed energy.
  * - Particle gun source with fixed energy, direction, and position.
+ * - Particle gun source with uniform energy range, and fixed direction and
+ *   position.
  * - Photons from original Pythia8 CMS HEPEVT files.
  *
  * Usages:
  * ./hepmc3-gen [isotropic.hepmc3] [num_events] [num_part_per_evt]
  *              [pdg_id] [MeV_energy]
  * ./hepmc3-gen [particle_gun.hepmc3] [num_events] [num_part_per_evt]
- *              [pdg_id] [MeV_energy] [cm_direction] [cm_vertex]
+ *              [pdg_id] [mev_energy] [cm_direction] [cm_vertex]
+ * ./hepmc3-gen [particle_gun.hepmc3] [num_events] [num_part_per_evt]
+ *              [pdg_id] [mev_energy_min] [mev_energy_max] [cm_direction]
+ *              [cm_vertex]
  * ./hepmc3-gen [cms_pythia_hepevt.data] [cms_pythia.hepmc3]
  *
  * Currently available PDGs are -11 (e+), 11 (e-), and 22 (gamma).
@@ -301,6 +371,39 @@ int main(int argc, char* argv[])
                             vertex);
     }
 
+    else if (argc == 13)
+    {
+        // Create particle gun
+        const char*        hepmc3_output_file = argv[1];
+        const unsigned int num_events         = std::stoul(argv[2]);
+        const unsigned int num_part_per_event = std::stoul(argv[3]);
+        const int          pdg                = std::stoi(argv[4]);
+        const double       energy_min         = std::stod(argv[5]);
+        const double       energy_max         = std::stod(argv[6]);
+        const double       direction[3]
+            = {std::stod(argv[6]), std::stod(argv[7]), std::stod(argv[8])};
+        const double vertex[3]
+            = {std::stod(argv[9]), std::stod(argv[10]), std::stod(argv[11])};
+
+        if (pdg != 22 && abs(pdg) != 11)
+        {
+            std::cout << "Currently available PDGs are -11 (e+), 11 (e-), and "
+                         "22 (gamma)"
+                      << std::endl;
+
+            return EXIT_FAILURE;
+        }
+
+        create_particle_gun(hepmc3_output_file,
+                            num_events,
+                            num_part_per_event,
+                            pdg,
+                            energy_min,
+                            energy_max,
+                            direction,
+                            vertex);
+    }
+
     else
     {
         // Print help message
@@ -316,6 +419,12 @@ int main(int argc, char* argv[])
                "(MeV)] [particle directions (x, y, z) (unity)] [particle "
                "vertex (x, y, z) (cm)]"
             << std::endl;
+        std::cout << argv[0]
+                  << " [particle_gun_out.hepmc3] [num events] "
+                     "[num particles per event] [pdg] [particle min energy "
+                     "(MeV)] [particle max energy (MeV)] [particle directions "
+                     "(x, y, z) (unity)] [particle vertex (x, y, z) (cm)]"
+                  << std::endl;
         std::cout << argv[0] << " [pythia_hepevt.data] [pythia_out.hepmc3]"
                   << std::endl;
         std::cout << "Currently available PDGs are -11 (e+), 11 (e-), and "

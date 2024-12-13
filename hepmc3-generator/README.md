@@ -15,26 +15,31 @@ $ make
 ```
 
 # Run
-The `hepmc3-gen` app can produce 3 outputs:  
-
 - Spherical isotropic distribution of primary particles with fixed energy. 
 ```shell
-$ ./hepmc3-gen [isotropic.hepmc3] [num_events] [num_part_per_evt] [pdg] [MeV_energy]
+$ ./hepmc3-gen [isotropic.hepmc3] [num_events] [num_part_per_evt] [pdg] [mev_energy]
 ```
 
 - Particle gun with fixed energy, direction, and vertex. Direction and vertex
-are expressed in cartesian coordinates. Direction is a unit vector.
+  are expressed in cartesian coordinates. Direction is a unit vector.
 ```shell
-$ ./hepmc3-gen [particle-gun.hepmc3] [num_events] [num_part_per_evt] [pdg] [MeV_energy] [cm_direction] [cm_vertex]
+$ ./hepmc3-gen [particle-gun.hepmc3] [num_events] [num_part_per_evt] [pdg] [mev_energy] [cm_direction] [cm_vertex]
+```
+
+- Particle gun with uniform energy range, and fixed direction, and vertex.
+  Direction and vertex are expressed in cartesian coordinates. Direction is a
+  unit vector.
+```shell
+$ ./hepmc3-gen [particle-gun.hepmc3] [num_events] [num_part_per_evt] [pdg] [mev_energy_min] [mev_energy_max] [cm_direction] [cm_vertex]
 ```
 
 - Parse a CMS Pythia HEPEVT ASCII file and produce an equivalent hepmc3 file by
-selecting only photon primaries:
+  selecting only photon primaries:
 ```shell
 $ ./hepmc3-gen [cms_pythia_hepevt.data] [cms_pythia.hepmc3]
 ```
 
-## Currently available PDGs for the first 2 options
+## Currently available PDGs
 
 | PDG | Particle  |
 | --- | --------- |
