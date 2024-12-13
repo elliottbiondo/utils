@@ -29,8 +29,18 @@ class ThinSlabDetector : public G4VUserDetectorConstruction
     void ConstructSDandField() final;
 
   private:
+    struct SlabDefinition
+    {
+        G4Material* material;
+        std::array<double, 3> dimension;
+    };
+
+    // Pb slab of 5 cm x 5 cm x 5 um.
+    SlabDefinition lead_slab_def();
+    // Carbon slab of 5 cm x 5 cm x 10 um.
+    SlabDefinition carbon_slab_def();
     // Thin slab for MSC validation
-    G4VPhysicalVolume* create_slab();
+    G4VPhysicalVolume* create_slab(SlabDefinition const& def);
     // Set volume as sensitive detector
     void set_sd();
 };

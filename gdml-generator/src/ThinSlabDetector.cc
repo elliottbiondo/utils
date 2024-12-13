@@ -31,7 +31,7 @@ ThinSlabDetector::ThinSlabDetector() {}
  */
 G4VPhysicalVolume* ThinSlabDetector::Construct()
 {
-    return this->create_slab();
+    return this->create_slab(this->carbon_slab_def());
 }
 
 //---------------------------------------------------------------------------//
@@ -49,30 +49,60 @@ void ThinSlabDetector::ConstructSDandField()
 
 //---------------------------------------------------------------------------//
 /*!
- * Programmatic geometry definition: thin slab of Pb of 5 cm x 5 cm x 5 um.
+ * Define Pb slab of 5 cm x 5 cm x 5 um.
  */
-G4VPhysicalVolume* ThinSlabDetector::create_slab()
+ThinSlabDetector::SlabDefinition ThinSlabDetector::lead_slab_def()
+{
+    auto nist = G4NistManager::Instance();
+    auto slab_mat = nist->FindOrBuildMaterial("G4_Pb");
+    slab_mat->SetName("Pb");
+
+    SlabDefinition def;
+    def.material = slab_mat;
+    def.dimension = {5 * cm, 5 * cm, 5 * um};
+    return def;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Define carbon slab of 5 cm x 5 cm x 50 um.
+ */
+ThinSlabDetector::SlabDefinition ThinSlabDetector::carbon_slab_def()
+{
+    auto nist = G4NistManager::Instance();
+    auto slab_mat = nist->FindOrBuildMaterial("G4_C");
+    slab_mat->SetName("C");
+
+    SlabDefinition def;
+    def.material = slab_mat;
+    def.dimension = {5 * cm, 5 * cm, 50 * um};
+    return def;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Construct slab based on input definition. The world volume is vacuum and is
+ * is 4 times larger in the z-axis than the input slab, while keeping the same
+ * size in x and y axes.
+ */
+G4VPhysicalVolume* ThinSlabDetector::create_slab(SlabDefinition const& def)
 {
     // Materials
     auto nist = G4NistManager::Instance();
     auto world_mat = nist->FindOrBuildMaterial("G4_Galactic");
-    auto slab_mat = nist->FindOrBuildMaterial("G4_Pb");
     world_mat->SetName("vacuum");
-    slab_mat->SetName("Pb");
 
-    // Slab dimensions
-    double const slab_side = 5 * cm;
-    double const slab_width = 5 * um;
+    auto const& dim = def.dimension;
 
     // World
-    G4Box* world_box = new G4Box("world_box", slab_side, slab_side, 1 * cm);
+    G4Box* world_box = new G4Box("world_box", dim[0], dim[1], 4 * dim[2]);
     auto const world_lv = new G4LogicalVolume(world_box, world_mat, "world");
     auto const world_pv = new G4PVPlacement(
         nullptr, G4ThreeVector(), world_lv, "world_pv", nullptr, false, 0, false);
 
     // Thin slab
-    G4Box* slab_box = new G4Box("slab_box", slab_side, slab_side, slab_width);
-    auto const slab_lv = new G4LogicalVolume(slab_box, slab_mat, "slab");
+    G4Box* slab_box = new G4Box("slab_box", dim[0], dim[1], dim[2]);
+    auto const slab_lv = new G4LogicalVolume(slab_box, def.material, "slab");
     new G4PVPlacement(
         nullptr, G4ThreeVector(), slab_lv, "world_pv", world_lv, false, 0, false);
 
