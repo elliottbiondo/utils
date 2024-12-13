@@ -224,7 +224,7 @@ void loop(TFile* input_file, vg::MC mc_enum)
     auto& hist = vg::histograms[mc_enum];
     auto& graph = vg::graphs[mc_enum];
 
-    TTree* event_tree = (TTree*)input_file->Get("events");
+    auto event_tree = input_file->Get<TTree>("events");
     rootdata::Event* event = nullptr;
     event_tree->SetBranchAddress("event", &event);
     auto const num_entries = event_tree->GetEntries();
@@ -254,10 +254,6 @@ void loop(TFile* input_file, vg::MC mc_enum)
         hist.n_secondaries->Fill(event->secondaries.size());
         hist.n_steps_evt->Fill(vg::num_steps_per_event);
     }
-
-    std::cout << "\rProcessing " << input_file->GetName() << ": 100%"
-              << std::endl;
-    std::cout.flush();
 
     // Set all the vg::graphs.TGraph* data points
     for (int i = 0; i < graph.r_n_bins; i++)

@@ -32,6 +32,7 @@
 #include <TTree.h>
 
 #include "../../geant4-validation-app/src/RootData.hh"
+#include "ProgressIndicator.hh"
 
 //---------------------------------------------------------------------------//
 //! Helper functions and static variables
@@ -44,10 +45,10 @@ static int const n_bins = 50;
 static double const bin_min = 0;
 static double const bin_max = 100e3;
 static char const* hist_title = "Primary step length";
-static char const* commit_hash = "*pr/amandalund/920";
+static char const* commit_hash = "[commit hash]";
 static char const* x_axis_title = "Step length [cm]";
 static char const* geant4_legend = "Geant4 v11.0.3";
-static char const* celeritas_legend = "Celeritas*";
+static char const* celeritas_legend = "Celeritas v0.5*";
 // Path to librootdata
 static char const* librootdata = "../build/librootdata";
 
@@ -86,6 +87,8 @@ void mctruth_comparison(std::string g4_rootfile, std::string cel_rootfile)
 
     // Create relative error histograms
     auto h_g4_rel_err = new TH1D("G4 rel. err.", "", n_bins, bin_min, bin_max);
+    auto h_g4_rel_err_3s
+        = new TH1D("G4 rel. err. 3sigma", "", n_bins, bin_min, bin_max);
     for (int i = 0; i < n_bins; i++)
     {
         double error = h_g4->GetBinError(i);
@@ -94,6 +97,8 @@ void mctruth_comparison(std::string g4_rootfile, std::string cel_rootfile)
 
         h_g4_rel_err->SetBinContent(i, 0);
         h_g4_rel_err->SetBinError(i, rel_err * 100);
+        h_g4_rel_err_3s->SetBinContent(i, 0);
+        h_g4_rel_err_3s->SetBinError(i, 3 * rel_err * 100);
     }
 
     // Create relative difference histogram [(Geant4 - Celeritas) / Celeritas]
@@ -129,10 +134,12 @@ void mctruth_comparison(std::string g4_rootfile, std::string cel_rootfile)
     h_g4->Draw("PE2");
     h_cel->Draw("hist sames");
 
-    auto legend_top = new TLegend(0.61, 0.65, 0.86, 0.86);
+    auto legend_top = new TLegend(0.57, 0.46, 0.86, 0.86);
     legend_top->AddEntry(h_g4, geant4_legend, "p");
     legend_top->AddEntry(h_rel_diff, celeritas_legend, "l");
-    legend_top->AddEntry(h_g4_rel_err, "1#sigma stat. err.", "f");
+    legend_top->AddEntry(new TH1D(), "Statistical errors:", "f");
+    legend_top->AddEntry(h_g4_rel_err, "1#sigma", "f");
+    legend_top->AddEntry(h_g4_rel_err_3s, "3#sigma", "f");
     legend_top->SetMargin(0.27);
     legend_top->SetLineColor(kGray);
     legend_top->Draw();
@@ -161,32 +168,36 @@ void mctruth_comparison(std::string g4_rootfile, std::string cel_rootfile)
     pad_bottom->Draw();
     pad_bottom->cd();
 
-    h_g4_rel_err->GetXaxis()->SetTitle(x_axis_title);
-    h_g4_rel_err->GetXaxis()->CenterTitle();
-    h_g4_rel_err->GetXaxis()->SetTitleSize(0.14);
-    h_g4_rel_err->GetXaxis()->SetTitleOffset(1.1);
-    h_g4_rel_err->GetXaxis()->SetLabelSize(0.1153);
-    h_g4_rel_err->GetXaxis()->SetLabelOffset(0.02);
-    h_g4_rel_err->GetXaxis()->SetTickLength(0.07);
+    h_g4_rel_err_3s->GetXaxis()->SetTitle(x_axis_title);
+    h_g4_rel_err_3s->GetXaxis()->CenterTitle();
+    h_g4_rel_err_3s->GetXaxis()->SetTitleSize(0.14);
+    h_g4_rel_err_3s->GetXaxis()->SetTitleOffset(1.1);
+    h_g4_rel_err_3s->GetXaxis()->SetLabelSize(0.1153);
+    h_g4_rel_err_3s->GetXaxis()->SetLabelOffset(0.02);
+    h_g4_rel_err_3s->GetXaxis()->SetTickLength(0.07);
 
-    h_g4_rel_err->GetYaxis()->SetTitle("Rel. Diff. (%)");
-    h_g4_rel_err->GetYaxis()->CenterTitle();
-    h_g4_rel_err->GetYaxis()->SetTitleSize(0.131);
-    h_g4_rel_err->GetYaxis()->SetTitleOffset(0.415);
-    h_g4_rel_err->GetYaxis()->SetLabelSize(0.116);
-    h_g4_rel_err->GetYaxis()->SetLabelOffset(0.008);
-    h_g4_rel_err->GetYaxis()->SetTickLength(0.04);
-    h_g4_rel_err->GetYaxis()->SetNdivisions(503);
+    h_g4_rel_err_3s->GetYaxis()->SetTitle("Rel. Diff. (%)");
+    h_g4_rel_err_3s->GetYaxis()->CenterTitle();
+    h_g4_rel_err_3s->GetYaxis()->SetTitleSize(0.131);
+    h_g4_rel_err_3s->GetYaxis()->SetTitleOffset(0.415);
+    h_g4_rel_err_3s->GetYaxis()->SetLabelSize(0.116);
+    h_g4_rel_err_3s->GetYaxis()->SetLabelOffset(0.008);
+    h_g4_rel_err_3s->GetYaxis()->SetTickLength(0.04);
+    h_g4_rel_err_3s->GetYaxis()->SetNdivisions(503);
     // h_g4_rel_err->GetYaxis()->SetRangeUser(-55, 55);
 
-    h_g4_rel_err->SetLineColorAlpha(kGray, 0.7);
-    h_g4_rel_err->SetFillColorAlpha(kGray, 0.7);
+    h_g4_rel_err_3s->SetLineColorAlpha(kGray, 0.7);
+    h_g4_rel_err_3s->SetFillColorAlpha(kGray, 0.7);
+    h_g4_rel_err_3s->SetMarkerSize(0);
+    h_g4_rel_err->SetLineColorAlpha(kGray + 1, 0.7);
+    h_g4_rel_err->SetFillColorAlpha(kGray + 1, 0.7);
     h_g4_rel_err->SetMarkerSize(0);
 
     h_rel_diff->SetLineColor(celeritas_color);
 
-    // Draw relative difference histograms
-    h_g4_rel_err->Draw("hist E2");
+    // Draw stat. err. and rel. diff. histograms
+    h_g4_rel_err_3s->Draw("hist E2");
+    h_g4_rel_err->Draw("hist E2 sames");
     h_rel_diff->Draw("hist sames");
 
     pad_bottom->RedrawAxis();
@@ -203,36 +214,19 @@ void loop(std::string file, TH1D* hist)
     rootdata::Event* event = nullptr;
     event_tree->SetBranchAddress("event", &event);
 
-    // Set up progress indicator
-    float const percent_increment = 1;  // Print msg at every increment [%]
-    int const events_per_print = (percent_increment / 100)
-                                 * event_tree->GetEntries();
-    int events_per_print_counter = 0;  // Addition is better than modulo
-    int n_printed_msgs = 0;  // One printed msg for every percent increment
-    std::cout << "Processing " << file << ": 0%";
-    std::cout.flush();
+    std::cout << "Open " << file << std::endl;
+    ProgressIndicator progress(event_tree->GetEntries());
 
-    for (int i = 0; i < event_tree->GetEntries(); i++)
+    for (auto i = 0; i < event_tree->GetEntries(); i++)
     {
+        progress();
         event_tree->GetEntry(i);
-
-        if (++events_per_print_counter == events_per_print)
-        {
-            // Reached the number of events per print
-            // Increment number of printed messages and reset counter
-            n_printed_msgs++;
-            events_per_print_counter = 0;
-            std::cout << "\rProcessing " << file << ": "
-                      << n_printed_msgs * percent_increment << "%";
-            std::cout.flush();
-        }
 
         if (loop_primaries)
             loop_tracks(event->primaries, hist);
         if (loop_secondaries)
             loop_tracks(event->secondaries, hist);
     }
-    std::cout << std::endl;
 
     tfile->Close();
 }
