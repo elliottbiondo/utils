@@ -350,8 +350,8 @@ void PhysicsList::add_optical_processes()
         }
     }
 
-    auto* cerenkov = new G4Cerenkov();
-    auto* scintillation = new G4Scintillation();
+    auto cerenkov = new G4Cerenkov();
+    auto scintillation = new G4Scintillation();
 
     // Ensure material-only scintillation until implemented in Celeritas
     scintillation->SetScintillationByParticleType(false);

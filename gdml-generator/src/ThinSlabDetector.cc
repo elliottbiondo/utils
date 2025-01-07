@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2022-2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2024-2025 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -27,11 +27,20 @@ ThinSlabDetector::ThinSlabDetector() {}
 
 //---------------------------------------------------------------------------//
 /*!
- * Mandatory Construct function.
+ * Construct slab geometry.
  */
 G4VPhysicalVolume* ThinSlabDetector::Construct()
 {
-    return this->create_slab(this->carbon_slab_def());
+    // Test targets: C, Si, Fe, Ag, Au, Pb
+    auto nist = G4NistManager::Instance();
+    auto slab_mat = nist->FindOrBuildMaterial("G4_Au");
+    assert(slab_mat);
+
+    SlabDefinition def;
+    def.material = slab_mat;
+    def.dimension = {5 * cm, 5 * cm, 5 * um};
+
+    return this->create_slab(def);
 }
 
 //---------------------------------------------------------------------------//
@@ -49,41 +58,10 @@ void ThinSlabDetector::ConstructSDandField()
 
 //---------------------------------------------------------------------------//
 /*!
- * Define Pb slab of 5 cm x 5 cm x 5 um.
- */
-ThinSlabDetector::SlabDefinition ThinSlabDetector::lead_slab_def()
-{
-    auto nist = G4NistManager::Instance();
-    auto slab_mat = nist->FindOrBuildMaterial("G4_Pb");
-    slab_mat->SetName("Pb");
-
-    SlabDefinition def;
-    def.material = slab_mat;
-    def.dimension = {5 * cm, 5 * cm, 5 * um};
-    return def;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * Define carbon slab of 5 cm x 5 cm x 50 um.
- */
-ThinSlabDetector::SlabDefinition ThinSlabDetector::carbon_slab_def()
-{
-    auto nist = G4NistManager::Instance();
-    auto slab_mat = nist->FindOrBuildMaterial("G4_C");
-    slab_mat->SetName("C");
-
-    SlabDefinition def;
-    def.material = slab_mat;
-    def.dimension = {5 * cm, 5 * cm, 50 * um};
-    return def;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * Construct slab based on input definition. The world volume is vacuum and is
- * is 4 times larger in the z-axis than the input slab, while keeping the same
- * size in x and y axes.
+ * Construct slab based on input definition.
+ *
+ * The world volume material is vacuum and is is 4 times larger in the z-axis
+ * than the input slab, while keeping the same size in x and y axes.
  */
 G4VPhysicalVolume* ThinSlabDetector::create_slab(SlabDefinition const& def)
 {

@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2022-2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2024-2025 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -35,10 +35,6 @@ class ThinSlabDetector : public G4VUserDetectorConstruction
         std::array<double, 3> dimension;
     };
 
-    // Pb slab of 5 cm x 5 cm x 5 um.
-    SlabDefinition lead_slab_def();
-    // Carbon slab of 5 cm x 5 cm x 10 um.
-    SlabDefinition carbon_slab_def();
     // Thin slab for MSC validation
     G4VPhysicalVolume* create_slab(SlabDefinition const& def);
     // Set volume as sensitive detector
