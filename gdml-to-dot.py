@@ -36,6 +36,7 @@ class Graph:
     def __init__(self):
         self.nodes = []
         self.edges = defaultdict(int)
+        self.borders = []
         self.replace_pointers = PointerReplacer()
 
     def add_volume(self, el):
@@ -65,7 +66,7 @@ class Graph:
     def pointer_addresses(self):
         return self.replace_pointers.addrs
 
-known_tags = {"volume", "assembly", "skinsurface", "bordersurface"}
+lvref_tags = {"volume", "assembly", "skinsurface"}
 
 def read_graph(filename):
     tree = ET.parse(filename)
@@ -73,11 +74,17 @@ def read_graph(filename):
 
     g = Graph()
     for el in structure:
-        if el.tag in known_tags:
+        if el.tag in lvref_tags:
             g.add_volume(el)
+        elif el.tag == "bordersurface":
+            g.borders.append(el)
         else:
             raise ValueError(f"Unrecognized structure tag: {el!r}")
     g.add_world(tree.findall("./setup/world")[0])
+
+    if g.borders:
+        # TODO: remap these to logical volumes via physvol
+        print("Omitting", len(g.borders), "border surfaces")
 
     return g
 

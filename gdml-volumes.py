@@ -67,7 +67,7 @@ def parse_gdml(filename):
 
 def main(*args):
     from argparse import ArgumentParser
-    parser = ArgumentParser(description=__doc__, prog="gdml-to-dot")
+    parser = ArgumentParser(description=__doc__, prog="gdml-volumes")
     parser.add_argument("-o", "--output", default="-")
     parser.add_argument("input", nargs="+")
     ns = parser.parse_args(*args)
