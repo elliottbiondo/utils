@@ -50,6 +50,7 @@ enum class GeometryID
     testem3_composite_flat,  //!< Composite materials flat (for ORANGE)
     optical,  //!< Simple geometry with optical properties
     thin_slab,  //!< Single material thin slab for MSC validation
+    simple_lz,  //!< Simplified model of the LUX-ZEPLIN detector array
     size_
 };
 
@@ -98,6 +99,9 @@ constexpr char const* label(GeometryID id) noexcept
             break;
         case GID::thin_slab:
             return "Thin Pb slab";
+            break;
+        case GID::simple_lz:
+            return "Simplified LZ - top PMT array";
             break;
         default:
             __builtin_unreachable();
@@ -294,6 +298,11 @@ int main(int argc, char* argv[])
         case GeometryID::thin_slab:
             run_manager->SetUserInitialization(new ThinSlabDetector());
             gdml_filename = "thin-slab.gdml";
+            break;
+
+        case GeometryID::simple_lz:
+            run_manager->SetUserInitialization(new ThinSlabDetector());
+            gdml_filename = "lz.gdml";
             break;
 
         default:
