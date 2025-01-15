@@ -30,6 +30,7 @@
 #include "SimpleCmsDetector.hh"
 #include "TestEm3Detector.hh"
 #include "ThinSlabDetector.hh"
+#include "SimpleLZ.hh"
 #include "core/PhysicsList.hh"
 
 //---------------------------------------------------------------------------//
@@ -301,7 +302,7 @@ int main(int argc, char* argv[])
             break;
 
         case GeometryID::simple_lz:
-            run_manager->SetUserInitialization(new ThinSlabDetector());
+            run_manager->SetUserInitialization(new SimpleLZ());
             gdml_filename = "lz.gdml";
             break;
 
