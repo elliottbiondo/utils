@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
 
         case GeometryID::simple_lz:
             run_manager->SetUserInitialization(new SimpleLZ());
-            gdml_filename = "lz.gdml";
+            gdml_filename = "simple_lz.gdml";
             break;
 
         default:
