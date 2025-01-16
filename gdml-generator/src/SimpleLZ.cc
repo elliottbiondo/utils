@@ -116,30 +116,24 @@ G4VPhysicalVolume* SimpleLZ::Construct()
 {
     // Materials
     auto nist = G4NistManager::Instance();
-    auto slab_mat = nist->FindOrBuildMaterial("G4_Au");
+    auto pmt_mat = nist->FindOrBuildMaterial("G4_Au");
     auto world_mat = nist->FindOrBuildMaterial("G4_Galactic");
     world_mat->SetName("vacuum");
 
-    // World
-    G4Box* world_box = new G4Box("world_box", 2000*mm, 2000*mm, 2000*mm);
-    auto const world_lv = new G4LogicalVolume(world_box, world_mat, "world");
+    // World Cylinder
+    G4Tubs* world_cylinder = new G4Tubs("world_cylinder", 0, 780.288*mm, 123*mm, 0*deg, 360*deg);
+    auto const world_lv = new G4LogicalVolume(world_cylinder, world_mat, "world");
     auto const world_pv = new G4PVPlacement(
         nullptr, G4ThreeVector(), world_lv, "world_pv", nullptr, false, 0, false);
-
-    // Outer Cylinder
-    G4Tubs* cylinder = new G4Tubs("cylinder", 0, 780.288*mm, 123*mm, 0*deg, 360*deg);
-    auto const cylinder_lv = new G4LogicalVolume(cylinder, slab_mat, "cylinder");
-    new G4PVPlacement(
-        nullptr, G4ThreeVector(), cylinder_lv, "cylinder_pv", world_lv, false, 0, false);
 
     // PMTs
     for (auto i = 0; i < 252; ++i)
     {
         G4Tubs* pmt = new G4Tubs("pmt", 0, 39*mm, 123*mm, 0*deg, 360*deg);
         std::string pmt_name = "pmt_" + std::to_string(i);
-        auto const pmt_lv = new G4LogicalVolume(pmt, slab_mat, pmt_name);
+        auto const pmt_lv = new G4LogicalVolume(pmt, pmt_mat, pmt_name);
         new G4PVPlacement(
-            nullptr, G4ThreeVector({pmt_x[i]*mm, pmt_y[i]*mm, 0*mm}), pmt_lv, "pmt_pv", cylinder_lv, false, 0, false);
+            nullptr, G4ThreeVector({pmt_x[i]*mm, pmt_y[i]*mm, 0*mm}), pmt_lv, "pmt_pv", world_lv, false, 0, false);
     }
 
     return world_pv;
@@ -153,7 +147,7 @@ void SimpleLZ::ConstructSDandField()
 {
     auto slab_sb = new SensitiveDetector("cylinder_sd");
     G4SDManager::GetSDMpointer()->AddNewDetector(slab_sb);
-    G4VUserDetectorConstruction::SetSensitiveDetector("cylinder", slab_sb);
+    G4VUserDetectorConstruction::SetSensitiveDetector("world", slab_sb);
 }
 
 //---------------------------------------------------------------------------//
