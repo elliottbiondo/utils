@@ -21,11 +21,13 @@ class SimpleLZ : public G4VUserDetectorConstruction
 {
   public:
     // Construct
-    SimpleLZ();
+    SimpleLZ(int sqrt_num_pmt=0);
 
     // Construct geometry
     G4VPhysicalVolume* Construct() final;
 
     // Set up sensitive detectors and magnetic field
     void ConstructSDandField() final;
+
+    int sqrt_num_pmts_;
 };

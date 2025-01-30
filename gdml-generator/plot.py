@@ -18,6 +18,7 @@ draw_image = visualize.Imager(
         vertical_pixels=1024,
     ))
 
+
 (fig, ax) = plt.subplots()
 
 # Start timer

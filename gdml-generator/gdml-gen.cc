@@ -193,7 +193,7 @@ void export_gdml(std::string const& gdml_filename)
  */
 int main(int argc, char* argv[])
 {
-    if (argc != 2 && argc != 5)
+    if (argc != 2 && argc != 3 &&argc != 5)
     {
         print_help(argv[0]);
         return EXIT_FAILURE;
@@ -209,6 +209,7 @@ int main(int argc, char* argv[])
     }
     if (geometry_id != GeometryID::segmented_simple_cms
         && geometry_id != GeometryID::segmented_simple_cms_composite
+        && geometry_id != GeometryID::simple_lz
         && argc != 2)
     {
         std::cout << "Wrong number of arguments" << std::endl;
@@ -302,9 +303,23 @@ int main(int argc, char* argv[])
             break;
 
         case GeometryID::simple_lz:
-            run_manager->SetUserInitialization(new SimpleLZ());
-            gdml_filename = "simple_lz.gdml";
-            break;
+            if (argc == 2)
+            {
+                run_manager->SetUserInitialization(new SimpleLZ());
+                gdml_filename = "simple_lz.gdml";
+                break;
+            }
+            else if (argc == 3)
+            {
+                run_manager->SetUserInitialization(new SimpleLZ(std::atoi(argv[2])));
+                gdml_filename = "simple_lz.gdml";
+                break;
+            }
+            else
+            {
+                std::cout << "SimpleLZ requires either 0 or 1 argument " << std::endl;
+                return EXIT_FAILURE;
+            }
 
         default:
             __builtin_unreachable();
