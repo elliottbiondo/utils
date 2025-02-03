@@ -28,6 +28,7 @@
 #include "OpticalDetector.hh"
 #include "SegmentedSimpleCmsDetector.hh"
 #include "SimpleCmsDetector.hh"
+#include "SimpleLZ.hh"
 #include "TestEm3Detector.hh"
 #include "ThinSlabDetector.hh"
 #include "core/PhysicsList.hh"
@@ -50,6 +51,7 @@ enum class GeometryID
     testem3_composite_flat,  //!< Composite materials flat (for ORANGE)
     optical,  //!< Simple geometry with optical properties
     thin_slab,  //!< Single material thin slab for MSC validation
+    simple_lz,  //!< Simplified model of the LUX-ZEPLIN detector array
     size_
 };
 
@@ -99,6 +101,9 @@ constexpr char const* label(GeometryID id) noexcept
         case GID::thin_slab:
             return "Thin Pb slab";
             break;
+        case GID::simple_lz:
+            return "Simplified LZ - top PMT array";
+            break;
         default:
             __builtin_unreachable();
     }
@@ -130,6 +135,8 @@ void print_help(char const* argv)
     cout << "3 extra parameters are needed - [num_segments_r] "
             "[num_segments_z] [num_segments_theta]"
          << endl;
+    cout << "For " << static_cast<int>(GeometryID::simple_lz) << ":" << endl;
+    cout << "1 extra parameter is optional - [sqrt_num_pmts] " << endl;
 }
 
 //---------------------------------------------------------------------------//
@@ -188,7 +195,7 @@ void export_gdml(std::string const& gdml_filename)
  */
 int main(int argc, char* argv[])
 {
-    if (argc != 2 && argc != 5)
+    if (argc != 2 && argc != 3 && argc != 5)
     {
         print_help(argv[0]);
         return EXIT_FAILURE;
@@ -204,7 +211,7 @@ int main(int argc, char* argv[])
     }
     if (geometry_id != GeometryID::segmented_simple_cms
         && geometry_id != GeometryID::segmented_simple_cms_composite
-        && argc != 2)
+        && geometry_id != GeometryID::simple_lz && argc != 2)
     {
         std::cout << "Wrong number of arguments" << std::endl;
         return EXIT_FAILURE;
@@ -295,6 +302,34 @@ int main(int argc, char* argv[])
             run_manager->SetUserInitialization(new ThinSlabDetector());
             gdml_filename = "thin-slab.gdml";
             break;
+
+        case GeometryID::simple_lz:
+            gdml_filename = "simple_lz.gdml";
+            if (argc == 2)
+            {
+                run_manager->SetUserInitialization(new SimpleLZ());
+                break;
+            }
+            else if (argc == 3)
+            {
+                int sqrt_num_pmts = std::atoi(argv[2]);
+                if (sqrt_num_pmts < 1)
+                {
+                    std::cout
+                        << "The sqrt_num_pmts parameter must be positive "
+                        << std::endl;
+                    return EXIT_FAILURE;
+                }
+                run_manager->SetUserInitialization(new SimpleLZ(sqrt_num_pmts));
+                break;
+            }
+            else
+            {
+                std::cout
+                    << "SimpleLZ requires either 0 or 1 additional arguments "
+                    << std::endl;
+                return EXIT_FAILURE;
+            }
 
         default:
             __builtin_unreachable();
