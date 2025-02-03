@@ -31,6 +31,7 @@ add_executable(gdml-gen gdml-gen.cc
   src/SimpleCmsDetector.cc
   src/TestEm3Detector.cc
   src/ThinSlabDetector.cc
+  src/SimpleLZ.cc
 )
 
 target_compile_features(gdml-gen

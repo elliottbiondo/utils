@@ -38,6 +38,7 @@ The available geometries are:
 | 9    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
 | 10   | Set of boxes with optical properties |
 | 11   | Thin Pb slab for MSC validation |
+| 12   | Simplifed LUX-Zeplin (LZ) model |
 
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
@@ -116,7 +117,7 @@ limits are located at:
 
 Values are in `mm` in the figure.
 
-<img src="simple_cms_evd.png" width="800"/>
+<img src="figures/simple_cms_evd.png" width="800"/>
 
 ## TestEm3
 The TestEm3 consists of a world volume with a calorimeter. The calorimeter has
@@ -134,7 +135,7 @@ Note: The materials assigned to the gap and absorber appear to be mistakenly
 inverted in AdePT's implementation. This choice is replicated here for
 consistency. Figure axes are in `mm`.
 
-<img src="testem3_evd.png" width="800"/>
+<img src="figures/testem3_evd.png" width="800"/>
 
 
 ## Optical properties geometry
@@ -144,4 +145,28 @@ Scintillation data is taken from
 in the README table have their data also shown
 [here](https://neutrino.erciyes.edu.tr/SSLG4/).
 
-TODO: describe detector
+## Simple-LZ
+
+This geometry has two options, based on the the sqrt_num_pmts parameter. If
+this parameter is not supplied, a simplifed model of the LZ top PMT detector
+array is created, with 253 PMTs in their actual positions. This option is shown 
+below:
+
+<img src="figures/simple-lz-default.png" width="800"/>
+
+Alternatively, if sqrt_num_pmts is positive, then a square-pitch sqrt_num_pnts
+by sqrt_num_pmts array of detectors created. The PMTs are spaced 1 mm apart, and
+sized such that the array is inscribed within the world cyclinder.  These
+notional geometries are useful for performance studies. One such example is
+shown below, with sqrt_num_pmts = 5:
+
+<img src="figures/simple-lz-5x5.png" width="800"/>
+
+### Coordinate system
+For both geometry options, the geometry limits are:
+
+| Axis | Limits [cm] |
+| ---- | ----------- |
+| x    | [-78.0288, 78.0288] |
+| y    | [-78.0288, 78.0288] |
+| z    | [-12.3,    12.3]    |
