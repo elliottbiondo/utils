@@ -13,4 +13,4 @@ find_package(Celeritas 0.5 REQUIRED)
 find_package(Geant4)
 
 add_executable(gdml-subset gdml-subset.cc)
-target_link_libraries(gdml-subset Celeritas::celeritas ${Geant4_LIBRARIES})
+target_link_libraries(gdml-subset Celeritas::geocel ${Geant4_LIBRARIES})

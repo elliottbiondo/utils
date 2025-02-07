@@ -13,14 +13,13 @@
 #include <G4VPhysicalVolume.hh>
 #include <G4Version.hh>
 
-#include "corecel/Assert.hh"
-#include "corecel/cont/Range.hh"
-#include "corecel/io/Join.hh"
-#include "corecel/io/Logger.hh"
-
-#include "geocel/GeantGeoUtils.hh"
-#include "geocel/ScopedGeantExceptionHandler.hh"
-#include "geocel/ScopedGeantLogger.hh"
+#include <corecel/Assert.hh>
+#include <corecel/cont/Range.hh>
+#include <corecel/io/Join.hh>
+#include <corecel/io/Logger.hh>
+#include <geocel/GeantGeoUtils.hh>
+#include <geocel/ScopedGeantExceptionHandler.hh>
+#include <geocel/ScopedGeantLogger.hh>
 
 using namespace celeritas;
 
