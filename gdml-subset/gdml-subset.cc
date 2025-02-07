@@ -27,7 +27,7 @@ using namespace celeritas;
 void print_usage(char const* exec_name)
 {
     std::cerr << "usage: " << exec_name
-              << " {input}.gdml {physvol-name} {depth} {output}.gdml\n";
+              << " {input}.gdml {physvol-name|''} {depth} {output}.gdml\n";
 }
 
 void delete_daughters_after(G4LogicalVolume* lv, int depth)
@@ -46,16 +46,10 @@ void delete_daughters_after(G4LogicalVolume* lv, int depth)
     }
 }
 
-//---------------------------------------------------------------------------//
-void run(std::string const& inp_filename,
-         std::string const& vol_name,
-         int depth,
-         std::string const& out_filename)
+G4VPhysicalVolume* find_volume(std::string const& vol_name)
 {
-    // Read geometry *without* stripping pointers
-    celeritas::load_geant_geometry(inp_filename);
+    CELER_EXPECT(!vol_name.empty());
 
-    // Find volume
     auto& pvs = *G4PhysicalVolumeStore::GetInstance();
     auto new_world = std::find_if(
         pvs.begin(), pvs.end(), [&vol_name](G4VPhysicalVolume* pv) {
@@ -69,9 +63,30 @@ void run(std::string const& inp_filename,
                pvs.begin(), pvs.end(), ", ", [](G4VPhysicalVolume* pv) {
                    return pv ? pv->GetName() : "<NULL>";
                }));
+    return *new_world;
+}
+
+//---------------------------------------------------------------------------//
+void run(std::string const& inp_filename,
+         std::string const& vol_name,
+         int depth,
+         std::string const& out_filename)
+{
+    // Read geometry *without* stripping pointers
+    G4VPhysicalVolume* world = celeritas::load_geant_geometry(inp_filename);
+
+    // Find volume
+    if (vol_name.empty())
+    {
+        CELER_LOG(info) << "Using original world volume";
+    }
+    else
+    {
+        world = find_volume(vol_name);
+    }
 
     // Trim insides
-    delete_daughters_after((*new_world)->GetLogicalVolume(), depth);
+    delete_daughters_after(world->GetLogicalVolume(), depth);
 
     // Write output
     G4GDMLParser parser;
@@ -82,7 +97,7 @@ void run(std::string const& inp_filename,
     parser.SetOutputFileOverwrite(true);
 #endif
 
-    parser.Write(out_filename, *new_world, /* append_pointers = */ false);
+    parser.Write(out_filename, world, /* append_pointers = */ false);
 }
 
 int main(int argc, char* argv[])
