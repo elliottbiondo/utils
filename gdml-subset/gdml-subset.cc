@@ -20,6 +20,7 @@
 #include <geocel/GeantGeoUtils.hh>
 #include <geocel/ScopedGeantExceptionHandler.hh>
 #include <geocel/ScopedGeantLogger.hh>
+#include <geocel/GeantGdmlLoader.hh>
 
 using namespace celeritas;
 
@@ -73,7 +74,13 @@ void run(std::string const& inp_filename,
          std::string const& out_filename)
 {
     // Read geometry *without* stripping pointers
-    G4VPhysicalVolume* world = celeritas::load_geant_geometry(inp_filename);
+    G4VPhysicalVolume* world = [&inp_filename] {
+        using Loader = celeritas::GeantGdmlLoader;
+        Loader::Options opts;
+        opts.clean = false;
+        opts.detectors = false;
+        return Loader(opts)(inp_filename).world;
+    }();
 
     // Find volume
     if (vol_name.empty())
