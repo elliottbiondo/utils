@@ -7,6 +7,8 @@
 //---------------------------------------------------------------------------//
 #include "ActionInitialization.hh"
 
+#include <accel/UserActionIntegration.hh>
+
 #include "EventAction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
@@ -15,16 +17,42 @@
 
 //---------------------------------------------------------------------------//
 /*!
- * Construct empty.
+ * Construct by defining if Celeritas offloading is enabled.
  */
-ActionInitialization::ActionInitialization() : G4VUserActionInitialization() {}
+ActionInitialization::ActionInitialization()
+    : G4VUserActionInitialization()
+    , offload_(JsonReader::instance()
+                   ->json()
+                   .at("simulation")
+                   .at("offload")
+                   .get<bool>())
+{
+}
 
 //---------------------------------------------------------------------------//
 /*!
- * Invoke all SetUserAction() type of classes.
+ * Build master thread and initialize run.
+ */
+void ActionInitialization::BuildForMaster() const
+{
+    if (offload_)
+    {
+        celeritas::UserActionIntegration::Instance().BuildForMaster();
+    }
+    SetUserAction(new RunAction());
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Invoke SetUserAction() classes on worker threads.
  */
 void ActionInitialization::Build() const
 {
+    if (offload_)
+    {
+        celeritas::UserActionIntegration::Instance().Build();
+    }
+
     SetUserAction(new RunAction());
     SetUserAction(new PrimaryGeneratorAction());
     SetUserAction(new EventAction());

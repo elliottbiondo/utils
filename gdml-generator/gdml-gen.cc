@@ -178,7 +178,7 @@ void export_gdml(std::string const& gdml_filename)
                      ->GetNavigatorForTracking()
                      ->GetWorldVolume()
                      ->GetLogicalVolume(),
-                 true);  // bool appends ptr address to name
+                 /* append ptr address = */ false);
 }
 
 //---------------------------------------------------------------------------//

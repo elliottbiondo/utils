@@ -28,6 +28,9 @@ ThinSlabDetector::ThinSlabDetector() {}
 //---------------------------------------------------------------------------//
 /*!
  * Construct slab geometry.
+ *
+ * For MSC experimental comparison, see
+ * https://journals.aps.org/pr/abstract/10.1103/PhysRev.84.634
  */
 G4VPhysicalVolume* ThinSlabDetector::Construct()
 {

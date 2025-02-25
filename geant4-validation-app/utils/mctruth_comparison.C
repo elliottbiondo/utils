@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2023 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2023-2025 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -11,11 +11,12 @@
  * $ root
  * root[0] .x mctruth_comparison.C("g4-out.root", "celeritas-out.root")
  *
- * Celeritas' original MC truth output must be post-processed to be converted
- * to the same data structure of the Geant4 validation app.
+ * `celer-sim` step MC truth output must be post-processed to be converted to
+ * the same data structure of the Geant4 validation app with
+ * \c `post_process_celeritas.C`.
  *
  * Update histogram info and select data accordingly in \c loop_tracks(...)
- * in Helper functions and static variables.
+ * in the Helper functions and static variables section.
  *
  * Plot attributes are meant to be used with the Celeritas plot style. See
  * https://github.com/celeritas-project/benchmarks/blob/main/rootlogon.C
@@ -67,7 +68,29 @@ void loop_tracks(std::vector<rootdata::Track> tracks, TH1D* hist)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
 // Loop over events for a given ROOT file and populate histogram
-void loop(std::string file, TH1D* hist);
+void loop(std::string file, TH1D* hist)
+{
+    auto tfile = TFile::Open(file.c_str(), "read");
+    auto event_tree = tfile->Get<TTree>("events");
+    rootdata::Event* event = nullptr;
+    event_tree->SetBranchAddress("event", &event);
+
+    std::cout << "Open " << file << std::endl;
+    ProgressIndicator progress(event_tree->GetEntries());
+
+    for (auto i = 0; i < event_tree->GetEntries(); i++)
+    {
+        progress();
+        event_tree->GetEntry(i);
+
+        if (loop_primaries)
+            loop_tracks(event->primaries, hist);
+        if (loop_secondaries)
+            loop_tracks(event->secondaries, hist);
+    }
+
+    tfile->Close();
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -201,32 +224,4 @@ void mctruth_comparison(std::string g4_rootfile, std::string cel_rootfile)
     h_rel_diff->Draw("hist sames");
 
     pad_bottom->RedrawAxis();
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * Loop over events for a given ROOT file and populate histogram.
- */
-void loop(std::string file, TH1D* hist)
-{
-    auto tfile = TFile::Open(file.c_str(), "read");
-    auto event_tree = (TTree*)tfile->Get("events");
-    rootdata::Event* event = nullptr;
-    event_tree->SetBranchAddress("event", &event);
-
-    std::cout << "Open " << file << std::endl;
-    ProgressIndicator progress(event_tree->GetEntries());
-
-    for (auto i = 0; i < event_tree->GetEntries(); i++)
-    {
-        progress();
-        event_tree->GetEntry(i);
-
-        if (loop_primaries)
-            loop_tracks(event->primaries, hist);
-        if (loop_secondaries)
-            loop_tracks(event->secondaries, hist);
-    }
-
-    tfile->Close();
 }

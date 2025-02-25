@@ -4,10 +4,8 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 #----------------------------------------------------------------------------#
 cmake_minimum_required(VERSION 3.10)
-project(g4-app)
-
 cmake_policy(VERSION 3.12...3.16)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+project(g4-app)
 
 # For debugging purposes
 if(DEFINED CMAKE_BUILD_TYPE AND NOT CMAKE_BUILD_TYPE)
@@ -42,7 +40,7 @@ endif()
 
 find_package(Geant4 REQUIRED gdml ${_g4_mt} ${_g4_qt})
 find_package(nlohmann_json REQUIRED)
-find_package(Celeritas 0.5 REQUIRED)
+find_package(Celeritas 0.6 REQUIRED)
 include(CudaRdcUtils)
 
 message(STATUS "Use ROOT: ${USE_ROOT}")
@@ -74,7 +72,6 @@ endif()
 set(_src
   src/ActionInitialization.cc
   src/BremsstrahlungProcess.cc
-  src/Celeritas.cc
   src/DetectorConstruction.cc
   src/EventAction.cc
   src/Geant4Run.cc
