@@ -10,6 +10,8 @@
 
 #include <G4VUserActionInitialization.hh>
 
+#include "JsonReader.hh"
+
 //---------------------------------------------------------------------------//
 /*!
  * Call all \c SetUserAction() type of classes, such as RunAction, EventAction,
@@ -18,9 +20,15 @@
 class ActionInitialization : public G4VUserActionInitialization
 {
   public:
-    // Construct empty
+    // Construct and select Celeritas offloading
     ActionInitialization();
+
+    // Build master thread
+    void BuildForMaster() const override;
 
     // Invoke all SetUserAction() type of classes.
     void Build() const override;
+
+  private:
+    bool offload_;
 };

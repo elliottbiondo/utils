@@ -10,6 +10,7 @@
 
 #include <fstream>
 #include <memory>
+#include <accel/SetupOptions.hh>
 
 #include "G4appMacros.hh"
 #include "JsonReader.hh"
@@ -61,6 +62,9 @@ class Geant4Run
 
     // Get number of threads
     int num_threads();
+
+    // Construct Celeritas options
+    celeritas::SetupOptions celeritas_options();
 
   private:
 #if G4_V10 && USE_MT

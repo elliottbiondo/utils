@@ -11,6 +11,8 @@
 #include <G4UIExecutive.hh>
 #include <G4UImanager.hh>
 #include <G4VisExecutive.hh>
+#include <accel/AlongStepFactory.hh>
+#include <accel/UserActionIntegration.hh>
 
 #include "ActionInitialization.hh"
 #include "DetectorConstruction.hh"
@@ -34,6 +36,13 @@ Geant4Run::Geant4Run()
         = (hepmc3_input.empty())
               ? json_sim.at("particle_gun").at("events").get<unsigned long>()
               : HepMC3Reader::instance()->number_of_events();
+
+    if (json_sim.at("offload").get<bool>())
+    {
+        // Initialize Celeritas interface
+        celeritas::UserActionIntegration::Instance().SetOptions(
+            this->celeritas_options());
+    }
 
     // Construct run manager
 #if G4_V10
@@ -71,7 +80,7 @@ Geant4Run::Geant4Run()
 
 //---------------------------------------------------------------------------//
 /*!
- * Execute `run_manager->BeamOn(N)` and open Qt interface if `"GUI" = true`.
+ * Execute \c run_manager->BeamOn(n) and open Qt interface if `"GUI" = true`.
  */
 void Geant4Run::beam_on()
 {
@@ -111,7 +120,7 @@ void Geant4Run::initialize()
 
 //---------------------------------------------------------------------------//
 /*!
- * Initialize user interface. Raw pointers are owned by the Run Manager.
+ * Initialize user interface.
  */
 void Geant4Run::init_vis_manager()
 {
@@ -147,4 +156,26 @@ int Geant4Run::num_threads()
     }
 
     return num_threads;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Celeritas run-time options.
+ *
+ * TODO: add options to input.json.
+ */
+celeritas::SetupOptions Geant4Run::celeritas_options()
+{
+    celeritas::SetupOptions so;
+    so.max_num_tracks = 1024;
+    so.initializer_capacity = 1024;
+    so.secondary_stack_factor = 2.0;
+    so.ignore_processes = {"CoulombScat", "Rayl"};  // Ignored processes
+
+    // Set along-step factory with zero field
+    so.make_along_step = celeritas::UniformAlongStepFactory();
+
+    // Save diagnostic information
+    so.output_file = "celeritas-diagnostic.json";
+    return so;
 }

@@ -8,9 +8,8 @@
 #include "RunAction.hh"
 
 #include <G4RunManager.hh>
-#include <accel/ExceptionConverter.hh>
+#include <accel/UserActionIntegration.hh>
 
-#include "Celeritas.hh"
 #include "JsonReader.hh"
 
 //---------------------------------------------------------------------------//
@@ -44,31 +43,11 @@ RunAction::RunAction() : G4UserRunAction(), root_io_(RootIO::instance())
 /*!
  * Begin of run actions.
  */
-void RunAction::BeginOfRunAction(G4Run const*)
+void RunAction::BeginOfRunAction(G4Run const* run)
 {
     if (offload_)
     {
-        celeritas::ExceptionConverter HandleExceptions{"celer0001"};
-        if (G4Threading::IsMasterThread())
-        {
-            CELER_TRY_HANDLE(
-                CelerSharedParams().Initialize(CelerSetupOptions()),
-                HandleExceptions);
-        }
-        else
-        {
-            CELER_TRY_HANDLE(
-                celeritas::SharedParams::InitializeWorker(CelerSetupOptions()),
-                HandleExceptions);
-        }
-
-        if (G4Threading::IsWorkerThread()
-            || !G4Threading::IsMultithreadedApplication())
-        {
-            CELER_TRY_HANDLE(CelerLocalTransporter().Initialize(
-                                 CelerSetupOptions(), CelerSharedParams()),
-                             HandleExceptions);
-        }
+        celeritas::UserActionIntegration::Instance().BeginOfRunAction(run);
     }
 }
 
@@ -76,22 +55,11 @@ void RunAction::BeginOfRunAction(G4Run const*)
 /*!
  * Write data to the ROOT file and write file to disk.
  */
-void RunAction::EndOfRunAction(G4Run const*)
+void RunAction::EndOfRunAction(G4Run const* run)
 {
     if (offload_)
     {
-        celeritas::ExceptionConverter HandleExceptions{"celer0005"};
-
-        if (CelerLocalTransporter())
-        {
-            CELER_TRY_HANDLE(CelerLocalTransporter().Finalize(),
-                             HandleExceptions);
-        }
-
-        if (G4Threading::IsMasterThread())
-        {
-            CELER_TRY_HANDLE(CelerSharedParams().Finalize(), HandleExceptions);
-        }
+        celeritas::UserActionIntegration::Instance().EndOfRunAction(run);
     }
 
     if (!root_io_)

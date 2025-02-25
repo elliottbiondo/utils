@@ -10,9 +10,8 @@
 #include <algorithm>
 #include <G4Event.hh>
 #include <G4EventManager.hh>
-#include <accel/ExceptionConverter.hh>
+#include <accel/UserActionIntegration.hh>
 
-#include "Celeritas.hh"
 #include "JsonReader.hh"
 
 //---------------------------------------------------------------------------//
@@ -37,8 +36,7 @@ void EventAction::BeginOfEventAction(G4Event const* event)
 {
     if (offload_)
     {
-        celeritas::ExceptionConverter call_g4exception{"celer0002"};
-        CelerLocalTransporter().InitializeEvent(event->GetEventID());
+        celeritas::UserActionIntegration::Instance().BeginOfEventAction(event);
     }
 
     if (!root_io_)
@@ -55,12 +53,11 @@ void EventAction::BeginOfEventAction(G4Event const* event)
 /*
  * Fill ROOT I/O event TTree and store data limits.
  */
-void EventAction::EndOfEventAction(G4Event const*)
+void EventAction::EndOfEventAction(G4Event const* event)
 {
     if (offload_)
     {
-        celeritas::ExceptionConverter call_g4exception{"celer0004"};
-        CELER_TRY_HANDLE(CelerLocalTransporter().Flush(), call_g4exception);
+        celeritas::UserActionIntegration::Instance().EndOfEventAction(event);
     }
 
     if (!root_io_)
