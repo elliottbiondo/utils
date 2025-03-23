@@ -7,16 +7,10 @@ Count the number of logical and physical volumes in a GDML file.
 """
 
 from itertools import count
-from collections import deque
+from collections import namedtuple
 import json
 import sys
 import xml.etree.ElementTree as ET
-
-def ilen(iter):
-    # https://github.com/more-itertools/more-itertools/pull/242
-    counter = count()
-    deque(zip(iter, counter), maxlen=0)
-    return next(counter)
 
 
 def get_material(volume_el):
@@ -38,22 +32,37 @@ def parse_materials(tree):
     return {k: next(v) for k, v in result.items()}
 
 
+ChildCount = namedtuple("ChildCount", ["direct", "total"])
+
+
 def parse_structure(tree):
     structure = next(tree.iter("structure"))
+    child_counts = {}
 
     physical = 0
     for logical, el in enumerate(structure):
         if el.tag not in ("volume", "assembly", "skinsurface", "bordersurface"):
             raise ValueError(f"Unrecognized structure tag: {el!r}")
 
-        physical += ilen(el.iter("volumeref"))
+        indirect = 1
+        direct = count()
+        for vrel in el.iter("volumeref"):
+            cc = child_counts[vrel.attrib["ref"]]
+            indirect += cc.total
+            next(direct)
+
+        cc = ChildCount(direct=next(direct), total=indirect)
+        child_counts[el.attrib["name"]] = cc
+        physical += cc.direct
 
     # Account for world volume
     logical += 1
     physical += 1
     world = tree.findall("./setup/world")[0]
 
-    return {"logical": logical, "physical": physical}
+    touchable = child_counts[world.attrib["ref"]].total
+
+    return {"logical": logical, "physical": physical, "touchable": touchable}
 
 
 def parse_gdml(filename):
