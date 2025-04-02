@@ -25,6 +25,7 @@
 
 #include "BoxDetector.hh"
 #include "FourSteelSlabs.hh"
+#include "NotionalJUNO.hh"
 #include "OpticalDetector.hh"
 #include "SegmentedSimpleCmsDetector.hh"
 #include "SimpleCmsDetector.hh"
@@ -52,6 +53,7 @@ enum class GeometryID
     optical,  //!< Simple geometry with optical properties
     thin_slab,  //!< Single material thin slab for MSC validation
     simple_lz,  //!< Simplified model of the LUX-ZEPLIN detector array
+    notional_juno,  //!< Notional model of the JUNO experiement
     size_
 };
 
@@ -104,6 +106,9 @@ constexpr char const* label(GeometryID id) noexcept
         case GID::simple_lz:
             return "Simplified LZ - top PMT array";
             break;
+        case GID::notional_juno:
+            return "Notional model of JUNO";
+            break;
         default:
             __builtin_unreachable();
     }
@@ -137,6 +142,11 @@ void print_help(char const* argv)
          << endl;
     cout << "For " << static_cast<int>(GeometryID::simple_lz) << ":" << endl;
     cout << "1 extra parameter is optional - [sqrt_num_pmts] " << endl;
+    cout << "For " << static_cast<int>(GeometryID::notional_juno) << ":"
+         << endl;
+    cout << "3 extra parameters are needed [device_radius], "
+            "[pmt_radius], [num_pmts]"
+         << endl;
 }
 
 //---------------------------------------------------------------------------//
@@ -211,7 +221,8 @@ int main(int argc, char* argv[])
     }
     if (geometry_id != GeometryID::segmented_simple_cms
         && geometry_id != GeometryID::segmented_simple_cms_composite
-        && geometry_id != GeometryID::simple_lz && argc != 2)
+        && geometry_id != GeometryID::simple_lz && argc != 2
+        && geometry_id != GeometryID::notional_juno && argc != 5)
     {
         std::cout << "Wrong number of arguments" << std::endl;
         return EXIT_FAILURE;
@@ -328,6 +339,37 @@ int main(int argc, char* argv[])
                 std::cout
                     << "SimpleLZ requires either 0 or 1 additional arguments "
                     << std::endl;
+                return EXIT_FAILURE;
+            }
+        case GeometryID::notional_juno:
+            gdml_filename = "notional_juno.gdml";
+            if (argc == 5)
+            {
+                double device_radius = std::atof(argv[2]);
+                double pmt_radius = std::atof(argv[3]);
+                int num_pmts = std::atoi(argv[4]);
+
+                if (device_radius <= 0 || pmt_radius <= 0)
+                {
+                    std::cout << "Radii must be positive " << std::endl;
+                    return EXIT_FAILURE;
+                }
+                if (num_pmts < 1)
+                {
+                    std::cout
+                        << "The number of spheres must be greater than 0 "
+                        << std::endl;
+                    return EXIT_FAILURE;
+                }
+
+                run_manager->SetUserInitialization(
+                    new NotionalJUNO(device_radius, pmt_radius, num_pmts));
+                break;
+            }
+            else
+            {
+                std::cout << "NotionalJUNO requires 3 additional arguments "
+                          << std::endl;
                 return EXIT_FAILURE;
             }
 
