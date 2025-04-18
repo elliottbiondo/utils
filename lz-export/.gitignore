@@ -1,1 +1,5 @@
+BaccMCTruth.cc
+G4S1Light.cc
+G4S2Light.cc
 LZDetectorPMTBankCoordinates.hh
+produceS2HitMaps.cc

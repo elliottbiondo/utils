@@ -5,6 +5,7 @@
 //! \file export-lz.cc
 //---------------------------------------------------------------------------//
 #include <iostream>
+#include <span>
 #include <vector>
 #include <nlohmann/json.hpp>
 
@@ -12,30 +13,36 @@
 // https://gitlab.com/luxzeplin/CeleritasDev/baccarat/-/blob/master/LZ/include/LZDetectorPMTBankCoordinates.hh
 #include "LZDetectorPMTBankCoordinates.hh"
 
+// From produceS2HitMaps:
+constexpr double topArrayZ{1539.5};  // Z position of PMT arrays
+constexpr double bottomArrayZ{-148};
+
 using nlohmann::json;
-using std::size;
+
+// Helper function to convert 2D array to vector of vector of doubles
+auto convertArrayToVectors(std::span<double const[2]> array)
+{
+    std::vector<std::vector<double>> result;
+    result.reserve(array.size());
+    for (size_t i = 0; i < array.size(); i++)
+    {
+        result.push_back({array[i][0], array[i][1]});
+    }
+    return result;
+}
 
 int main()
 {
-    // Helper function to convert 2D array to vector of vector of doubles
-    auto convertArrayToVectors = [](double const(*array)[2], size_t size) {
-        std::vector<std::vector<double>> result;
-        result.reserve(size);
-        for (size_t i = 0; i < size; i++)
-        {
-            result.push_back({array[i][0], array[i][1]});
-        }
-        return result;
-    };
-
     // Create JSON object
     json j;
-    j["bottom"] = convertArrayToVectors(BottomPMTRodArrayXY,
-                                        std::size(BottomPMTRodArrayXY));
-    j["top"] = convertArrayToVectors(TopPMTArrayXY, std::size(TopPMTArrayXY));
+    j["bottom"]
+        = {{"z", bottomArrayZ},
+           {"xy", convertArrayToVectors(std::span{BottomPMTRodArrayXY})}};
+    j["top"] = {{"z", topArrayZ},
+                {"xy", convertArrayToVectors(std::span{TopPMTArrayXY})}};
 
     // Print to console
-    std::cout << j.dump(1) << std::endl;
+    std::cout << j.dump(0) << std::endl;
 
     return 0;
 }
