@@ -32,7 +32,7 @@ def parse_materials(tree):
     return {k: next(v) for k, v in result.items()}
 
 
-ChildCount = namedtuple("ChildCount", ["direct", "total"])
+ChildCount = namedtuple("ChildCount", ["direct", "total", "maxdepth"])
 
 
 def parse_structure(tree):
@@ -45,13 +45,16 @@ def parse_structure(tree):
             raise ValueError(f"Unrecognized structure tag: {el!r}")
 
         indirect = 1
+        maxdepth = 0
         direct = count()
         for vrel in el.iter("volumeref"):
             cc = child_counts[vrel.attrib["ref"]]
             indirect += cc.total
             next(direct)
+            maxdepth = max(maxdepth, cc.maxdepth)
 
-        cc = ChildCount(direct=next(direct), total=indirect)
+        cc = ChildCount(direct=next(direct), total=indirect,
+                        maxdepth=(maxdepth + 1))
         child_counts[el.attrib["name"]] = cc
         physical += cc.direct
 
@@ -60,9 +63,10 @@ def parse_structure(tree):
     physical += 1
     world = tree.findall("./setup/world")[0]
 
-    touchable = child_counts[world.attrib["ref"]].total
+    cc = child_counts[world.attrib["ref"]]
 
-    return {"logical": logical, "physical": physical, "touchable": touchable}
+    return {"logical": logical, "physical": physical, "touchable": cc.total,
+            "depth": cc.maxdepth}
 
 
 def parse_gdml(filename):
