@@ -36,7 +36,7 @@ class Graph:
     def __init__(self):
         self.nodes = []
         self.edges = defaultdict(int)
-        self.borders = []
+        self.borders = defaultdict(list) # phys vol name -> border surf names
         self.replace_pointers = PointerReplacer()
 
     def add_volume(self, el):
@@ -48,9 +48,37 @@ class Graph:
             dname = self.replace_pointers(vrel.attrib["ref"])
             edges[(pname, dname)] += 1
 
+    def add_border(self, el):
+        # Add border surface name
+        pname = self.replace_pointers(el.attrib["name"])
+        self.nodes.append(pname)
+        for vrel in el.iter("physvolref"):
+            dname = self.replace_pointers(vrel.attrib["ref"])
+            self.borders[dname].append(pname)
+
     def add_world(self, vrel):
         pname = self.replace_pointers(vrel.attrib["ref"])
         self.nodes.append(pname)
+
+    def replace_borders(self, structure):
+        if not self.borders:
+            return
+        get_border = self.borders.__getitem__
+        for pvel in structure.iter("physvol"):
+            try:
+                borders = get_border(pvel.attrib["name"])
+            except KeyError:
+                continue
+
+            # Get the LV name pointed to by the PV
+            vrel = next(pvel.iter("volumeref"))
+            dname = self.replace_pointers(vrel.attrib["ref"])
+
+            # Add edge for each border
+            for b in borders:
+                self.edges[(b, dname)] += 1
+
+        self.borders.clear()
 
     @property
     def weighted_edges(self):
@@ -77,14 +105,11 @@ def read_graph(filename):
         if el.tag in lvref_tags:
             g.add_volume(el)
         elif el.tag == "bordersurface":
-            g.borders.append(el)
+            g.add_border(el)
         else:
             raise ValueError(f"Unrecognized structure tag: {el!r}")
+    g.replace_borders(structure)
     g.add_world(tree.findall("./setup/world")[0])
-
-    if g.borders:
-        # TODO: remap these to logical volumes via physvol
-        print("Omitting", len(g.borders), "border surfaces")
 
     return g
 

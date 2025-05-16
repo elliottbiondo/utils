@@ -39,9 +39,21 @@ def parse_structure(tree):
     structure = next(tree.iter("structure"))
     child_counts = {}
 
+    # Counters
+    border = 0
+    skin = 0
     physical = 0
+
     for logical, el in enumerate(structure):
-        if el.tag not in ("volume", "assembly", "skinsurface", "bordersurface"):
+        if el.tag == "bordersurface":
+            border += 1
+            continue
+
+        if el.tag == "skinsurface":
+            skin += 1
+            continue
+
+        if el.tag not in ("volume", "assembly"):
             raise ValueError(f"Unrecognized structure tag: {el!r}")
 
         indirect = 1
@@ -66,7 +78,7 @@ def parse_structure(tree):
     cc = child_counts[world.attrib["ref"]]
 
     return {"logical": logical, "physical": physical, "touchable": cc.total,
-            "depth": cc.maxdepth}
+            "border": border, "skin": skin, "depth": cc.maxdepth}
 
 
 def parse_gdml(filename):
