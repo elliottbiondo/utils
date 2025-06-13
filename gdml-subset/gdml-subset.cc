@@ -75,11 +75,11 @@ void run(std::string const& inp_filename,
 {
     // Read geometry *without* stripping pointers
     G4VPhysicalVolume* world = [&inp_filename] {
-        using Loader = celeritas::GeantGdmlLoader;
-        Loader::Options opts;
-        opts.clean = false;
+        using namespace celeritas;
+        GeantGdmlLoader::Options opts;
+        opts.pointers = GeantGdmlLoader::PointerTreatment::ignore;
         opts.detectors = false;
-        return Loader(opts)(inp_filename).world;
+        return GeantGdmlLoader(opts)(inp_filename).world;
     }();
 
     // Find volume

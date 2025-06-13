@@ -9,7 +9,7 @@ project(GdmlSubset VERSION 0.1.0 LANGUAGES CXX)
 cmake_policy(VERSION 3.12...3.22)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/..")
-find_package(Celeritas 0.5 REQUIRED)
+find_package(Celeritas 0.6 REQUIRED)
 find_package(Geant4)
 
 add_executable(gdml-subset gdml-subset.cc)
