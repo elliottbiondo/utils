@@ -7,11 +7,15 @@
 //---------------------------------------------------------------------------//
 #include "PhysicsList.hh"
 
-#include <G4TransportationManager.hh>
-#include <G4Proton.hh>
-#include <G4Gamma.hh>
 #include <G4Electron.hh>
+#include <G4Gamma.hh>
 #include <G4Positron.hh>
+#include <G4ProductionCuts.hh>
+#include <G4ProductionCutsTable.hh>
+#include <G4Proton.hh>
+#include <G4Region.hh>
+#include <G4RegionStore.hh>
+#include <G4TransportationManager.hh>
 
 //---------------------------------------------------------------------------//
 /*!
@@ -62,18 +66,25 @@ void PhysicsList::ConstructProcess()
  */
 void PhysicsList::SetCuts()
 {
-    // Set the world volume the default region for the procution cuts
-    auto region = new G4Region("default");
-    region->AddRootLogicalVolume(
-        G4TransportationManager::GetTransportationManager()
-            ->GetNavigatorForTracking()
-            ->GetWorldVolume()
-            ->GetLogicalVolume());
-    region->UsedInMassGeometry(true);
+    // Get the existing default region instead of creating a new one
+    auto region_store = G4RegionStore::GetInstance();
+    auto region = region_store->GetRegion(PhysicsList::default_region_name());
+    if (!region)
+    {
+        // Fallback: if the default region doesn't exist, create it
+        region = new G4Region(PhysicsList::default_region_name());
+        auto world = G4TransportationManager::GetTransportationManager()
+                         ->GetNavigatorForTracking()
+                         ->GetWorldVolume()
+                         ->GetLogicalVolume();
+        assert(world);
+        region->AddRootLogicalVolume(world);
+        region->UsedInMassGeometry(true);
+    }
 
     // Initialize production cuts
     auto prod_cuts = new G4ProductionCuts();
-    prod_cuts->SetProductionCut(range_cuts_); // [mm]
+    prod_cuts->SetProductionCut(range_cuts_);  // [mm]
     region->SetProductionCuts(prod_cuts);
 
     // Update production cuts table with new values

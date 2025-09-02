@@ -27,6 +27,12 @@ class PhysicsList : public G4VUserPhysicsList
     // Set secondary production cuts
     void SetCuts() final;
 
+    // Return Geant4's default world region name
+    static char const* default_region_name()
+    {
+        return "DefaultRegionForTheWorld";
+    }
+
   private:
-    double range_cuts_; // [mm]
+    double range_cuts_;  // [mm]
 };
