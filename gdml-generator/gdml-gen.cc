@@ -23,14 +23,14 @@
 #include <G4UImanager.hh>
 #include <stdlib.h>
 
-#include "BoxDetector.hh"
+#include "Box.hh"
 #include "FourSteelSlabs.hh"
-#include "OpticalDetector.hh"
-#include "SegmentedSimpleCmsDetector.hh"
-#include "SimpleCmsDetector.hh"
+#include "OpticalBoxes.hh"
+#include "SegmentedSimpleCms.hh"
+#include "SimpleCms.hh"
 #include "SimpleLZ.hh"
-#include "TestEm3Detector.hh"
-#include "ThinSlabDetector.hh"
+#include "TestEm3.hh"
+#include "ThinSlab.hh"
 #include "core/PhysicsList.hh"
 
 //---------------------------------------------------------------------------//
@@ -49,7 +49,7 @@ enum class GeometryID
     testem3_composite,  //!< Composite materials
     testem3_flat,  //!< Simple materials, flat (for ORANGE)
     testem3_composite_flat,  //!< Composite materials flat (for ORANGE)
-    optical,  //!< Simple geometry with optical properties
+    optical_boxes,  //!< Boxes with optical properties
     thin_slab,  //!< Single material thin slab for MSC validation
     simple_lz,  //!< Simplified model of the LUX-ZEPLIN detector array
     size_
@@ -96,7 +96,8 @@ constexpr char const* label(GeometryID id) noexcept
             return "TestEm3 flat - composite materials, for ORANGE";
             break;
         case GID::optical:
-            return "Optical - composite materials with optical properties";
+            return "Optical boxes - composite material boxes with optical "
+                   "properties";
             break;
         case GID::thin_slab:
             return "Thin Pb slab";
@@ -141,10 +142,9 @@ void print_help(char const* argv)
 
 //---------------------------------------------------------------------------//
 /*!
- * Set up number of segments for SegmentedSimpleCmsDetector geometry.
+ * Set up number of segments for SegmentedSimpleCms geometry.
  */
-SegmentedSimpleCmsDetector::SegmentDefinition
-get_segments(int argc, char* argv[])
+SegmentedSimpleCms::SegmentDefinition get_segments(int argc, char* argv[])
 {
     if (argc != 5)
     {
@@ -155,7 +155,7 @@ get_segments(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    SegmentedSimpleCmsDetector::SegmentDefinition def;
+    SegmentedSimpleCms::SegmentDefinition def;
     def.num_r = std::stoi(argv[2]);
     def.num_z = std::stoi(argv[3]);
     def.num_theta = std::stoi(argv[4]);
@@ -226,17 +226,17 @@ int main(int argc, char* argv[])
         G4RunManagerFactory::CreateRunManager(G4RunManagerType::Serial));
 #endif
 
-    using CMSType = SimpleCmsDetector::MaterialType;
-    using SCMSType = SegmentedSimpleCmsDetector::MaterialType;
-    using TestEm3MatType = TestEm3Detector::MaterialType;
-    using TestEm3GeoType = TestEm3Detector::GeometryType;
+    using CMSType = SimpleCms::MaterialType;
+    using SCMSType = SegmentedSimpleCms::MaterialType;
+    using TestEm3MatType = TestEm3::MaterialType;
+    using TestEm3GeoType = TestEm3::GeometryType;
 
     // Construct geometry and define gdml filename
     std::string gdml_filename;
     switch (geometry_id)
     {
         case GeometryID::box:
-            run_manager->SetUserInitialization(new BoxDetector());
+            run_manager->SetUserInitialization(new Box());
             gdml_filename = "box.gdml";
             break;
 
@@ -246,60 +246,59 @@ int main(int argc, char* argv[])
             break;
 
         case GeometryID::simple_cms:
-            run_manager->SetUserInitialization(
-                new SimpleCmsDetector(CMSType::simple));
+            run_manager->SetUserInitialization(new SimpleCms(CMSType::simple));
             gdml_filename = "simple-cms.gdml";
             break;
 
         case GeometryID::simple_cms_composite:
             run_manager->SetUserInitialization(
-                new SimpleCmsDetector(CMSType::composite));
+                new SimpleCms(CMSType::composite));
             gdml_filename = "composite-simple-cms.gdml";
             break;
 
         case GeometryID::segmented_simple_cms:
-            run_manager->SetUserInitialization(new SegmentedSimpleCmsDetector(
+            run_manager->SetUserInitialization(new SegmentedSimpleCms(
                 SCMSType::simple, get_segments(argc, argv)));
             gdml_filename = "segmented-simple-cms.gdml";
             break;
 
         case GeometryID::segmented_simple_cms_composite:
-            run_manager->SetUserInitialization(new SegmentedSimpleCmsDetector(
+            run_manager->SetUserInitialization(new SegmentedSimpleCms(
                 SCMSType::composite, get_segments(argc, argv)));
             gdml_filename = "composite-segmented-simple-cms.gdml";
             break;
 
         case GeometryID::testem3:
-            run_manager->SetUserInitialization(new TestEm3Detector(
+            run_manager->SetUserInitialization(new TestEm3(
                 TestEm3MatType::simple, TestEm3GeoType::hierarchical));
             gdml_filename = "testem3.gdml";
             break;
 
         case GeometryID::testem3_composite:
-            run_manager->SetUserInitialization(new TestEm3Detector(
+            run_manager->SetUserInitialization(new TestEm3(
                 TestEm3MatType::composite, TestEm3GeoType::hierarchical));
             gdml_filename = "testem3-composite.gdml";
             break;
 
         case GeometryID::testem3_flat:
-            run_manager->SetUserInitialization(new TestEm3Detector(
-                TestEm3MatType::simple, TestEm3GeoType::flat));
+            run_manager->SetUserInitialization(
+                new TestEm3(TestEm3MatType::simple, TestEm3GeoType::flat));
             gdml_filename = "testem3-flat.gdml";
             break;
 
         case GeometryID::testem3_composite_flat:
-            run_manager->SetUserInitialization(new TestEm3Detector(
-                TestEm3MatType::composite, TestEm3GeoType::flat));
+            run_manager->SetUserInitialization(
+                new TestEm3(TestEm3MatType::composite, TestEm3GeoType::flat));
             gdml_filename = "testem3-flat-composite.gdml";
             break;
 
         case GeometryID::optical:
-            run_manager->SetUserInitialization(new OpticalDetector());
+            run_manager->SetUserInitialization(new OpticalBoxes());
             gdml_filename = "optical.gdml";
             break;
 
         case GeometryID::thin_slab:
-            run_manager->SetUserInitialization(new ThinSlabDetector());
+            run_manager->SetUserInitialization(new ThinSlab());
             gdml_filename = "thin-slab.gdml";
             break;
 

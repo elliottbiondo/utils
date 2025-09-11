@@ -3,7 +3,7 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file SegmentedSimpleCmsDetector.hh
+//! \file SegmentedSimpleCms.hh
 //! \brief Create the detector geometry.
 //---------------------------------------------------------------------------//
 #pragma once
@@ -19,7 +19,7 @@
 /*!
  * Construct a programmatic detector geometry.
  */
-class SegmentedSimpleCmsDetector : public G4VUserDetectorConstruction
+class SegmentedSimpleCms : public G4VUserDetectorConstruction
 {
   public:
     enum class MaterialType
@@ -36,7 +36,7 @@ class SegmentedSimpleCmsDetector : public G4VUserDetectorConstruction
     };
 
     // Construct with geometry type and number of segments
-    SegmentedSimpleCmsDetector(MaterialType type, SegmentDefinition segments);
+    SegmentedSimpleCms(MaterialType type, SegmentDefinition segments);
 
     // Construct geometry
     G4VPhysicalVolume* Construct() final;

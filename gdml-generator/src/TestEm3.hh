@@ -3,7 +3,7 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file TestEm3Detector.hh
+//! \file TestEm3.hh
 //! \brief Create the detector geometry.
 //---------------------------------------------------------------------------//
 #pragma once
@@ -21,7 +21,7 @@ class G4Material;
  * Programmatic geometry definition taken from AdePT's repository.
  * See github.com/apt-sim/AdePT/tree/master/examples/TestEm3
  */
-class TestEm3Detector : public G4VUserDetectorConstruction
+class TestEm3 : public G4VUserDetectorConstruction
 {
   public:
     enum class MaterialType
@@ -37,7 +37,7 @@ class TestEm3Detector : public G4VUserDetectorConstruction
     };
 
     // Construct empty
-    TestEm3Detector(MaterialType material_type, GeometryType geometry_type);
+    TestEm3(MaterialType material_type, GeometryType geometry_type);
 
     // Construct geometry
     G4VPhysicalVolume* Construct() final;
@@ -66,6 +66,6 @@ class TestEm3Detector : public G4VUserDetectorConstruction
   private:
     // Assigned by create_testem3() and released ownership at Construct()
     std::unique_ptr<G4VPhysicalVolume> phys_vol_world_;
-    GeometryType                       geometry_type_;
-    MaterialType                       material_type_;
+    GeometryType geometry_type_;
+    MaterialType material_type_;
 };

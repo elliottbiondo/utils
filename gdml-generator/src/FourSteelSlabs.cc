@@ -11,6 +11,7 @@
 #include <G4LogicalVolume.hh>
 #include <G4NistManager.hh>
 #include <G4PVPlacement.hh>
+#include <G4SDManager.hh>
 #include <G4SystemOfUnits.hh>
 
 #include "core/SensitiveDetector.hh"
@@ -28,6 +29,15 @@ FourSteelSlabs::FourSteelSlabs() {}
 G4VPhysicalVolume* FourSteelSlabs::Construct()
 {
     return this->create_geometry();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Set sensitive detectors.
+ */
+void FourSteelSlabs::ConstructSDandField()
+{
+    this->set_sd();
 }
 
 //---------------------------------------------------------------------------//
@@ -56,78 +66,60 @@ G4VPhysicalVolume* FourSteelSlabs::create_geometry()
     auto const world_solid
         = new G4Box("world_box", half_world, half_world, half_world);
 
-    auto const world_log_vol
+    auto const world_lv
         = new G4LogicalVolume(world_solid, world_material, "world_lv");
 
-    auto const world_phys_vol = new G4PVPlacement(nullptr,
-                                                  G4ThreeVector(),
-                                                  world_log_vol,
-                                                  "world_pv",
-                                                  nullptr,
-                                                  false,
-                                                  0,
-                                                  true);
+    auto const world_pv = new G4PVPlacement(
+        nullptr, G4ThreeVector(), world_lv, "world_pv", nullptr, false, 0, true);
 
     // Slabs definition
     auto const slabs_xy = 0.01 * world_size;
     auto const slabs_z = 0.2 * slabs_xy;
-
-    // Slab 0
     auto const slab_solid = new G4Box("box", slabs_xy, slabs_xy, slabs_z);
+    auto const slab_lv
+        = new G4LogicalVolume(slab_solid, slab_material, "box_lv");
 
-    auto const slab_log_vol
-        = new G4LogicalVolume(slab_solid, slab_material, "box");
-
+    // Placements
     new G4PVPlacement(
-        0, G4ThreeVector(), slab_log_vol, "box", world_log_vol, false, 0, true);
-
-    // Slab 1
-    auto const slab_replica_solid
-        = new G4Box("boxReplica", slabs_xy, slabs_xy, slabs_z);
-
-    auto const slab_replica_log_vol
-        = new G4LogicalVolume(slab_replica_solid, slab_material, "boxReplica");
+        nullptr, G4ThreeVector(), slab_lv, "box0_pv", world_lv, false, 0, true);
 
     new G4PVPlacement(nullptr,
                       G4ThreeVector(0, 0, 3 * slabs_z),
-                      slab_replica_log_vol,
-                      "box",
-                      world_log_vol,
+                      slab_lv,
+                      "box1_pv",
+                      world_lv,
                       false,
                       0,
                       true);
-
-    // Slab 2
-    auto const slab_replica_2_solid
-        = new G4Box("boxReplica2", slabs_xy, slabs_xy, slabs_z);
-
-    auto const slab_replica_2_log_vol = new G4LogicalVolume(
-        slab_replica_2_solid, slab_material, "boxReplica");
 
     new G4PVPlacement(nullptr,
                       G4ThreeVector(0, 0, 6 * slabs_z),
-                      slab_replica_2_log_vol,
-                      "box",
-                      world_log_vol,
+                      slab_lv,
+                      "box2_pv",
+                      world_lv,
                       false,
                       0,
                       true);
-
-    // Slab 3
-    auto const slab_replica_3_solid
-        = new G4Box("boxReplica3", slabs_xy, slabs_xy, slabs_z);
-
-    auto const slab_replica_3_log_vol = new G4LogicalVolume(
-        slab_replica_3_solid, slab_material, "boxReplica");
 
     new G4PVPlacement(nullptr,
                       G4ThreeVector(0, 0, 9 * slabs_z),
-                      slab_replica_3_log_vol,
-                      "box",
-                      world_log_vol,
+                      slab_lv,
+                      "box3_pv",
+                      world_lv,
                       false,
                       0,
                       true);
 
-    return world_phys_vol;
+    return world_pv;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Set the 4 slab as a sensitive detectors.
+ */
+void FourSteelSlabs::set_sd()
+{
+    auto sd = new SensitiveDetector("box_sd");
+    G4VUserDetectorConstruction::SetSensitiveDetector("box_lv", sd);
+    G4SDManager::GetSDMpointer()->AddNewDetector(sd);
 }

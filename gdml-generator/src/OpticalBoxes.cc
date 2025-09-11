@@ -3,9 +3,9 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file OpticalDetector.cc
+//! \file OpticalBoxes.cc
 //---------------------------------------------------------------------------//
-#include "OpticalDetector.hh"
+#include "OpticalBoxes.hh"
 
 #include <G4Box.hh>
 #include <G4LogicalVolume.hh>
@@ -21,13 +21,13 @@
 /*!
  * Construct empty.
  */
-OpticalDetector::OpticalDetector() {}
+OpticalBoxes::OpticalBoxes() {}
 
 //---------------------------------------------------------------------------//
 /*!
  * Mandatory Construct function.
  */
-G4VPhysicalVolume* OpticalDetector::Construct()
+G4VPhysicalVolume* OpticalBoxes::Construct()
 {
     return this->create_geometry();
 }
@@ -36,7 +36,7 @@ G4VPhysicalVolume* OpticalDetector::Construct()
 /*!
  * Set sensitive detectors and (TODO) magnetic field.
  */
-void OpticalDetector::ConstructSDandField()
+void OpticalBoxes::ConstructSDandField()
 {
     this->set_sd();
 }
@@ -50,7 +50,7 @@ void OpticalDetector::ConstructSDandField()
  * Programmatic geometry definition: Set of cubes with different optical
  * properties.
  */
-G4VPhysicalVolume* OpticalDetector::create_geometry()
+G4VPhysicalVolume* OpticalBoxes::create_geometry()
 {
     //// World ////
 
@@ -97,7 +97,7 @@ G4VPhysicalVolume* OpticalDetector::create_geometry()
 /*!
  * Flag sensitive detectors accordingly.
  */
-void OpticalDetector::set_sd()
+void OpticalBoxes::set_sd()
 {
     auto scint_sd = new SensitiveDetector("scint_sd");
     G4SDManager::GetSDMpointer()->AddNewDetector(scint_sd);
@@ -115,7 +115,7 @@ void OpticalDetector::set_sd()
  * the README table. The spectrum can be visualized at
  * https://neutrino.erciyes.edu.tr/SSLG4/ .
  */
-G4Material* OpticalDetector::scint_material()
+G4Material* OpticalBoxes::scint_material()
 {
     auto nist = G4NistManager::Instance();
     assert(nist);
@@ -151,9 +151,9 @@ G4Material* OpticalDetector::scint_material()
  * Return mass fraction of a given element given the atom density of the
  * element in the material and the material density.
  */
-double OpticalDetector::to_mass_fraction(std::string element_name,
-                                         double atom_density,
-                                         double material_density)
+double OpticalBoxes::to_mass_fraction(std::string element_name,
+                                      double atom_density,
+                                      double material_density)
 {
     assert(!element_name.empty());
     assert(atom_density > 0);
@@ -177,7 +177,7 @@ double OpticalDetector::to_mass_fraction(std::string element_name,
  * the README table. The spectrum can be visualized at
  * https://neutrino.erciyes.edu.tr/SSLG4/ .
  */
-OpticalDetector::Table OpticalDetector::scint_comp()
+OpticalBoxes::Table OpticalBoxes::scint_comp()
 {
     size_t const num_entries = 75;
     std::array<double, num_entries> wavelength = {
@@ -221,7 +221,7 @@ OpticalDetector::Table OpticalDetector::scint_comp()
  * the README table. The spectrum can be visualized at
  * https://neutrino.erciyes.edu.tr/SSLG4/ .
  */
-OpticalDetector::Table OpticalDetector::scint_rindex()
+OpticalBoxes::Table OpticalBoxes::scint_rindex()
 {
     Table result;
     result.energy = {this->to_energy(200), this->to_energy(800)};
@@ -236,7 +236,7 @@ OpticalDetector::Table OpticalDetector::scint_rindex()
  * See Geant4's examples/extended/optical/OpNovice
  * ( \c OpNoviceDetectorConstruction::Construct )
  */
-G4Material* OpticalDetector::water_material()
+G4Material* OpticalBoxes::water_material()
 {
     auto* hydrogen = new G4Element(
         "hydrogen", "H", /* Z = */ 1, /* A = */ 1.01 * g / mole);
@@ -273,7 +273,7 @@ G4Material* OpticalDetector::water_material()
  * See Geant4's examples/extended/optical/OpNovice
  * ( \c OpNoviceDetectorConstruction::Construct )
  */
-OpticalDetector::Table OpticalDetector::water_rindex()
+OpticalBoxes::Table OpticalBoxes::water_rindex()
 {
     Table result;
     result.energy = this->water_energy_table();
@@ -292,7 +292,7 @@ OpticalDetector::Table OpticalDetector::water_rindex()
  * See Geant4's examples/extended/optical/OpNovice
  * ( \c OpNoviceDetectorConstruction::Construct )
  */
-OpticalDetector::Table OpticalDetector::water_absorption()
+OpticalBoxes::Table OpticalBoxes::water_absorption()
 {
     Table result;
     result.energy = this->water_energy_table();
@@ -310,7 +310,7 @@ OpticalDetector::Table OpticalDetector::water_absorption()
 /*!
  * Return energy bins used for water properties.
  */
-std::vector<double> OpticalDetector::water_energy_table()
+std::vector<double> OpticalBoxes::water_energy_table()
 {
     return {2.034 * eV, 2.068 * eV, 2.103 * eV, 2.139 * eV, 2.177 * eV,
             2.216 * eV, 2.256 * eV, 2.298 * eV, 2.341 * eV, 2.386 * eV,
@@ -325,7 +325,7 @@ std::vector<double> OpticalDetector::water_energy_table()
 /*!
  * Convert wavelength [nm] to energy [MeV].
  */
-double OpticalDetector::to_energy(double wavelength_nm)
+double OpticalBoxes::to_energy(double wavelength_nm)
 {
     assert(wavelength_nm >= 0);
     return CLHEP::h_Planck * CLHEP::c_light / wavelength_nm;

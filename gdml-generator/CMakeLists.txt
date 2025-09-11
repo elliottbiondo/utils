@@ -24,13 +24,13 @@ find_package(Geant4 REQUIRED gdml)
 add_executable(gdml-gen gdml-gen.cc
   src/core/PhysicsList.cc
   src/core/SensitiveDetector.cc
-  src/BoxDetector.cc
+  src/Box.cc
   src/FourSteelSlabs.cc
-  src/OpticalDetector.cc
-  src/SegmentedSimpleCmsDetector.cc
-  src/SimpleCmsDetector.cc
-  src/TestEm3Detector.cc
-  src/ThinSlabDetector.cc
+  src/OpticalBoxes.cc
+  src/SegmentedSimpleCms.cc
+  src/SimpleCms.cc
+  src/TestEm3.cc
+  src/ThinSlab.cc
   src/SimpleLZ.cc
 )
 

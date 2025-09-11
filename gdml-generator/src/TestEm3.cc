@@ -3,17 +3,17 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file TestEm3Detector.cc
+//! \file TestEm3.cc
 //---------------------------------------------------------------------------//
-#include "TestEm3Detector.hh"
+#include "TestEm3.hh"
 
-#include <G4NistManager.hh>
 #include <G4Box.hh>
 #include <G4LogicalVolume.hh>
-#include <G4VPhysicalVolume.hh>
+#include <G4NistManager.hh>
 #include <G4PVPlacement.hh>
 #include <G4SDManager.hh>
 #include <G4SystemOfUnits.hh>
+#include <G4VPhysicalVolume.hh>
 
 #include "core/SensitiveDetector.hh"
 
@@ -21,8 +21,7 @@
 /*!
  * Construct with material and geometry options.
  */
-TestEm3Detector::TestEm3Detector(MaterialType material_type,
-                                 GeometryType geometry_type)
+TestEm3::TestEm3(MaterialType material_type, GeometryType geometry_type)
     : material_type_(material_type), geometry_type_(geometry_type)
 {
 }
@@ -31,7 +30,7 @@ TestEm3Detector::TestEm3Detector(MaterialType material_type,
 /*!
  * Mandatory Construct function.
  */
-G4VPhysicalVolume* TestEm3Detector::Construct()
+G4VPhysicalVolume* TestEm3::Construct()
 {
     switch (geometry_type_)
     {
@@ -52,7 +51,7 @@ G4VPhysicalVolume* TestEm3Detector::Construct()
 /*!
  * Set sensitive detectors and magnetic field.
  */
-void TestEm3Detector::ConstructSDandField()
+void TestEm3::ConstructSDandField()
 {
     if (geometry_type_ == GeometryType::hierarchical)
     {
@@ -69,9 +68,9 @@ void TestEm3Detector::ConstructSDandField()
 /*!
  * Build TestEm3 materials.
  */
-TestEm3Detector::MaterialList TestEm3Detector::load_materials()
+TestEm3::MaterialList TestEm3::load_materials()
 {
-    const auto nist = G4NistManager::Instance();
+    auto const nist = G4NistManager::Instance();
 
     MaterialList list;
     list.world = nist->FindOrBuildMaterial("G4_Galactic");
@@ -109,20 +108,20 @@ TestEm3Detector::MaterialList TestEm3Detector::load_materials()
  * - AdePT's example seems to have mistakenly inverted gap/absorber materials.
  * - AdePT defines G4EmParameters::SetMscRangeFactor(0.06) here. We don't.
  */
-G4VPhysicalVolume* TestEm3Detector::create_testem3()
+G4VPhysicalVolume* TestEm3::create_testem3()
 {
-    const unsigned int num_layers        = 50;
-    const double       CalorSizeYZ       = 40 * cm;
-    const double       GapThickness      = 2.3 * mm;
-    const double       AbsorberThickness = 5.7 * mm;
+    unsigned int const num_layers = 50;
+    double const CalorSizeYZ = 40 * cm;
+    double const GapThickness = 2.3 * mm;
+    double const AbsorberThickness = 5.7 * mm;
 
-    const double LayerThickness = GapThickness + AbsorberThickness;
-    const double CalorThickness = num_layers * LayerThickness;
-    const double WorldSizeX     = 1.2 * CalorThickness;
-    const double WorldSizeYZ    = 1.2 * CalorSizeYZ;
+    double const LayerThickness = GapThickness + AbsorberThickness;
+    double const CalorThickness = num_layers * LayerThickness;
+    double const WorldSizeX = 1.2 * CalorThickness;
+    double const WorldSizeYZ = 1.2 * CalorSizeYZ;
 
     // Create materials
-    const auto materials = load_materials();
+    auto const materials = load_materials();
 
     // Define a world
     G4Box* worldBox = new G4Box(
@@ -158,7 +157,7 @@ G4VPhysicalVolume* TestEm3Detector::create_testem3()
     auto gapBox = new G4Box(
         "gapBox", 0.5 * GapThickness, 0.5 * CalorSizeYZ, 0.5 * CalorSizeYZ);
 
-    auto          gapLogic = new G4LogicalVolume(gapBox, materials.gap, "Gap");
+    auto gapLogic = new G4LogicalVolume(gapBox, materials.gap, "Gap");
     G4ThreeVector gapPlacement(
         -0.5 * LayerThickness + 0.5 * GapThickness, 0, 0);
 
@@ -177,7 +176,7 @@ G4VPhysicalVolume* TestEm3Detector::create_testem3()
     for (int i = 0; i < num_layers; i++)
     {
         std::string layerName = "Layer_" + std::to_string(i);
-        auto        layer_lv
+        auto layer_lv
             = new G4LogicalVolume(layerBox, materials.world, layerName);
 
         G4ThreeVector placement(xCenter, 0, 0);
@@ -207,7 +206,7 @@ G4VPhysicalVolume* TestEm3Detector::create_testem3()
 /*!
  * Set up TestEm3 sensitive detectors.
  */
-void TestEm3Detector::set_sd()
+void TestEm3::set_sd()
 {
     auto sd_gap = new SensitiveDetector("sd_gap");
     auto sd_abs = new SensitiveDetector("sd_absorber");
@@ -229,20 +228,20 @@ void TestEm3Detector::set_sd()
  *
  * DO NOT USE IN A COMPARISON RUN.
  */
-G4VPhysicalVolume* TestEm3Detector::create_testem3_flat()
+G4VPhysicalVolume* TestEm3::create_testem3_flat()
 {
-    const unsigned int num_layers        = 50;
-    const double       CalorSizeYZ       = 40 * cm;
-    const double       GapThickness      = 2.3 * mm;
-    const double       AbsorberThickness = 5.7 * mm;
+    unsigned int const num_layers = 50;
+    double const CalorSizeYZ = 40 * cm;
+    double const GapThickness = 2.3 * mm;
+    double const AbsorberThickness = 5.7 * mm;
 
-    const double LayerThickness = GapThickness + AbsorberThickness;
-    const double CalorThickness = num_layers * LayerThickness;
-    const double WorldSizeX     = 1.2 * CalorThickness;
-    const double WorldSizeYZ    = 1.2 * CalorSizeYZ;
+    double const LayerThickness = GapThickness + AbsorberThickness;
+    double const CalorThickness = num_layers * LayerThickness;
+    double const WorldSizeX = 1.2 * CalorThickness;
+    double const WorldSizeYZ = 1.2 * CalorSizeYZ;
 
     // Create materials
-    const auto materials = load_materials();
+    auto const materials = load_materials();
 
     // World definition and placement
     G4Box* worldBox = new G4Box(
@@ -265,7 +264,7 @@ G4VPhysicalVolume* TestEm3Detector::create_testem3_flat()
     for (int i = 0; i < num_layers; i++)
     {
         std::string absorber_name = "absorber_" + std::to_string(i);
-        std::string gap_name      = "gap_" + std::to_string(i);
+        std::string gap_name = "gap_" + std::to_string(i);
 
         auto gapLogic = new G4LogicalVolume(gapBox, materials.gap, gap_name);
         auto absorberLogic = new G4LogicalVolume(

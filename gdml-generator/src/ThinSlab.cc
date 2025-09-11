@@ -3,9 +3,9 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file ThinSlabDetector.cc
+//! \file ThinSlab.cc
 //---------------------------------------------------------------------------//
-#include "ThinSlabDetector.hh"
+#include "ThinSlab.hh"
 
 #include <G4Box.hh>
 #include <G4Colour.hh>
@@ -23,7 +23,7 @@
 /*!
  * Construct empty.
  */
-ThinSlabDetector::ThinSlabDetector() {}
+ThinSlab::ThinSlab() {}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -32,7 +32,7 @@ ThinSlabDetector::ThinSlabDetector() {}
  * For MSC experimental comparison, see
  * https://journals.aps.org/pr/abstract/10.1103/PhysRev.84.634
  */
-G4VPhysicalVolume* ThinSlabDetector::Construct()
+G4VPhysicalVolume* ThinSlab::Construct()
 {
     // Test targets: C, Si, Fe, Ag, Au, Pb
     auto nist = G4NistManager::Instance();
@@ -50,7 +50,7 @@ G4VPhysicalVolume* ThinSlabDetector::Construct()
 /*!
  * Set sensitive detectors.
  */
-void ThinSlabDetector::ConstructSDandField()
+void ThinSlab::ConstructSDandField()
 {
     this->set_sd();
 }
@@ -66,7 +66,7 @@ void ThinSlabDetector::ConstructSDandField()
  * The world volume material is vacuum and is is 4 times larger in the z-axis
  * than the input slab, while keeping the same size in x and y axes.
  */
-G4VPhysicalVolume* ThinSlabDetector::create_slab(SlabDefinition const& def)
+G4VPhysicalVolume* ThinSlab::create_slab(SlabDefinition const& def)
 {
     // Materials
     auto nist = G4NistManager::Instance();
@@ -94,7 +94,7 @@ G4VPhysicalVolume* ThinSlabDetector::create_slab(SlabDefinition const& def)
 /*!
  * Set up slab as a sensitive detector.
  */
-void ThinSlabDetector::set_sd()
+void ThinSlab::set_sd()
 {
     auto slab_sb = new SensitiveDetector("slab_sd");
     G4SDManager::GetSDMpointer()->AddNewDetector(slab_sb);

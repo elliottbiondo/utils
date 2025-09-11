@@ -3,9 +3,9 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file SimpleCmsDetector.cc
+//! \file SimpleCms.cc
 //---------------------------------------------------------------------------//
-#include "SimpleCmsDetector.hh"
+#include "SimpleCms.hh"
 
 #include <G4Box.hh>
 #include <G4Colour.hh>
@@ -22,15 +22,13 @@
 /*!
  * Construct with geometry type enum.
  */
-SimpleCmsDetector::SimpleCmsDetector(MaterialType type) : geometry_type_(type)
-{
-}
+SimpleCms::SimpleCms(MaterialType type) : geometry_type_(type) {}
 
 //---------------------------------------------------------------------------//
 /*!
  * Mandatory Construct function.
  */
-G4VPhysicalVolume* SimpleCmsDetector::Construct()
+G4VPhysicalVolume* SimpleCms::Construct()
 {
     return this->simple_cms();
 }
@@ -39,7 +37,7 @@ G4VPhysicalVolume* SimpleCmsDetector::Construct()
 /*!
  * Set sensitive detectors and (TODO) magnetic field.
  */
-void SimpleCmsDetector::ConstructSDandField()
+void SimpleCms::ConstructSDandField()
 {
     this->set_sd();
 
@@ -54,7 +52,7 @@ void SimpleCmsDetector::ConstructSDandField()
 /*!
  * Define list of materials.
  */
-SimpleCmsDetector::MaterialList SimpleCmsDetector::build_materials()
+SimpleCms::MaterialList SimpleCms::build_materials()
 {
     MaterialList materials;
     G4NistManager* nist = G4NistManager::Instance();
@@ -147,7 +145,7 @@ SimpleCmsDetector::MaterialList SimpleCmsDetector::build_materials()
  * | muon chambers                | N/A        |
  *
  */
-G4VPhysicalVolume* SimpleCmsDetector::simple_cms()
+G4VPhysicalVolume* SimpleCms::simple_cms()
 {
     // Set up material list
     MaterialList materials = this->build_materials();
@@ -299,7 +297,7 @@ G4VPhysicalVolume* SimpleCmsDetector::simple_cms()
  * The two first inner cylinders, which represent the silicon tracker and the
  * EM calorimeter, are used as sensitive scoring regions.
  */
-void SimpleCmsDetector::set_sd()
+void SimpleCms::set_sd()
 {
     // List of sensitive detectors
     auto si_tracker_sd = new SensitiveDetector("si_tracker_sd");

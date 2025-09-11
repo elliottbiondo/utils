@@ -26,7 +26,12 @@ class FourSteelSlabs : public G4VUserDetectorConstruction
     // Construct geometry
     G4VPhysicalVolume* Construct() final;
 
+    // Set up sensitive detectors and magnetic field
+    void ConstructSDandField() final;
+
   private:
     // Four stainless-steel slabs in a vacuum
     G4VPhysicalVolume* create_geometry();
+    // Set volume as sensitive detector
+    void set_sd();
 };

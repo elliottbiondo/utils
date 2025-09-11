@@ -3,10 +3,11 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file SegmentedSimpleCmsDetector.cc
+//! \file SegmentedSimpleCms.cc
 //---------------------------------------------------------------------------//
-#include "SegmentedSimpleCmsDetector.hh"
+#include "SegmentedSimpleCms.hh"
 
+#include <cstdlib>
 #include <G4Box.hh>
 #include <G4Colour.hh>
 #include <G4LogicalVolume.hh>
@@ -16,7 +17,6 @@
 #include <G4PVReplica.hh>
 #include <G4SDManager.hh>
 #include <G4VisAttributes.hh>
-#include <cstdlib>
 
 #include "core/SensitiveDetector.hh"
 
@@ -24,8 +24,8 @@
 /*!
  * Construct with geometry type enum and number of segments.
  */
-SegmentedSimpleCmsDetector::SegmentedSimpleCmsDetector(
-    MaterialType type, SegmentDefinition segments)
+SegmentedSimpleCms::SegmentedSimpleCms(MaterialType type,
+                                       SegmentDefinition segments)
     : geometry_type_(type), num_segments_(segments)
 {
     if (num_segments_.num_r < 1 || num_segments_.num_theta < 1
@@ -43,7 +43,7 @@ SegmentedSimpleCmsDetector::SegmentedSimpleCmsDetector(
 /*!
  * Mandatory Construct function.
  */
-G4VPhysicalVolume* SegmentedSimpleCmsDetector::Construct()
+G4VPhysicalVolume* SegmentedSimpleCms::Construct()
 {
     return this->segmented_simple_cms();
 }
@@ -52,7 +52,7 @@ G4VPhysicalVolume* SegmentedSimpleCmsDetector::Construct()
 /*!
  * Set sensitive detectors and (TODO) magnetic field.
  */
-void SegmentedSimpleCmsDetector::ConstructSDandField()
+void SegmentedSimpleCms::ConstructSDandField()
 {
     this->set_sd();
 
@@ -67,8 +67,7 @@ void SegmentedSimpleCmsDetector::ConstructSDandField()
 /*!
  * Define list of materials.
  */
-SegmentedSimpleCmsDetector::MaterialList
-SegmentedSimpleCmsDetector::build_materials()
+SegmentedSimpleCms::MaterialList SegmentedSimpleCms::build_materials()
 {
     MaterialList materials;
     G4NistManager* nist = G4NistManager::Instance();
@@ -135,9 +134,9 @@ SegmentedSimpleCmsDetector::build_materials()
  * r = [77.5, 125] cm).
  *
  * The final size of each material cylinder is still identical to the
- * \c SimpleCmsDetector class.
+ * \c SimpleCms class.
  */
-G4VPhysicalVolume* SegmentedSimpleCmsDetector::segmented_simple_cms()
+G4VPhysicalVolume* SegmentedSimpleCms::segmented_simple_cms()
 {
     // World volume
     G4Box* world_def = new G4Box(
@@ -356,7 +355,7 @@ G4VPhysicalVolume* SegmentedSimpleCmsDetector::segmented_simple_cms()
 /*!
  * TODO
  */
-void SegmentedSimpleCmsDetector::set_sd()
+void SegmentedSimpleCms::set_sd()
 {
     // TODO
 }
@@ -368,13 +367,12 @@ void SegmentedSimpleCmsDetector::set_sd()
  *
  * \note Not compatible with VecGeom.
  */
-void SegmentedSimpleCmsDetector::create_segments(
-    std::string name,
-    double inner_r,
-    double outer_r,
-    G4Tubs* full_culinder_def,
-    G4LogicalVolume* full_cylinder_lv,
-    G4Material* cyl_material)
+void SegmentedSimpleCms::create_segments(std::string name,
+                                         double inner_r,
+                                         double outer_r,
+                                         G4Tubs* full_culinder_def,
+                                         G4LogicalVolume* full_cylinder_lv,
+                                         G4Material* cyl_material)
 {
     std::string name_segment = name + "_segment";
     std::string name_r = name_segment + "_r";
@@ -451,12 +449,11 @@ void SegmentedSimpleCmsDetector::create_segments(
  *
  * \note Compatible with VecGeom.
  */
-void SegmentedSimpleCmsDetector::flat_segmented_cylinder(
-    std::string name,
-    double inner_r,
-    double outer_r,
-    G4Material* material,
-    G4VPhysicalVolume* world_pv)
+void SegmentedSimpleCms::flat_segmented_cylinder(std::string name,
+                                                 double inner_r,
+                                                 double outer_r,
+                                                 G4Material* material,
+                                                 G4VPhysicalVolume* world_pv)
 {
     // Segment sizes
     double const segment_r = (outer_r - inner_r) / num_segments_.num_r;
