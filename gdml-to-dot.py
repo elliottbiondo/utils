@@ -63,19 +63,19 @@ class Graph:
     def replace_borders(self, structure):
         if not self.borders:
             return
-        get_border = self.borders.__getitem__
         for pvel in structure.iter("physvol"):
-            try:
-                borders = get_border(pvel.attrib["name"])
-            except KeyError:
+            pv_name = self.replace_pointers(pvel.attrib["name"])
+            if pv_name not in self.borders:
                 continue
 
             # Get the LV name pointed to by the PV
             vrel = next(pvel.iter("volumeref"))
             dname = self.replace_pointers(vrel.attrib["ref"])
 
+            assert self.borders[pv_name]
+
             # Add edge for each border
-            for b in borders:
+            for b in self.borders[pv_name]:
                 self.edges[(b, dname)] += 1
 
         self.borders.clear()
