@@ -149,7 +149,7 @@ def log_progress():
     log(".", end="")
 
 def parse_gdml(filename: Path):
-    result = {"filename": filename.name}
+    result = {}
 
     tree = ET.parse(filename)
     log_progress()
@@ -166,19 +166,19 @@ def main(*args):
     from argparse import ArgumentParser
 
     parser = ArgumentParser(description=__doc__, prog="gdml-volumes")
-    parser.add_argument("-p", "--prepend", default=None)
+    parser.add_argument("-e", "--existing", default=None)
     parser.add_argument("-o", "--output", default="-")
     parser.add_argument("input", nargs="+")
     ns = parser.parse_args(*args)
 
-    result = []
-    if ns.prepend:
+    result = {}
+    if ns.existing:
         try:
-            with open(ns.prepend) as f:
+            with open(ns.existing) as f:
                 result = json.load(f)
         except IOError as e:
-            log(f"Could not open {ns.prepend}: {e!s}")
-    assert isinstance(result, list)
+            log(f"Could not open {ns.existing}: {e!s}")
+    assert isinstance(result, dict)
 
     for filename in sorted(ns.input):
         path = Path(filename)
@@ -187,10 +187,10 @@ def main(*args):
             continue
         log(f"Processing {filename}", end="")
         try:
-            result.append(parse_gdml(path))
+            result[path.stem] = parse_gdml(path)
         except Exception as e:
             log(f"ERROR: {e!s}")
-            result.append(None)
+            result[path.stem] = None
 
     if ns.output == "-":
         json.dump(result, sys.stdout, indent=1)
