@@ -11,10 +11,8 @@ The resulting output file can be converted to a PDF file with, e.g.::
 
 """
 
-import json
 import re
 import xml.etree.ElementTree as ET
-import networkx as nx
 
 from collections import defaultdict
 from pathlib import Path
@@ -23,11 +21,23 @@ class PointerReplacer:
     sub = re.compile(r'0x[0-9a-f]{4,}').sub
 
     def __init__(self):
-        self.addrs = {}
+        self.addrs = defaultdict(dict)
 
     def repl(self, match):
-        val = self.addrs.setdefault(match.group(0), len(self.addrs))
-        return f"@{val:d}"
+        addr = match.group(0)
+        
+        # Get the prefix before the pointer in the original string
+        prefix = match.string[:match.start()]
+        prefix_addrs = self.addrs[prefix]
+
+        # Get or create a new index
+        idx = prefix_addrs.setdefault(addr, len(prefix_addrs))
+
+        if idx == 0:
+            return ""
+        
+        # Create the replacement string
+        return f"@{idx:d}"
 
     def __call__(self, s):
         return self.sub(self.repl, s)
@@ -114,17 +124,31 @@ def read_graph(filename):
     return g
 
 def write_graph(g, filename):
-    graph = nx.DiGraph()
-    graph.add_nodes_from(reversed(g.nodes))
-    graph.add_weighted_edges_from(g.labeled_edges, weight='label')
-    graph.graph['graph']={'rankdir':'LR'}
-    nx.nx_pydot.write_dot(graph, filename)
-
-    with open(filename, 'a') as f:
+    with open(filename, 'w') as f:
+        f.write("digraph {\n")
+        f.write("  rankdir=LR;\n")
+        
+        # Write nodes (in reverse order to maintain original behavior)
+        for node in reversed(g.nodes):
+            f.write(f'  "{node}";\n')
+        
+        # Write edges with labels
+        for (u, v, label) in g.labeled_edges:
+            if label:
+                f.write(f'  "{u}" -> "{v}" [label="{label}"];\n')
+            else:
+                f.write(f'  "{u}" -> "{v}";\n')
+        
+        f.write("}\n")
+        
+        # Append pointer mapping
         f.write("// Pointer mapping:\n")
-        addrs = g.pointer_addresses.items()
-        for (idx, addr) in sorted((v, k) for (k, v) in addrs):
-            f.write(f"// {idx:04d}: {addr}\n")
+        for prefix, prefix_addrs in g.pointer_addresses.items():
+            if len(prefix_addrs) == 1:
+                continue
+            f.write(f"// {prefix}\n")
+            for idx, addr in sorted((idx, addr) for (addr, idx) in prefix_addrs.items()):
+                f.write(f"//   {idx:04d}: {addr}\n")
 
 def main(*args):
     from argparse import ArgumentParser
