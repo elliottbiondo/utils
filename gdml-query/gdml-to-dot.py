@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-# Copyright 2023 UT-Battelle, LLC, and other Celeritas developers.
-# See the top-level COPYRIGHT file for details.
+#!/usr/bin/env python
+# Copyright Celeritas contributors: see top-level COPYRIGHT file for details
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 """
 Generate a GraphViz DAG of GDML logical volume relationships.
@@ -11,36 +10,11 @@ The resulting output file can be converted to a PDF file with, e.g.::
 
 """
 
-import re
 import xml.etree.ElementTree as ET
 
 from collections import defaultdict
 from pathlib import Path
-
-class PointerReplacer:
-    sub = re.compile(r'0x[0-9a-f]{4,}').sub
-
-    def __init__(self):
-        self.addrs = defaultdict(dict)
-
-    def repl(self, match):
-        addr = match.group(0)
-        
-        # Get the prefix before the pointer in the original string
-        prefix = match.string[:match.start()]
-        prefix_addrs = self.addrs[prefix]
-
-        # Get or create a new index
-        idx = prefix_addrs.setdefault(addr, len(prefix_addrs))
-
-        if idx == 0:
-            return ""
-        
-        # Create the replacement string
-        return f"@{idx:d}"
-
-    def __call__(self, s):
-        return self.sub(self.repl, s)
+from .gdmlutils import PointerReplacer
 
 class Graph:
     def __init__(self):
@@ -65,10 +39,6 @@ class Graph:
         for vrel in el.iter("physvolref"):
             dname = self.replace_pointers(vrel.attrib["ref"])
             self.borders[dname].append(pname)
-
-    def add_world(self, vrel):
-        pname = self.replace_pointers(vrel.attrib["ref"])
-        self.nodes.append(pname)
 
     def replace_borders(self, structure):
         if not self.borders:
@@ -119,7 +89,6 @@ def read_graph(filename):
         else:
             raise ValueError(f"Unrecognized structure tag: {el!r}")
     g.replace_borders(structure)
-    g.add_world(tree.findall("./setup/world")[0])
 
     return g
 
@@ -128,7 +97,7 @@ def write_graph(g, filename):
         f.write("digraph {\n")
         f.write("  rankdir=LR;\n")
         
-        # Write nodes (in reverse order to maintain original behavior)
+        # Write nodes in reverse order
         for node in reversed(g.nodes):
             f.write(f'  "{node}";\n')
         
@@ -154,11 +123,10 @@ def main(*args):
     from argparse import ArgumentParser
     parser = ArgumentParser(description=__doc__, prog="gdml-to-dot")
     parser.add_argument('-o', '--output')
-    parser.add_argument('input')
+    parser.add_argument('input', type=Path)
     ns = parser.parse_args(*args)
-    input = Path(ns.input)
-    g = read_graph(input)
-    write_graph(g, ns.output or (input.stem + ".dot"))
+    g = read_graph(ns.input)
+    write_graph(g, ns.output or (ns.input.stem + ".dot"))
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2024 UT-Battelle, LLC, and other Celeritas developers.
-# See the top-level COPYRIGHT file for details.
+# Copyright Celeritas contributors: see top-level COPYRIGHT file for details
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 """
 Count the number of logical and physical volumes in a GDML file.
@@ -13,10 +12,13 @@ from pathlib import Path
 import sys
 import xml.etree.ElementTree as ET
 from sys import stderr
+from gdmlutils import get_solid_refs
+
 
 def log(msg, *args, file=stderr, **kwargs):
     print(msg, *args, file=file, **kwargs)
     file.flush()
+
 
 def get_material(volume_el):
     el = next(volume_el.iter("materialref"))
@@ -41,18 +43,6 @@ ChildCount = namedtuple("ChildCount", ["direct", "total", "maxdepth"])
 LEAF_CHILD_COUNT = ChildCount(direct=0, total=1, maxdepth=0)
 
 
-def multiunion_refs(el):
-    for node in el:
-        for subel in node.iter("solid"):
-            yield subel.attrib["ref"]
-
-
-def boolean_refs(el):
-    for node in el:
-        if node.tag in ("first", "second"):
-            yield node.attrib["ref"]
-
-
 def physvol_refs(el):
     for vrel in el.iter("volumeref"):
         yield vrel.attrib["ref"]
@@ -63,17 +53,14 @@ def parse_solids(tree):
     child_counts = {}
 
     for num_solids, el in enumerate(solids):
-        if el.tag == "multiUnion":
-            get_refs = multiunion_refs
-        elif el.tag in ("union", "subtraction", "intersection"):
-            get_refs = boolean_refs
-        else:
+        referenced_solids = list(get_solid_refs(el))
+        if not referenced_solids:
             continue
 
         indirect = 1
         maxdepth = 0
         direct = count()
-        for vrel in get_refs(el):
+        for vrel in referenced_solids:
             cc = child_counts.get(vrel, LEAF_CHILD_COUNT)
             indirect += cc.total
             next(direct)
@@ -147,6 +134,7 @@ def parse_structure(tree):
 
 def log_progress():
     log(".", end="")
+
 
 def parse_gdml(filename: Path):
     result = {}
