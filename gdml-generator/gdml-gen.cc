@@ -25,6 +25,7 @@
 
 #include "Box.hh"
 #include "FourSteelSlabs.hh"
+#include "MucfTestGeo.hh"
 #include "OpticalBoxes.hh"
 #include "SegmentedSimpleCms.hh"
 #include "SimpleCms.hh"
@@ -52,6 +53,7 @@ enum class GeometryID
     optical_boxes,  //!< Boxes with optical properties
     thin_slab,  //!< Single material thin slab for MSC validation
     simple_lz,  //!< Simplified model of the LUX-ZEPLIN detector array
+    mucf_test_geo,  //!< Simple test geometry for muon-catalyzed fusion
     size_
 };
 
@@ -95,7 +97,7 @@ constexpr char const* label(GeometryID id) noexcept
         case GID::testem3_composite_flat:
             return "TestEm3 flat - composite materials, for ORANGE";
             break;
-        case GID::optical:
+        case GID::optical_boxes:
             return "Optical boxes - composite material boxes with optical "
                    "properties";
             break;
@@ -104,6 +106,9 @@ constexpr char const* label(GeometryID id) noexcept
             break;
         case GID::simple_lz:
             return "Simplified LZ - top PMT array";
+            break;
+        case GID::mucf_test_geo:
+            return "MuCF test geometry - dt target and neutron counters";
             break;
         default:
             __builtin_unreachable();
@@ -292,7 +297,7 @@ int main(int argc, char* argv[])
             gdml_filename = "testem3-flat-composite.gdml";
             break;
 
-        case GeometryID::optical:
+        case GeometryID::optical_boxes:
             run_manager->SetUserInitialization(new OpticalBoxes());
             gdml_filename = "optical.gdml";
             break;
@@ -329,6 +334,11 @@ int main(int argc, char* argv[])
                     << std::endl;
                 return EXIT_FAILURE;
             }
+
+        case GeometryID::mucf_test_geo:
+            run_manager->SetUserInitialization(new MucfTestGeo());
+            gdml_filename = "mucf-test-geo.gdml";
+            break;
 
         default:
             __builtin_unreachable();

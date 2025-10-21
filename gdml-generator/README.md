@@ -39,6 +39,7 @@ The available geometries are:
 | 10   | Set of boxes with optical properties |
 | 11   | Thin Pb slab for MSC validation |
 | 12   | Simplifed LUX-Zeplin (LZ) model |
+| 13   | Muon-catalyzed fusion test geometry |
 
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
