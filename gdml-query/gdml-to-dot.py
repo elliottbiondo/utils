@@ -14,7 +14,8 @@ import xml.etree.ElementTree as ET
 
 from collections import defaultdict
 from pathlib import Path
-from .gdmlutils import PointerReplacer
+
+from gdmlutils import PointerReplacer
 
 class Graph:
     def __init__(self):
@@ -96,20 +97,20 @@ def write_graph(g, filename):
     with open(filename, 'w') as f:
         f.write("digraph {\n")
         f.write("  rankdir=LR;\n")
-        
+
         # Write nodes in reverse order
         for node in reversed(g.nodes):
             f.write(f'  "{node}";\n')
-        
+
         # Write edges with labels
         for (u, v, label) in g.labeled_edges:
             if label:
                 f.write(f'  "{u}" -> "{v}" [label="{label}"];\n')
             else:
                 f.write(f'  "{u}" -> "{v}";\n')
-        
+
         f.write("}\n")
-        
+
         # Append pointer mapping
         f.write("// Pointer mapping:\n")
         for prefix, prefix_addrs in g.pointer_addresses.items():
