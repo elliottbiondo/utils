@@ -7,10 +7,12 @@
 #include "DetectorConstruction.hh"
 
 #include <G4LogicalVolume.hh>
+#include <G4PhysicalVolumeStore.hh>
 #include <G4SDManager.hh>
 #include <corecel/Assert.hh>
 #include <corecel/io/Logger.hh>
 
+#include "JsonReader.hh"
 #include "SensitiveDetector.hh"
 
 //---------------------------------------------------------------------------//
@@ -47,14 +49,21 @@ void DetectorConstruction::ConstructSDandField()
         CELER_LOG(status) << "Initializing magnetic field";
     }
 
-    this->InitializeSensitiveDetectors();
+    auto const& json = JsonReader::Instance();
+    JsonReader::Validate(json, "all_volumes_sensitive");
+    if (json.at("all_volumes_sensitive").get<bool>())
+    {
+        this->MakeAllVolumesSensitive();
+    }
+    else
+    {
+        this->InitializeSensitiveDetectors();
+    }
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * Find and set sensitive detectors.
- *
- * \todo Use a physical volume store to force all volumes to be scored.
  */
 void DetectorConstruction::InitializeSensitiveDetectors()
 {
@@ -86,5 +95,37 @@ void DetectorConstruction::InitializeSensitiveDetectors()
             CELER_LOG(debug)
                 << "Inserted " << sd_name << " as sensitive detector";
         }
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Set all physical volumes as sensitive detectors.
+ */
+void DetectorConstruction::MakeAllVolumesSensitive()
+{
+    CELER_LOG_LOCAL(status)
+        << "Initializing all physical volumes as sensitive "
+           "detectors";
+
+    auto sd_manager = G4SDManager::GetSDMpointer();
+    CELER_ASSERT(sd_manager);
+    auto const& physvol_store = *G4PhysicalVolumeStore::GetInstance();
+    CELER_ASSERT(!physvol_store.empty());
+
+    for (auto const& physvol : physvol_store)
+    {
+        CELER_ASSERT(physvol);
+        auto const* logvol = physvol->GetLogicalVolume();
+        CELER_ASSERT(logvol);
+
+        std::string sd_name = logvol->GetName() + "_sd";
+        auto this_sd = std::make_unique<SensitiveDetector>(sd_name);
+        G4VUserDetectorConstruction::SetSensitiveDetector(logvol->GetName(),
+                                                          this_sd.get());
+        sd_manager->AddNewDetector(this_sd.release());
+        CELER_LOG(debug) << "Initialized " << logvol->GetName()
+                         << " as sensitive detector with name '" << sd_name
+                         << "'";
     }
 }

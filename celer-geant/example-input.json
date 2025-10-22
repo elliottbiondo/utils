@@ -1,6 +1,7 @@
 {
     "geometry": "geometry.gdml",
     "root_output": "output.root",
+    "all_volumes_sensitive": false,
     "celeritas": {
         "max_num_tracks": 1,
         "initializer_capacity": 500,

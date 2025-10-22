@@ -68,14 +68,14 @@ struct SensDetData
         JsonReader::Validate(JsonReader::Instance(), "histograms");
         auto const& json_hist = JsonReader::Instance().at("histograms");
 
-#define SDH_INIT_TH1D(HIST)                                                  \
+#define SDD_INIT_TH1D(HIST)                                                  \
     {                                                                        \
         std::string htitle = sd_name + "_" + #HIST;                          \
         auto const hd = from_json(json_hist, #HIST);                         \
         result.HIST = TH1D(#HIST, htitle.c_str(), hd.nbins, hd.min, hd.max); \
         result.HIST.AddDirectory(false);                                     \
     }
-#define SDH_INIT_TH2D(HIST)                                   \
+#define SDD_INIT_TH2D(HIST)                                   \
     {                                                         \
         std::string htitle = sd_name + "_" + #HIST;           \
         auto const hdx = from_json(json_hist.at(#HIST), "x"); \
@@ -94,18 +94,18 @@ struct SensDetData
         //// Initialie histograms ////
         SensDetData result;
         result.sd_name = sd_name;
-        SDH_INIT_TH1D(energy_dep_x)
-        SDH_INIT_TH1D(energy_dep_y)
-        SDH_INIT_TH1D(energy_dep_z)
-        SDH_INIT_TH1D(total_energy_dep)
-        SDH_INIT_TH1D(step_len)
-        SDH_INIT_TH2D(pos_xy)
-        SDH_INIT_TH1D(time)
-        SDH_INIT_TH1D(costheta)
+        SDD_INIT_TH1D(energy_dep_x)
+        SDD_INIT_TH1D(energy_dep_y)
+        SDD_INIT_TH1D(energy_dep_z)
+        SDD_INIT_TH1D(total_energy_dep)
+        SDD_INIT_TH1D(step_len)
+        SDD_INIT_TH2D(pos_xy)
+        SDD_INIT_TH1D(time)
+        SDD_INIT_TH1D(costheta)
         return result;
 
-#undef SDH_INIT_TH1D
-#undef SDH_INIT_TH2D
+#undef SDD_INIT_TH1D
+#undef SDD_INIT_TH2D
     }
 };
 

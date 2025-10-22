@@ -40,7 +40,7 @@ $ hadd [merged-output.root] [output-*.root]
 
 - Expand JSON with new histogram information.
 - `RootDataStore.hh`: Add histogram to `SensDetData` and initialize it in
-  `SensDetData::Initialize` using the `SDH_INIT_[TH1D/TH2D]` macros.
+  `SensDetData::Initialize` using the `SDD_INIT_[TH1D/TH2D]` macros.
   - `TH2D` histograms require `"x"` and `"y"` keys for each axis binning.
 - Fill histogram (usually via `SensitiveDetector::ProcessHits`).
 - `RootIO.cc`: Write histogram to disk during `RootIO::Finalize` using

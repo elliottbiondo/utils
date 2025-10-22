@@ -59,8 +59,8 @@ G4bool SensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
     CELER_ASSERT(phys_vol);
 
     auto rio = RootIO::Instance();
-    auto& data = rio->Histograms().Find(phys_vol->GetInstanceID(),
-                                        phys_vol->GetCopyNo());
+    auto& data
+        = rio->Data().Find(phys_vol->GetInstanceID(), phys_vol->GetCopyNo());
 
 #define SD_1D_FILL(MEMBER, VALUE) data.MEMBER.Fill(VALUE);
 #define SD_2D_FILL(MEMBER, X, Y) data.MEMBER.Fill(X, Y);

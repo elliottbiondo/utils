@@ -32,6 +32,9 @@ class DetectorConstruction final : public G4VUserDetectorConstruction
 
     //// HELPER FUNCTIONS ////
 
-    // Initialize sensitive detectors
+    // Initialize sensitive detectors as defined in the GDML
     void InitializeSensitiveDetectors();
+
+    // Set every physical volume as a sensitive detector
+    void MakeAllVolumesSensitive();
 };
