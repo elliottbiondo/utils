@@ -119,6 +119,13 @@ void DetectorConstruction::MakeAllVolumesSensitive()
         auto const* logvol = physvol->GetLogicalVolume();
         CELER_ASSERT(logvol);
 
+        if (logvol->GetSensitiveDetector())
+        {
+            // Avoid overriding existing sensitive detector object pointer
+            // This happens when logical volumes are placed multiple times
+            continue;
+        }
+
         std::string sd_name = logvol->GetName() + "_sd";
         auto this_sd = std::make_unique<SensitiveDetector>(sd_name);
         G4VUserDetectorConstruction::SetSensitiveDetector(logvol->GetName(),
