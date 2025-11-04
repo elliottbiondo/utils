@@ -28,6 +28,7 @@ add_executable(gdml-gen gdml-gen.cc
   src/FourSteelSlabs.cc
   src/MucfTestGeo.cc
   src/OpticalBoxes.cc
+  src/OpticalPrism.cc
   src/SegmentedSimpleCms.cc
   src/SimpleCms.cc
   src/TestEm3.cc

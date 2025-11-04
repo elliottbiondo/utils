@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 2022-2024 UT-Battelle, LLC, and other Celeritas developers.
+// Copyright 2022-2025 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
@@ -27,6 +27,7 @@
 #include "FourSteelSlabs.hh"
 #include "MucfTestGeo.hh"
 #include "OpticalBoxes.hh"
+#include "OpticalPrism.hh"
 #include "SegmentedSimpleCms.hh"
 #include "SimpleCms.hh"
 #include "SimpleLZ.hh"
@@ -54,6 +55,7 @@ enum class GeometryID
     thin_slab,  //!< Single material thin slab for MSC validation
     simple_lz,  //!< Simplified model of the LUX-ZEPLIN detector array
     mucf_test_geo,  //!< Simple test geometry for muon-catalyzed fusion
+    optical_prism,  //!< Triangular prism with optical properties
     size_
 };
 
@@ -109,6 +111,9 @@ constexpr char const* label(GeometryID id) noexcept
             break;
         case GID::mucf_test_geo:
             return "MuCF test geometry - dt target and neutron counters";
+            break;
+        case GID::optical_prism:
+            return "Optical triangular prism";
             break;
         default:
             __builtin_unreachable();
@@ -338,6 +343,11 @@ int main(int argc, char* argv[])
         case GeometryID::mucf_test_geo:
             run_manager->SetUserInitialization(new MucfTestGeo());
             gdml_filename = "mucf-test-geo.gdml";
+            break;
+
+        case GeometryID::optical_prism:
+            run_manager->SetUserInitialization(new OpticalPrism());
+            gdml_filename = "optical-prism.gdml";
             break;
 
         default:

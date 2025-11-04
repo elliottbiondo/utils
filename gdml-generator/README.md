@@ -40,6 +40,7 @@ The available geometries are:
 | 11   | Thin Pb slab for MSC validation |
 | 12   | Simplifed LUX-Zeplin (LZ) model |
 | 13   | Muon-catalyzed fusion test geometry |
+| 14   | Optical prism |
 
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
