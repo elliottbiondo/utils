@@ -40,12 +40,18 @@ class OpticalPrism : public G4VUserDetectorConstruction
         std::vector<double> value;  //!< General data storage
     };
 
-    // Water optical properties
+    // Water with optical properties
     static G4Material* water_material();
+
+    // Air with optical properties
+    static G4Material* air_material();
 
     // Water refractive index (from Geant4 examples/extended/optical/OpNovice)
     static Table water_rindex();
 
-    // Water energy table data
-    static std::vector<double> water_energy_table();
+    // Air refractive index
+    static Table air_rindex();
+
+    // Energy table data
+    static std::vector<double> energy_table();
 };
