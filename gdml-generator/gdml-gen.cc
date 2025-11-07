@@ -188,7 +188,7 @@ void export_gdml(std::string const& gdml_filename)
                      ->GetNavigatorForTracking()
                      ->GetWorldVolume()
                      ->GetLogicalVolume(),
-                 /* append ptr address = */ false);
+                 /* append ptr address = */ true);
 }
 
 //---------------------------------------------------------------------------//
@@ -197,11 +197,7 @@ void export_gdml(std::string const& gdml_filename)
  * For more details on existing geometries see the README.md.
  *
  * Usage:
- * ./gdm-gen [geometry_id] [optional: production_cuts_mm]
- *
- * \note
- * Temporarily disabling production cuts input until improve Segmented Simple
- * CMS input.
+ * ./gdm-gen [geometry_id] [optional parameters]
  */
 int main(int argc, char* argv[])
 {

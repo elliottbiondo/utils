@@ -62,9 +62,9 @@ G4VPhysicalVolume* OpticalPrism::create_prism()
     // World
     double const world_len = 0.5 * CLHEP::m;
     G4Box* world_box = new G4Box("world_box", world_len, world_len, world_len);
-    auto const world_lv = new G4LogicalVolume(
+    auto world_lv = new G4LogicalVolume(
         world_box, OpticalPrism::air_material(), "world_lv");
-    auto const world_pv = new G4PVPlacement(
+    auto world_pv = new G4PVPlacement(
         nullptr, G4ThreeVector(), world_lv, "world_pv", nullptr, false, 0, false);
 
     // Equilateral optical prism
@@ -73,10 +73,10 @@ G4VPhysicalVolume* OpticalPrism::create_prism()
     double const prism_len = prism_base;
     auto prism_solid
         = new G4Trd("prism", prism_base, 0, prism_side, prism_side, prism_len);
-    auto const prism_lv
-        = new G4LogicalVolume(prism_solid, this->water_material(), "prism_lv");
+    auto prism_lv = new G4LogicalVolume(
+        prism_solid, OpticalPrism::water_material(), "prism_lv");
     new G4PVPlacement(
-        nullptr, G4ThreeVector(), prism_lv, "world_pv", world_lv, false, 0, false);
+        nullptr, G4ThreeVector(), prism_lv, "prism_pv", world_lv, false, 0, false);
 
     // Add skin surface to prism
     auto opt_surface = new G4OpticalSurface("prism_surface");
@@ -96,7 +96,7 @@ G4VPhysicalVolume* OpticalPrism::create_prism()
  */
 void OpticalPrism::set_sd()
 {
-    auto prism_sd = new SensitiveDetector("prism_sm");
+    auto prism_sd = new SensitiveDetector("prism_sd");
     G4SDManager::GetSDMpointer()->AddNewDetector(prism_sd);
     G4VUserDetectorConstruction::SetSensitiveDetector("prism_lv", prism_sd);
 }
@@ -110,13 +110,16 @@ void OpticalPrism::set_sd()
  */
 G4Material* OpticalPrism::water_material()
 {
-    auto* hydrogen = new G4Element(
-        "hydrogen", "H", /* Z = */ 1, /* A = */ 1.01 * g / mole);
-    auto* oxygen = new G4Element(
-        "oxygen", "O", /* Z = */ 8, /* A = */ 16.00 * g / mole);
+    double const g_per_mole = CLHEP::g / CLHEP::mole;
+    double const g_per_cm3 = CLHEP::g / CLHEP::cm3;
+
+    auto hydrogen = new G4Element(
+        "hydrogen", "H", /* Z = */ 1, /* A = */ 1.01 * g_per_mole);
+    auto oxygen = new G4Element(
+        "oxygen", "O", /* Z = */ 8, /* A = */ 16.00 * g_per_mole);
 
     auto result = new G4Material(
-        "water", /* density = */ 1.0 * g / cm3, /* num_elements = */ 2);
+        "water", /* density = */ 1.0 * g_per_cm3, /* num_elements = */ 2);
     result->AddElement(hydrogen, 2);
     result->AddElement(oxygen, 1);
 
@@ -184,7 +187,7 @@ OpticalPrism::Table OpticalPrism::air_rindex()
 
 //---------------------------------------------------------------------------//
 /*!
- * Return energy bins used for water properties.
+ * Return energy bins for material properties.
  */
 std::vector<double> OpticalPrism::energy_table()
 {
