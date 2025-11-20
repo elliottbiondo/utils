@@ -25,6 +25,7 @@
 
 #include "Box.hh"
 #include "FourSteelSlabs.hh"
+#include "MucfBox.hh"
 #include "MucfTestGeo.hh"
 #include "OpticalBoxes.hh"
 #include "OpticalPrism.hh"
@@ -46,7 +47,8 @@ enum class GeometryID
     simple_cms,  //!< Simple materials
     simple_cms_composite,  //!< Composite materials
     segmented_simple_cms,  //!< Segmented Simple CMS
-    segmented_simple_cms_composite,  //!< Segmented Simple CMS, composite mats
+    segmented_simple_cms_composite,  //!< Segmented Simple CMS, composite
+                                     //!< mats
     testem3,  //!< Simple materials
     testem3_composite,  //!< Composite materials
     testem3_flat,  //!< Simple materials, flat (for ORANGE)
@@ -54,7 +56,8 @@ enum class GeometryID
     optical_boxes,  //!< Boxes with optical properties
     thin_slab,  //!< Single material thin slab for MSC validation
     simple_lz,  //!< Simplified model of the LUX-ZEPLIN detector array
-    mucf_test_geo,  //!< Simple test geometry for muon-catalyzed fusion
+    mucf_test_geo,  //!< Test geometry for muon-catalyzed fusion
+    mucf_box,  //!< Muon-catalyzed fusion box target only
     optical_prism,  //!< Triangular prism with optical properties
     size_
 };
@@ -111,6 +114,9 @@ constexpr char const* label(GeometryID id) noexcept
             break;
         case GID::mucf_test_geo:
             return "MuCF test geometry - dt target and neutron counters";
+            break;
+        case GID::mucf_box:
+            return "MuCF box target only";
             break;
         case GID::optical_prism:
             return "Optical triangular prism";
@@ -339,6 +345,11 @@ int main(int argc, char* argv[])
         case GeometryID::mucf_test_geo:
             run_manager->SetUserInitialization(new MucfTestGeo());
             gdml_filename = "mucf-test-geo.gdml";
+            break;
+
+        case GeometryID::mucf_box:
+            run_manager->SetUserInitialization(new MucfBox());
+            gdml_filename = "mucf-box.gdml";
             break;
 
         case GeometryID::optical_prism:
