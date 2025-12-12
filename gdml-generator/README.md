@@ -35,13 +35,14 @@ The available geometries are:
 | 6    | [TestEm3][testem3] with simple materials |
 | 7    | [TestEm3][testem3] with composite materials |
 | 8    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
-| 9    | Flattened [TestEm3][testem3] with simple materials (for ORANGE only) |
+| 9    | Flattened [TestEm3][testem3] with composite materials (for ORANGE only) |
 | 10   | Set of boxes with optical properties |
 | 11   | Thin Pb slab for MSC validation |
 | 12   | Simplifed LUX-Zeplin (LZ) model |
 | 13   | Muon-catalyzed fusion test geometry |
-| 13   | Muon-catalyzed fusion dt target only |
-| 14   | Optical prism |
+| 14   | Muon-catalyzed fusion dt target only |
+| 15   | Optical prism |
+| 16   | Notional JUNO model |
 
 [testem3]: https://github.com/apt-sim/AdePT/tree/master/examples/TestEm3
 
@@ -173,3 +174,37 @@ For both geometry options, the geometry limits are:
 | x    | [-78.0288, 78.0288] |
 | y    | [-78.0288, 78.0288] |
 | z    | [-12.3,    12.3]    |
+
+## Notional-JUNO
+Jiangmen Underground Neutrino Observatory (JUNO) is a neutrino detector
+consisting of ~40,000 PMTs arranged around a massive spherical tank of liquid
+scintillator. The large number of PMTs in this configuration is a challenge
+from the standpoint of computational geometry. Here, a "notional" JUNO
+model is created, allowing the number of PMTs to be varied to study scaling
+behavior.
+
+This notional model consists of only the PMTs, arranged in a sphere. Each PMT
+itself is modeled as a sphere. The user must specify:
+
+1. device radius, i.e., radius of the imaginary spherical shell that contains
+the PMT centers,
+
+2. PMT radius,
+
+3. number of PMTs.
+
+These PMTs are automatically arranged into a spherical configuration using the
+Fibonacci Sphere algorithm. The file "figures/notional_juno.mp4" shows z-slices
+through an example of this geometry created with a device radius of 50 cm and
+200 PMTs of radius 3 cm.
+
+### Coordinate system
+The geometry limits are:
+
+| Axis | Limits [cm] |
+| ---- | ----------- |
+| x    | [-r, r]     |
+| y    | [-r, r]     |
+| z    | [-r, r]     |
+
+where r = device_radius + detector_radius
