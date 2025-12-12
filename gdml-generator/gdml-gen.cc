@@ -333,7 +333,7 @@ int main(int argc, char* argv[])
             }
             else if (argc == 3)
             {
-                int sqrt_num_pmts = std::atoi(argv[2]);
+                int sqrt_num_pmts = std::stoi(argv[2]);
                 if (sqrt_num_pmts < 1)
                 {
                     std::cout
@@ -355,9 +355,9 @@ int main(int argc, char* argv[])
             gdml_filename = "notional_juno.gdml";
             if (argc == 5)
             {
-                double device_radius = std::atof(argv[2]);
-                double pmt_radius = std::atof(argv[3]);
-                int num_pmts = std::atoi(argv[4]);
+                double device_radius = std::stod(argv[2]);
+                double pmt_radius = std::stod(argv[3]);
+                int num_pmts = std::stoi(argv[4]);
 
                 if (device_radius <= 0 || pmt_radius <= 0)
                 {

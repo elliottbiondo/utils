@@ -16,7 +16,6 @@
 #include <G4PVPlacement.hh>
 #include <G4SDManager.hh>
 #include <G4SystemOfUnits.hh>
-#include <G4VisAttributes.hh>
 
 #include "core/SensitiveDetector.hh"
 
@@ -98,7 +97,3 @@ void NotionalJUNO::ConstructSDandField()
     G4SDManager::GetSDMpointer()->AddNewDetector(pmt_sd);
     G4VUserDetectorConstruction::SetSensitiveDetector("pmt_lv", pmt_sd);
 }
-
-//---------------------------------------------------------------------------//
-// PRIVATE
-//---------------------------------------------------------------------------//
