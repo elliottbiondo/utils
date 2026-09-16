@@ -208,6 +208,12 @@ void export_gdml(std::string const& gdml_filename)
  */
 int main(int argc, char* argv[])
 {
+    if (argc == 1)
+    {
+        print_help(argv[0]);
+        return EXIT_FAILURE;
+    }
+
     // Load input parameters
     auto const geometry_id = static_cast<GeometryID>(std::stoi(argv[1]));
     if (geometry_id >= GeometryID::size_)
@@ -388,9 +394,8 @@ int main(int argc, char* argv[])
                 }
                 if (num_levels < 0)
                 {
-                    std::cout
-                        << "The number of levels must be non-negative "
-                        << std::endl;
+                    std::cout << "The number of levels must be non-negative "
+                              << std::endl;
                     return EXIT_FAILURE;
                 }
 
