@@ -24,7 +24,7 @@ class G4VPhysicalVolume;
 class NotionalDUNE final : public G4VUserDetectorConstruction
 {
   public:
-    NotionalDUNE(int num_spheres_per_axis, int num_levels);
+    NotionalDUNE(int num_spheres_per_axis, int num_shells);
 
     G4VPhysicalVolume* Construct() final;
     void ConstructSDandField() final;
@@ -34,10 +34,10 @@ class NotionalDUNE final : public G4VUserDetectorConstruction
     static constexpr double box_size_ = 100;
     //! Radius of each "anode" sphere [cm]
     static constexpr double sphere_radius_ = 0.25;
-    //! Wall thickness added per concentric vacuum level [cm]
-    static constexpr double level_thickness_ = 1;
+    //! Wall thickness added per concentric vacuum shell [cm]
+    static constexpr double shell_thickness_ = 1;
     //! Spheres per axis (N), N^3 spheres total
     int num_spheres_per_axis_;
     //! Number of concentric outer vacuum boxes (M)
-    int num_levels_;
+    int num_shells_;
 };

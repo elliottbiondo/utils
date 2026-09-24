@@ -209,3 +209,45 @@ The geometry limits are:
 | z    | [-r, r]     |
 
 where r = device_radius + detector_radius
+
+## Notional-DUNE
+
+This is a notional model of the Deep Underground Neutrino Experiment (DUNE)
+used to study the Celeritas runtime as a function of the depth of universe
+embedding. The model consists of a central 1 m x 1 m x 1 m cube of liquid argon
+(`G4_lAr`), centered at the origin, filled with a regular N x N x N grid of
+equally spaced copper (`G4_Cu`) spheres that act as stand-ins for the anode
+elements. The liquid-argon cube is then nested inside M successively larger
+concentric vacuum (`G4_Galactic`) boxes, each adding 1 cm of wall on every
+side. The outermost box is the world volume. When M = 0, the liquid-argon cube
+itself is the world. The M shells give M + 1 universe levels in ORANGE. 
+
+| Volume                    | Material    | Dimensions [cm]                      |
+| ------------------------- | ----------- | ------------------------------------ |
+| vacuum shell (M copies)   | G4_Galactic | cube of side 100 + 2k, k = 1, ..., M |
+| liquid-argon cube         | G4_lAr      | cube of side 100                     |
+| anode sphere (N^3 copies) | G4_Cu       | sphere of radius 0.25                |
+
+The geometry is generated with
+```shell
+$ ./gdml-gen 17 [num_spheres] [num_shells]
+```
+where `num_spheres` is the number of spheres per axis, N (must be positive;
+N^3 spheres are placed in total), and `num_shells` is the number of concentric
+vacuum boxes, M (must be non-negative). The output is written to
+`notional_dune.gdml`.
+
+### Coordinate system
+The origin is at the center of the liquid-argon cube, and the geometry limits
+are set by the outermost vacuum shell (or by the liquid-argon cube itself when
+M = 0):
+
+| Axis | Limits [cm]         |
+| ---- | ------------------- |
+| x    | [-(50 + M), 50 + M] |
+| y    | [-(50 + M), 50 + M] |
+| z    | [-(50 + M), 50 + M] |
+
+The image below shows an example with N = 10 and M = 4.
+
+<img src="figures/notional-dune.png" width="800"/>

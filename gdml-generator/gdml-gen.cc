@@ -61,8 +61,8 @@ enum class GeometryID
     mucf_test_geo,  //!< Test geometry for muon-catalyzed fusion
     mucf_box,  //!< Muon-catalyzed fusion box target only
     optical_prism,  //!< Triangular prism with optical properties
-    notional_juno,  //!< Notional model of the JUNO experiement
-    notional_dune,  //!< Notional model of the DUNE experiement
+    notional_juno,  //!< Notional model of the JUNO experiment
+    notional_dune,  //!< Notional model of the DUNE experiment
     size_
 };
 
@@ -153,7 +153,7 @@ void print_help(char const* argv)
          << endl;
     cout << "For " << static_cast<int>(GeometryID::notional_dune) << ":"
          << endl;
-    cout << "2 extra parameters are needed [num_spheres] and [num_levels] "
+    cout << "2 extra parameters are needed [num_spheres] and [num_shells] "
          << endl;
 }
 
@@ -385,22 +385,22 @@ int main(int argc, char* argv[])
             if (argc == 4)
             {
                 int num_spheres = std::stoi(argv[2]);
-                int num_levels = std::stoi(argv[3]);
+                int num_shells = std::stoi(argv[3]);
 
                 if (num_spheres <= 0)
                 {
                     std::cout << "num_spheres must be positive " << std::endl;
                     return EXIT_FAILURE;
                 }
-                if (num_levels < 0)
+                if (num_shells < 0)
                 {
-                    std::cout << "The number of levels must be non-negative "
+                    std::cout << "The number of shells must be non-negative "
                               << std::endl;
                     return EXIT_FAILURE;
                 }
 
                 run_manager->SetUserInitialization(
-                    new NotionalDUNE(num_spheres, num_levels));
+                    new NotionalDUNE(num_spheres, num_shells));
                 break;
             }
             else

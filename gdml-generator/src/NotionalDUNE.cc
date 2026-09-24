@@ -22,9 +22,9 @@
 /*!
  * Constructor.
  */
-NotionalDUNE::NotionalDUNE(int num_spheres_per_axis, int num_levels)
+NotionalDUNE::NotionalDUNE(int num_spheres_per_axis, int num_shells)
     : num_spheres_per_axis_(num_spheres_per_axis)
-    , num_levels_(num_levels)
+    , num_shells_(num_shells)
 {
 }
 
@@ -44,49 +44,48 @@ G4VPhysicalVolume* NotionalDUNE::Construct()
     auto world_mat = nist->FindOrBuildMaterial("G4_Galactic");
     world_mat->SetName("vacuum");
 
-    // World: large enough to enclose the outermost concentric box, with one
-    // extra layer of vacuum margin so nothing is tangent to the world boundary
-    double const outer_edge = box_size_ + 2.0 * num_levels_ * level_thickness_;
-    double const world_edge = outer_edge + 2.0 * level_thickness_;
-    G4Box* world_box = new G4Box("world_box",
-                                 0.5 * world_edge * cm,
-                                 0.5 * world_edge * cm,
-                                 0.5 * world_edge * cm);
-    auto const world_lv = new G4LogicalVolume(world_box, world_mat, "world");
-    auto const world_pv = new G4PVPlacement(
-        nullptr, G4ThreeVector(), world_lv, "world_pv", nullptr, false, 0, false);
-
-    // Concentric vacuum boxes, built from the outermost (level M) inward so
-    // that each shell is placed inside the next-larger one. 
-    auto mother_lv = world_lv;
-    for (int level = num_levels_; level >= 1; --level)
+    // Concentric vacuum boxes, built from the outermost shell inward so
+    // that each shell is placed inside the next-larger one. The outermost box
+    // is the world, so num_shells_ enclosing boxes give num_shells_ + 1
+    // universe levels in ORANGE (the last being the liquid argon).
+    G4VPhysicalVolume* world_pv = nullptr;
+    G4LogicalVolume* mother_lv = nullptr;
+    for (int shell = num_shells_; shell >= 1; --shell)
     {
-        double const edge = box_size_ + 2.0 * level * level_thickness_;
+        double const edge = box_size_ + 2.0 * shell * shell_thickness_;
         G4Box* shell_box = new G4Box(
             "shell_box", 0.5 * edge * cm, 0.5 * edge * cm, 0.5 * edge * cm);
         auto const shell_lv
             = new G4LogicalVolume(shell_box, world_mat, "shell_lv");
-        new G4PVPlacement(nullptr,
-                          G4ThreeVector(),
-                          shell_lv,
-                          "shell_pv",
-                          mother_lv,
-                          false,
-                          level,
-                          false);
+        auto const shell_pv = new G4PVPlacement(nullptr,
+                                                G4ThreeVector(),
+                                                shell_lv,
+                                                "shell_pv",
+                                                mother_lv,
+                                                false,
+                                                shell,
+                                                false);
+        if (!world_pv)
+        {
+            world_pv = shell_pv;
+        }
         mother_lv = shell_lv;
     }
 
-    // Central liquid-argon box that holds the grid of anode spheres.
-    // Placed in the innermost shell, or directly in the world when
-    // num_levels_ == 0.
+    // Central liquid-argon box that holds the grid of anode spheres, placed
+    // in the innermost shell, or as the world itself when num_shells_ == 0 (a
+    // single universe with an implicit LAr background).
     G4Box* inner_box = new G4Box("inner_box",
                                  0.5 * box_size_ * cm,
                                  0.5 * box_size_ * cm,
                                  0.5 * box_size_ * cm);
     auto const inner_lv = new G4LogicalVolume(inner_box, lar_mat, "inner_lv");
-    new G4PVPlacement(
+    auto const inner_pv = new G4PVPlacement(
         nullptr, G4ThreeVector(), inner_lv, "inner_pv", mother_lv, false, 0, false);
+    if (!world_pv)
+    {
+        world_pv = inner_pv;
+    }
 
     // Grid of N^3 "anode" spheres, equally spaced and symmetric about the 
     // origin.
