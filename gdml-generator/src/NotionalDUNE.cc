@@ -117,6 +117,7 @@ G4VPhysicalVolume* NotionalDUNE::Construct()
         }
     }
 
+    assert(world_pv);
     return world_pv;
 }
 
